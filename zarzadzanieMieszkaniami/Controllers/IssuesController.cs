@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Application.DTOs;
 using Application.Services;
 using Core.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,7 @@ namespace zarzadzanieMieszkaniami.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class IssuesController : ControllerBase
     {
         private readonly IssueService _issueService;
@@ -28,8 +30,30 @@ namespace zarzadzanieMieszkaniami.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var issues = await _issueService.GetAllIssuesAsync();
-            return Ok(issues);
+            Console.WriteLine("=== GET ALL ISSUES ===");
+            
+            // Pobierz ID i rolę zalogowanego użytkownika
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userRoleClaim = User.FindFirst(ClaimTypes.Role)?.Value;
+            
+            if (string.IsNullOrEmpty(userIdClaim))
+            {
+                return Unauthorized("User not authenticated");
+            }
+            
+            var userId = Guid.Parse(userIdClaim);
+            var userRole = userRoleClaim ?? "Najemca"; // domyślnie Najemca
+            
+            Console.WriteLine($"User: {userId}, Role: {userRole}");
+            
+            var issues = await _issueService.GetAllIssuesAsync(userId, userRole);
+            var issuesList = issues.ToList();
+            Console.WriteLine($"Returning {issuesList.Count} issues");
+            foreach (var issue in issuesList)
+            {
+                Console.WriteLine($"  Issue: {issue.Id} - {issue.Title}, Photos: {issue.Photos?.Count ?? 0}");
+            }
+            return Ok(issuesList);
         }
 
         [HttpGet("{id}")]

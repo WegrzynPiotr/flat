@@ -1,0 +1,57 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\033c3bb0-3d13-4617-98c4-673004b41b6c.jpg",
+      "PackagePath": "staticwebassets\\uploads\\033c3bb0-3d13-4617-98c4-673004b41b6c.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\205add6b-112d-4ac5-984b-7b76d86782f6.png",
+      "PackagePath": "staticwebassets\\uploads\\205add6b-112d-4ac5-984b-7b76d86782f6.png"
+    },
+    {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\3ac67e28-d1ae-4918-90c5-a96963f8abd1.png",
+      "PackagePath": "staticwebassets\\uploads\\3ac67e28-d1ae-4918-90c5-a96963f8abd1.png"
+    },
+    {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\3e3fcf5d-cee0-44ca-acfe-04bab714b6c8.jpg",
+      "PackagePath": "staticwebassets\\uploads\\3e3fcf5d-cee0-44ca-acfe-04bab714b6c8.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\409d8fe1-2a8e-4e73-80f0-9cf45e423fc2.png",
+      "PackagePath": "staticwebassets\\uploads\\409d8fe1-2a8e-4e73-80f0-9cf45e423fc2.png"
+    },
+    {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\7f7b283a-14be-4903-9cca-16dbd16c4ce9.png",
+      "PackagePath": "staticwebassets\\uploads\\7f7b283a-14be-4903-9cca-16dbd16c4ce9.png"
+    },
+    {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\948cce5f-dc85-4bb9-a0c4-50086c764011.png",
+      "PackagePath": "staticwebassets\\uploads\\948cce5f-dc85-4bb9-a0c4-50086c764011.png"
+    },
+    {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\fcbdf928-0f46-40a5-84db-f9b2c9ab73af.png",
+      "PackagePath": "staticwebassets\\uploads\\fcbdf928-0f46-40a5-84db-f9b2c9ab73af.png"
+    },
+    {
+      "Id": "obj\\Debug\\net9.0\\staticwebassets\\msbuild.build.zarzadzanieMieszkaniami.props",
+      "PackagePath": "build\\zarzadzanieMieszkaniami.props"
+    },
+    {
+      "Id": "obj\\Debug\\net9.0\\staticwebassets\\msbuild.buildMultiTargeting.zarzadzanieMieszkaniami.props",
+      "PackagePath": "buildMultiTargeting\\zarzadzanieMieszkaniami.props"
+    },
+    {
+      "Id": "obj\\Debug\\net9.0\\staticwebassets\\msbuild.buildTransitive.zarzadzanieMieszkaniami.props",
+      "PackagePath": "buildTransitive\\zarzadzanieMieszkaniami.props"
+    },
+    {
+      "Id": "obj\\Debug\\net9.0\\staticwebassets\\msbuild.zarzadzanieMieszkaniami.Microsoft.AspNetCore.StaticWebAssetEndpoints.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssetEndpoints.props"
+    },
+    {
+      "Id": "obj\\Debug\\net9.0\\staticwebassets\\msbuild.zarzadzanieMieszkaniami.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

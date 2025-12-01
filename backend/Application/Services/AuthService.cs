@@ -51,11 +51,23 @@ namespace Application.Services
 
         public async Task<(string AccessToken, string RefreshToken, User User)> LoginAsync(string email, string password)
         {
+            Console.WriteLine($"=== LOGIN ATTEMPT: {email} ===");
             var user = await _userRepository.GetByEmailAsync(email);
-            if (user == null || !VerifyPassword(password, user.PasswordHash))
+            if (user == null)
             {
+                Console.WriteLine("User not found");
                 throw new Exception("Invalid email or password");
             }
+            
+            Console.WriteLine($"User found: {user.Id} - {user.FirstName} {user.LastName}");
+            
+            if (!VerifyPassword(password, user.PasswordHash))
+            {
+                Console.WriteLine("Password verification failed");
+                throw new Exception("Invalid email or password");
+            }
+            
+            Console.WriteLine("Password verified successfully");
 
             var accessToken = _jwtService.GenerateAccessToken(user);
             var refreshToken = _jwtService.GenerateRefreshToken();
@@ -73,6 +85,7 @@ namespace Application.Services
             };
 
             await _refreshTokenRepository.AddAsync(refreshTokenEntity);
+            Console.WriteLine("Refresh token saved");
 
             return (accessToken, refreshToken, user);
         }

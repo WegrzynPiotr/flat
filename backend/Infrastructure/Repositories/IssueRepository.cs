@@ -27,11 +27,39 @@ namespace Infrastructure.Repositories
 
         public async Task<IEnumerable<Issue>> GetAllAsync()
         {
-            return await _context.Issues
-                .Include(i => i.Property)
-                .Include(i => i.ReportedBy)
+            Console.WriteLine($"=== GETTING ALL ISSUES FROM DB ===");
+            Console.WriteLine($"Total issues in context before query: {_context.Issues.Count()}");
+            
+            // Pobierz wszystkie issues bez Include - aby uniknąć problemów z brakującymi relacjami
+            var result = await _context.Issues
                 .OrderByDescending(i => i.ReportedAt)
                 .ToListAsync();
+            
+            // Załaduj relacje osobno dla istniejących rekordów
+            foreach (var issue in result)
+            {
+                if (issue.PropertyId != Guid.Empty)
+                {
+                    await _context.Entry(issue)
+                        .Reference(i => i.Property)
+                        .LoadAsync();
+                }
+                
+                if (issue.ReportedById != Guid.Empty)
+                {
+                    await _context.Entry(issue)
+                        .Reference(i => i.ReportedBy)
+                        .LoadAsync();
+                }
+            }
+            
+            Console.WriteLine($"Query returned {result.Count} issues");
+            foreach (var issue in result)
+            {
+                Console.WriteLine($"  - {issue.Id}: {issue.Title}, Photos: {issue.Photos?.Count ?? 0}");
+            }
+            
+            return result;
         }
 
         public async Task<IEnumerable<Issue>> GetByPropertyIdAsync(Guid propertyId)
@@ -52,8 +80,17 @@ namespace Infrastructure.Repositories
 
         public async Task<Issue> AddAsync(Issue issue)
         {
+            Console.WriteLine($"=== ADDING ISSUE TO DB ===");
+            Console.WriteLine($"Issue ID: {issue.Id}");
+            Console.WriteLine($"Title: {issue.Title}");
+            Console.WriteLine($"ReportedById: {issue.ReportedById}");
+            Console.WriteLine($"Photos count: {issue.Photos?.Count ?? 0}");
+            
             await _context.Issues.AddAsync(issue);
             await _context.SaveChangesAsync();
+            
+            Console.WriteLine($"Issue saved. Total issues in context: {_context.Issues.Count()}");
+            
             return issue;
         }
 

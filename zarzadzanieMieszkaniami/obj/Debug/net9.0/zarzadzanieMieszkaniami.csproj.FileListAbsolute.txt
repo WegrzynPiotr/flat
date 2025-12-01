@@ -52,3 +52,6 @@ C:\Users\Piotr\Downloads\praca_inz\zarzadzanieMieszkaniami\obj\Debug\net9.0\refi
 C:\Users\Piotr\Downloads\praca_inz\zarzadzanieMieszkaniami\obj\Debug\net9.0\zarzadzanieMieszkaniami.pdb
 C:\Users\Piotr\Downloads\praca_inz\zarzadzanieMieszkaniami\obj\Debug\net9.0\zarzadzanieMieszkaniami.genruntimeconfig.cache
 C:\Users\Piotr\Downloads\praca_inz\zarzadzanieMieszkaniami\obj\Debug\net9.0\ref\zarzadzanieMieszkaniami.dll
+C:\Users\Piotr\Downloads\praca_inz\zarzadzanieMieszkaniami\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\Piotr\Downloads\praca_inz\zarzadzanieMieszkaniami\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\Piotr\Downloads\praca_inz\zarzadzanieMieszkaniami\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll

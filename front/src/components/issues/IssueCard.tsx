@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Issue } from '../../types/api';
 import { Colors } from '../../styles/colors';
 import { Spacing } from '../../styles/spacing';
@@ -19,19 +19,30 @@ export default function IssueCard({ issue, onPress }: IssueCardProps) {
     }
   };
 
+  const firstPhoto = issue.photos && issue.photos.length > 0 ? issue.photos[0] : null;
+
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
-      <View style={styles.header}>
-        <Text style={styles.title}>{issue.title}</Text>
-        <View style={[styles.priorityBadge, { backgroundColor: getPriorityColor() }]}>
-          <Text style={styles.priorityText}>{issue.priority}</Text>
+      {firstPhoto && (
+        <Image 
+          source={{ uri: firstPhoto }} 
+          style={styles.photo}
+          resizeMode="cover"
+        />
+      )}
+      <View style={styles.content}>
+        <View style={styles.header}>
+          <Text style={styles.title}>{issue.title}</Text>
+          <View style={[styles.priorityBadge, { backgroundColor: getPriorityColor() }]}>
+            <Text style={styles.priorityText}>{issue.priority}</Text>
+          </View>
         </View>
+        <Text style={styles.description} numberOfLines={2}>
+          {issue.description}
+        </Text>
+        <Text style={styles.category}>{issue.category}</Text>
+        <Text style={styles.status}>Status: {issue.status}</Text>
       </View>
-      <Text style={styles.description} numberOfLines={2}>
-        {issue.description}
-      </Text>
-      <Text style={styles.category}>{issue.category}</Text>
-      <Text style={styles.status}>Status: {issue.status}</Text>
     </TouchableOpacity>
   );
 }
@@ -39,7 +50,6 @@ export default function IssueCard({ issue, onPress }: IssueCardProps) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: Colors.surface,
-    padding: Spacing.m,
     borderRadius: 12,
     marginBottom: Spacing.m,
     elevation: 2,
@@ -47,6 +57,15 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
+    overflow: 'hidden',
+  },
+  photo: {
+    width: '100%',
+    height: 180,
+    backgroundColor: Colors.disabled,
+  },
+  content: {
+    padding: Spacing.m,
   },
   header: {
     flexDirection: 'row',

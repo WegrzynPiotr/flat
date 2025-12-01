@@ -1,0 +1,100 @@
+﻿<Project>
+  <ItemGroup>
+    <StaticWebAssetEndpoint Include="_content/zarzadzanieMieszkaniami/uploads/033c3bb0-3d13-4617-98c4-673004b41b6c.6okmbbx8ux.jpg">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\033c3bb0-3d13-4617-98c4-673004b41b6c.jpg'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"6okmbbx8ux"},{"Name":"integrity","Value":"sha256-JhlEGbWvVSYlaaCX8zxE7j7\u002B2wxREADbs97NAADzzZ4="},{"Name":"label","Value":"_content/zarzadzanieMieszkaniami/uploads/033c3bb0-3d13-4617-98c4-673004b41b6c.jpg"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"111281"},{"Name":"Content-Type","Value":"image/jpeg"},{"Name":"ETag","Value":"\u0022JhlEGbWvVSYlaaCX8zxE7j7\u002B2wxREADbs97NAADzzZ4=\u0022"},{"Name":"Last-Modified","Value":"Mon, 01 Dec 2025 21:50:52 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/zarzadzanieMieszkaniami/uploads/033c3bb0-3d13-4617-98c4-673004b41b6c.jpg">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\033c3bb0-3d13-4617-98c4-673004b41b6c.jpg'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-JhlEGbWvVSYlaaCX8zxE7j7\u002B2wxREADbs97NAADzzZ4="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"111281"},{"Name":"Content-Type","Value":"image/jpeg"},{"Name":"ETag","Value":"\u0022JhlEGbWvVSYlaaCX8zxE7j7\u002B2wxREADbs97NAADzzZ4=\u0022"},{"Name":"Last-Modified","Value":"Mon, 01 Dec 2025 21:50:52 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/zarzadzanieMieszkaniami/uploads/205add6b-112d-4ac5-984b-7b76d86782f6.j6fknp1tuk.png">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\205add6b-112d-4ac5-984b-7b76d86782f6.png'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"j6fknp1tuk"},{"Name":"integrity","Value":"sha256-Jav/ANT7ku3I3LYSoiJlc06r48Pnq5RdGhOajNcT12E="},{"Name":"label","Value":"_content/zarzadzanieMieszkaniami/uploads/205add6b-112d-4ac5-984b-7b76d86782f6.png"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"20097153"},{"Name":"Content-Type","Value":"image/png"},{"Name":"ETag","Value":"\u0022Jav/ANT7ku3I3LYSoiJlc06r48Pnq5RdGhOajNcT12E=\u0022"},{"Name":"Last-Modified","Value":"Mon, 01 Dec 2025 21:58:03 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/zarzadzanieMieszkaniami/uploads/205add6b-112d-4ac5-984b-7b76d86782f6.png">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\205add6b-112d-4ac5-984b-7b76d86782f6.png'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-Jav/ANT7ku3I3LYSoiJlc06r48Pnq5RdGhOajNcT12E="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"20097153"},{"Name":"Content-Type","Value":"image/png"},{"Name":"ETag","Value":"\u0022Jav/ANT7ku3I3LYSoiJlc06r48Pnq5RdGhOajNcT12E=\u0022"},{"Name":"Last-Modified","Value":"Mon, 01 Dec 2025 21:58:03 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/zarzadzanieMieszkaniami/uploads/3ac67e28-d1ae-4918-90c5-a96963f8abd1.5c19vu06av.png">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\3ac67e28-d1ae-4918-90c5-a96963f8abd1.png'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"5c19vu06av"},{"Name":"integrity","Value":"sha256-\u002B1lU2IMciJnVgJTiTG2Ud5L5Uk5RVyVg6c6TbpKqLXQ="},{"Name":"label","Value":"_content/zarzadzanieMieszkaniami/uploads/3ac67e28-d1ae-4918-90c5-a96963f8abd1.png"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"7029491"},{"Name":"Content-Type","Value":"image/png"},{"Name":"ETag","Value":"\u0022\u002B1lU2IMciJnVgJTiTG2Ud5L5Uk5RVyVg6c6TbpKqLXQ=\u0022"},{"Name":"Last-Modified","Value":"Mon, 01 Dec 2025 21:55:25 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/zarzadzanieMieszkaniami/uploads/3ac67e28-d1ae-4918-90c5-a96963f8abd1.png">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\3ac67e28-d1ae-4918-90c5-a96963f8abd1.png'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-\u002B1lU2IMciJnVgJTiTG2Ud5L5Uk5RVyVg6c6TbpKqLXQ="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"7029491"},{"Name":"Content-Type","Value":"image/png"},{"Name":"ETag","Value":"\u0022\u002B1lU2IMciJnVgJTiTG2Ud5L5Uk5RVyVg6c6TbpKqLXQ=\u0022"},{"Name":"Last-Modified","Value":"Mon, 01 Dec 2025 21:55:25 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/zarzadzanieMieszkaniami/uploads/3e3fcf5d-cee0-44ca-acfe-04bab714b6c8.6okmbbx8ux.jpg">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\3e3fcf5d-cee0-44ca-acfe-04bab714b6c8.jpg'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"6okmbbx8ux"},{"Name":"integrity","Value":"sha256-JhlEGbWvVSYlaaCX8zxE7j7\u002B2wxREADbs97NAADzzZ4="},{"Name":"label","Value":"_content/zarzadzanieMieszkaniami/uploads/3e3fcf5d-cee0-44ca-acfe-04bab714b6c8.jpg"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"111281"},{"Name":"Content-Type","Value":"image/jpeg"},{"Name":"ETag","Value":"\u0022JhlEGbWvVSYlaaCX8zxE7j7\u002B2wxREADbs97NAADzzZ4=\u0022"},{"Name":"Last-Modified","Value":"Mon, 01 Dec 2025 22:04:40 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/zarzadzanieMieszkaniami/uploads/3e3fcf5d-cee0-44ca-acfe-04bab714b6c8.jpg">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\3e3fcf5d-cee0-44ca-acfe-04bab714b6c8.jpg'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-JhlEGbWvVSYlaaCX8zxE7j7\u002B2wxREADbs97NAADzzZ4="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"111281"},{"Name":"Content-Type","Value":"image/jpeg"},{"Name":"ETag","Value":"\u0022JhlEGbWvVSYlaaCX8zxE7j7\u002B2wxREADbs97NAADzzZ4=\u0022"},{"Name":"Last-Modified","Value":"Mon, 01 Dec 2025 22:04:40 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/zarzadzanieMieszkaniami/uploads/409d8fe1-2a8e-4e73-80f0-9cf45e423fc2.2oc7q2fkil.png">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\409d8fe1-2a8e-4e73-80f0-9cf45e423fc2.png'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"2oc7q2fkil"},{"Name":"integrity","Value":"sha256-HjLGRe95Rzj\u002BcHR0vYBPXYLaJYjtD5grkeBY60LIqUY="},{"Name":"label","Value":"_content/zarzadzanieMieszkaniami/uploads/409d8fe1-2a8e-4e73-80f0-9cf45e423fc2.png"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"5542647"},{"Name":"Content-Type","Value":"image/png"},{"Name":"ETag","Value":"\u0022HjLGRe95Rzj\u002BcHR0vYBPXYLaJYjtD5grkeBY60LIqUY=\u0022"},{"Name":"Last-Modified","Value":"Mon, 01 Dec 2025 21:51:21 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/zarzadzanieMieszkaniami/uploads/409d8fe1-2a8e-4e73-80f0-9cf45e423fc2.png">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\409d8fe1-2a8e-4e73-80f0-9cf45e423fc2.png'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-HjLGRe95Rzj\u002BcHR0vYBPXYLaJYjtD5grkeBY60LIqUY="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"5542647"},{"Name":"Content-Type","Value":"image/png"},{"Name":"ETag","Value":"\u0022HjLGRe95Rzj\u002BcHR0vYBPXYLaJYjtD5grkeBY60LIqUY=\u0022"},{"Name":"Last-Modified","Value":"Mon, 01 Dec 2025 21:51:21 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/zarzadzanieMieszkaniami/uploads/7f7b283a-14be-4903-9cca-16dbd16c4ce9.j6fknp1tuk.png">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\7f7b283a-14be-4903-9cca-16dbd16c4ce9.png'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"j6fknp1tuk"},{"Name":"integrity","Value":"sha256-Jav/ANT7ku3I3LYSoiJlc06r48Pnq5RdGhOajNcT12E="},{"Name":"label","Value":"_content/zarzadzanieMieszkaniami/uploads/7f7b283a-14be-4903-9cca-16dbd16c4ce9.png"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"20097153"},{"Name":"Content-Type","Value":"image/png"},{"Name":"ETag","Value":"\u0022Jav/ANT7ku3I3LYSoiJlc06r48Pnq5RdGhOajNcT12E=\u0022"},{"Name":"Last-Modified","Value":"Mon, 01 Dec 2025 21:52:56 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/zarzadzanieMieszkaniami/uploads/7f7b283a-14be-4903-9cca-16dbd16c4ce9.png">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\7f7b283a-14be-4903-9cca-16dbd16c4ce9.png'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-Jav/ANT7ku3I3LYSoiJlc06r48Pnq5RdGhOajNcT12E="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"20097153"},{"Name":"Content-Type","Value":"image/png"},{"Name":"ETag","Value":"\u0022Jav/ANT7ku3I3LYSoiJlc06r48Pnq5RdGhOajNcT12E=\u0022"},{"Name":"Last-Modified","Value":"Mon, 01 Dec 2025 21:52:56 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/zarzadzanieMieszkaniami/uploads/948cce5f-dc85-4bb9-a0c4-50086c764011.2oc7q2fkil.png">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\948cce5f-dc85-4bb9-a0c4-50086c764011.png'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"2oc7q2fkil"},{"Name":"integrity","Value":"sha256-HjLGRe95Rzj\u002BcHR0vYBPXYLaJYjtD5grkeBY60LIqUY="},{"Name":"label","Value":"_content/zarzadzanieMieszkaniami/uploads/948cce5f-dc85-4bb9-a0c4-50086c764011.png"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"5542647"},{"Name":"Content-Type","Value":"image/png"},{"Name":"ETag","Value":"\u0022HjLGRe95Rzj\u002BcHR0vYBPXYLaJYjtD5grkeBY60LIqUY=\u0022"},{"Name":"Last-Modified","Value":"Mon, 01 Dec 2025 21:59:10 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/zarzadzanieMieszkaniami/uploads/948cce5f-dc85-4bb9-a0c4-50086c764011.png">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\948cce5f-dc85-4bb9-a0c4-50086c764011.png'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-HjLGRe95Rzj\u002BcHR0vYBPXYLaJYjtD5grkeBY60LIqUY="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"5542647"},{"Name":"Content-Type","Value":"image/png"},{"Name":"ETag","Value":"\u0022HjLGRe95Rzj\u002BcHR0vYBPXYLaJYjtD5grkeBY60LIqUY=\u0022"},{"Name":"Last-Modified","Value":"Mon, 01 Dec 2025 21:59:10 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/zarzadzanieMieszkaniami/uploads/fcbdf928-0f46-40a5-84db-f9b2c9ab73af.j6fknp1tuk.png">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\fcbdf928-0f46-40a5-84db-f9b2c9ab73af.png'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"j6fknp1tuk"},{"Name":"integrity","Value":"sha256-Jav/ANT7ku3I3LYSoiJlc06r48Pnq5RdGhOajNcT12E="},{"Name":"label","Value":"_content/zarzadzanieMieszkaniami/uploads/fcbdf928-0f46-40a5-84db-f9b2c9ab73af.png"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"20097153"},{"Name":"Content-Type","Value":"image/png"},{"Name":"ETag","Value":"\u0022Jav/ANT7ku3I3LYSoiJlc06r48Pnq5RdGhOajNcT12E=\u0022"},{"Name":"Last-Modified","Value":"Mon, 01 Dec 2025 22:04:55 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/zarzadzanieMieszkaniami/uploads/fcbdf928-0f46-40a5-84db-f9b2c9ab73af.png">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\fcbdf928-0f46-40a5-84db-f9b2c9ab73af.png'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-Jav/ANT7ku3I3LYSoiJlc06r48Pnq5RdGhOajNcT12E="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"20097153"},{"Name":"Content-Type","Value":"image/png"},{"Name":"ETag","Value":"\u0022Jav/ANT7ku3I3LYSoiJlc06r48Pnq5RdGhOajNcT12E=\u0022"},{"Name":"Last-Modified","Value":"Mon, 01 Dec 2025 22:04:55 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+  </ItemGroup>
+</Project>
