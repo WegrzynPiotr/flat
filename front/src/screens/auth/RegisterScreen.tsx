@@ -68,6 +68,7 @@ export default function RegisterScreen({ navigation }: any) {
         password: formData.password,
         firstName: formData.firstName,
         lastName: formData.lastName,
+        role: 'Tenant', // Dodaj domyślną rolę
       })).unwrap();
       
       Alert.alert('Sukces', 'Konto zostało utworzone');
