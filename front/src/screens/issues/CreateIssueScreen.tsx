@@ -43,7 +43,8 @@ export default function CreateIssueScreen({ navigation }: any) {
     });
 
     if (!result.canceled && result.assets.length > 0 && photos.length < 5) {
-      setPhotos([...photos, result.assets]);
+      // keep a flat array of picked assets so we can read photo.uri later
+      setPhotos((prev) => [...prev, result.assets[0]]);
     }
   };
 
@@ -60,7 +61,9 @@ export default function CreateIssueScreen({ navigation }: any) {
 
     try {
       // Prosty payload - tylko potrzebne dane
-      const photoUris = photos.map(photo => photo.uri).filter(uri => uri);
+      const photoUris = photos
+        .map((photoAsset) => photoAsset?.uri)
+        .filter((uri): uri is string => Boolean(uri));
       
       const issueData = {
         title,
