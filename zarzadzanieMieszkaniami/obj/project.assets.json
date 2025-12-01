@@ -1114,14 +1114,14 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "C:\\Users\\Jawgrzyn\\Source\\Repos\\flat\\backend\\Application\\Application.csproj": {
-              "projectPath": "C:\\Users\\Jawgrzyn\\Source\\Repos\\flat\\backend\\Application\\Application.csproj"
+            "C:\\Users\\Jawgrzyn\\source\\repos\\flat\\backend\\Application\\Application.csproj": {
+              "projectPath": "C:\\Users\\Jawgrzyn\\source\\repos\\flat\\backend\\Application\\Application.csproj"
             },
             "C:\\Users\\Jawgrzyn\\source\\repos\\flat\\backend\\Core\\Core.csproj": {
               "projectPath": "C:\\Users\\Jawgrzyn\\source\\repos\\flat\\backend\\Core\\Core.csproj"
             },
-            "C:\\Users\\Jawgrzyn\\Source\\Repos\\flat\\backend\\Infrastructure\\Infrastructure.csproj": {
-              "projectPath": "C:\\Users\\Jawgrzyn\\Source\\Repos\\flat\\backend\\Infrastructure\\Infrastructure.csproj"
+            "C:\\Users\\Jawgrzyn\\source\\repos\\flat\\backend\\Infrastructure\\Infrastructure.csproj": {
+              "projectPath": "C:\\Users\\Jawgrzyn\\source\\repos\\flat\\backend\\Infrastructure\\Infrastructure.csproj"
             }
           }
         }

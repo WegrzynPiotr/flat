@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Jawgrzyn\\Source\\Repos\\flat\\backend\\Application\\Application.csproj": {}
+    "C:\\Users\\Jawgrzyn\\source\\repos\\flat\\backend\\Application\\Application.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Jawgrzyn\\Source\\Repos\\flat\\backend\\Application\\Application.csproj": {
+    "C:\\Users\\Jawgrzyn\\source\\repos\\flat\\backend\\Application\\Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Jawgrzyn\\Source\\Repos\\flat\\backend\\Application\\Application.csproj",
+        "projectUniqueName": "C:\\Users\\Jawgrzyn\\source\\repos\\flat\\backend\\Application\\Application.csproj",
         "projectName": "Application",
-        "projectPath": "C:\\Users\\Jawgrzyn\\Source\\Repos\\flat\\backend\\Application\\Application.csproj",
+        "projectPath": "C:\\Users\\Jawgrzyn\\source\\repos\\flat\\backend\\Application\\Application.csproj",
         "packagesPath": "C:\\Users\\Jawgrzyn\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Jawgrzyn\\Source\\Repos\\flat\\backend\\Application\\obj\\",
+        "outputPath": "C:\\Users\\Jawgrzyn\\source\\repos\\flat\\backend\\Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
