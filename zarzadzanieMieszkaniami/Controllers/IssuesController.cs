@@ -78,40 +78,59 @@ namespace zarzadzanieMieszkaniami.Controllers
                 issue.ReportedById,
                 issue.ReportedAt,
                 issue.ResolvedAt,
-                issue.Photos,
-                Property = issue.Property != null ? new
-                {
-                    issue.Property.Id,
-                    issue.Property.Address,
-                    issue.Property.City,
-                    issue.Property.PostalCode
-                } : null,
-                ReportedBy = issue.ReportedBy != null ? new
-                {
-                    issue.ReportedBy.Id,
-                    issue.ReportedBy.FirstName,
-                    issue.ReportedBy.LastName,
-                    issue.ReportedBy.Email,
-                    issue.ReportedBy.PhoneNumber
-                } : null
+                issue.Photos
             });
         }
 
-        //  Nowy endpoint do obsługi multipart/form-data z plikami
+        // ✅ Endpoint 1: JSON (bez zdjęć)
         [HttpPost]
-        [Consumes("multipart/form-data")]
-        public async Task<IActionResult> Create([FromForm] CreateIssueFormRequest request)
+        [Consumes("application/json")]
+        public async Task<IActionResult> CreateJson([FromBody] CreateIssueJsonRequest request)
         {
-            //  Walidacja podstawowa
             if (string.IsNullOrWhiteSpace(request.Title) ||
                 string.IsNullOrWhiteSpace(request.Description))
             {
                 return BadRequest(new { message = "Title and Description are required" });
             }
 
-            // Domyślne wartości jeśli nie podano
-            var propertyId = request.PropertyId ?? Guid.Empty;
-            var reportedById = request.ReportedById ?? Guid.Empty;
+            var issue = new Issue
+            {
+                Title = request.Title,
+                Description = request.Description,
+                Category = request.Category ?? "Inne",
+                Priority = request.Priority ?? "Średnia",
+                PropertyId = request.PropertyId ?? Guid.Empty,
+                ReportedById = request.ReportedById ?? Guid.Empty,
+                Photos = request.Photos ?? new List<string>()
+            };
+
+            var createdIssue = await _issueService.CreateIssueAsync(issue);
+
+            return CreatedAtAction(nameof(GetById), new { id = createdIssue.Id }, new
+            {
+                createdIssue.Id,
+                createdIssue.Title,
+                createdIssue.Description,
+                createdIssue.Category,
+                createdIssue.Priority,
+                createdIssue.Status,
+                createdIssue.PropertyId,
+                createdIssue.ReportedById,
+                createdIssue.ReportedAt,
+                createdIssue.Photos
+            });
+        }
+
+        // ✅ Endpoint 2: multipart/form-data (ze zdjęciami)
+        [HttpPost("upload")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> CreateWithFiles([FromForm] CreateIssueFormRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Title) ||
+                string.IsNullOrWhiteSpace(request.Description))
+            {
+                return BadRequest(new { message = "Title and Description are required" });
+            }
 
             // ✅ Upload zdjęć
             var photoUrls = new List<string>();
@@ -132,7 +151,6 @@ namespace zarzadzanieMieszkaniami.Controllers
                             await photo.CopyToAsync(stream);
                         }
 
-                        // URL do zdjęcia
                         photoUrls.Add($"/uploads/issues/{fileName}");
                     }
                 }
@@ -144,8 +162,8 @@ namespace zarzadzanieMieszkaniami.Controllers
                 Description = request.Description,
                 Category = request.Category ?? "Inne",
                 Priority = request.Priority ?? "Średnia",
-                PropertyId = propertyId,
-                ReportedById = reportedById,
+                PropertyId = request.PropertyId ?? Guid.Empty,
+                ReportedById = request.ReportedById ?? Guid.Empty,
                 Photos = photoUrls
             };
 
@@ -201,7 +219,19 @@ namespace zarzadzanieMieszkaniami.Controllers
         }
     }
 
-    // DTO dla multipart/form-data
+    // ✅ DTO dla JSON
+    public class CreateIssueJsonRequest
+    {
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public string? Category { get; set; }
+        public string? Priority { get; set; }
+        public Guid? PropertyId { get; set; }
+        public Guid? ReportedById { get; set; }
+        public List<string>? Photos { get; set; }
+    }
+
+    // ✅ DTO dla multipart/form-data
     public class CreateIssueFormRequest
     {
         public string Title { get; set; }
