@@ -69,6 +69,16 @@ namespace Infrastructure
                     .HasForeignKey(e => e.ReportedById)
                     .OnDelete(DeleteBehavior.Restrict);
             });
+            // Konfiguracja RefreshToken
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Token).IsRequired();
+                entity.HasOne(e => e.User)
+                    .WithMany()
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 }

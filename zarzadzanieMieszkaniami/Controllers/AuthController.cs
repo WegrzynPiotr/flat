@@ -41,18 +41,21 @@ namespace zarzadzanieMieszkaniami.Controllers
         {
             try
             {
-                var user = await _authService.LoginAsync(request.Email, request.Password);
-                // Tutaj dodaj generowanie JWT tokena
+                var (accessToken, refreshToken, user) = await _authService.LoginAsync(request.Email, request.Password);
+
                 return Ok(new
                 {
-                    accessToken = "fake-jwt-token", // Zamieñ na prawdziwy JWT
+                    accessToken,
+                    refreshToken,
                     user = new
                     {
                         user.Id,
                         user.Email,
                         user.FirstName,
                         user.LastName,
-                        user.Role
+                        user.Role,
+                        user.PhoneNumber,
+                        user.CreatedAt
                     }
                 });
             }
@@ -60,6 +63,32 @@ namespace zarzadzanieMieszkaniami.Controllers
             {
                 return Unauthorized(new { message = ex.Message });
             }
+        }
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+        {
+            try
+            {
+                var (accessToken, refreshToken) = await _authService.RefreshTokenAsync(request.RefreshToken);
+
+                return Ok(new
+                {
+                    accessToken,
+                    refreshToken
+                });
+            }
+            catch (System.Exception ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+        }
+
+        public class RefreshTokenRequest
+        {
+            public required string RefreshToken { get; set; }
+        }
+    }
         }
     }
 
