@@ -1,0 +1,20 @@
+{
+  "Version": 1,
+  "Hash": "7rc9SaN5DhJcVR/DbOCKo0Iye7xVgH8Sl2YSRQ5TqNw=",
+  "Source": "zarzadzanieMieszkaniami",
+  "BasePath": "_content/zarzadzanieMieszkaniami",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "zarzadzanieMieszkaniami\\wwwroot",
+      "Source": "zarzadzanieMieszkaniami",
+      "ContentRoot": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\",
+      "BasePath": "_content/zarzadzanieMieszkaniami",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [],
+  "Endpoints": []
+}

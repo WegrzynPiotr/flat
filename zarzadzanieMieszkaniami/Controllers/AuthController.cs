@@ -52,12 +52,12 @@ namespace zarzadzanieMieszkaniami.Controllers
         {
             try
             {
-                var user = await _authService.LoginAsync(request.Email, request.Password);
-                // Tutaj dodaj generowanie JWT tokena
+                var (accessToken, refreshToken, user) = await _authService.LoginAsync(request.Email, request.Password);
+                // JWT and refresh tokens are generated inside AuthService; simply pass them through here
                 return Ok(new
                 {
-                    accessToken = "fake-jwt-token", // Zamie� na prawdziwy JWT
-                    refreshToken = "fake-refresh-token",
+                    accessToken,
+                    refreshToken,
                     user = new
                     {
                         user.Id,
