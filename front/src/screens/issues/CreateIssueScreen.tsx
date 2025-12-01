@@ -25,13 +25,12 @@ const PRIORITIES = ['Niska', 'Średnia', 'Wysoka', 'Krytyczna'];
 export default function CreateIssueScreen({ navigation }: any) {
   const dispatch = useDispatch<AppDispatch>();
   const { loading } = useSelector((state: RootState) => state.issues);
-  const { user } = useSelector((state: RootState) => state.auth);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('Inne');
   const [priority, setPriority] = useState('Średnia');
-  const [photos, setPhotos] = useState<any[]>([]);
+  const [photos, setPhotos] = useState<ImagePicker.ImagePickerAsset[]>([]);
   const [errors, setErrors] = useState<{ title?: string; description?: string }>({});
 
   const pickImage = async () => {
@@ -43,42 +42,91 @@ export default function CreateIssueScreen({ navigation }: any) {
     });
 
     if (!result.canceled && result.assets.length > 0 && photos.length < 5) {
-      // keep a flat array of picked assets so we can read photo.uri later
       setPhotos((prev) => [...prev, result.assets[0]]);
     }
   };
 
   const handleSubmit = async () => {
+    console.log('🟡 handleSubmit started');
     const newErrors: typeof errors = {};
-    
+
     if (!title.trim()) newErrors.title = 'Title is required';
     if (!description.trim()) newErrors.description = 'Description is required';
 
     if (Object.keys(newErrors).length > 0) {
+      console.log('🔴 Validation errors:', newErrors);
       setErrors(newErrors);
       return;
     }
 
-    try {
-      // Prosty payload - tylko potrzebne dane
-      const photoUris = photos
-        .map((photoAsset) => photoAsset?.uri)
-        .filter((uri): uri is string => Boolean(uri));
-      
-      const issueData = {
-        title,
-        description,
-        category,
-        priority,
-        propertyId: '00000000-0000-0000-0000-000000000000', // TODO: wybór nieruchomości przez użytkownika
-        photos: photoUris
-      };
+    console.log('✅ Validation passed, creating FormData...');
 
-      await dispatch(createIssue(issueData)).unwrap();
+    try {
+      const formData = new FormData();
+      formData.append('Title', title);
+      formData.append('Description', description);
+      formData.append('Category', category);
+      formData.append('Priority', priority);
+      formData.append('PropertyId', '00000000-0000-0000-0000-000000000000'); // TODO: allow user to select property
+
+      console.log('📝 Basic fields added to FormData');
+
+      // Handle file uploads differently for web vs native
+      for (let i = 0; i < photos.length; i++) {
+        const asset = photos[i];
+        if (!asset.uri) {
+          console.log(`⚠️ Photo ${i} has no URI, skipping`);
+          continue;
+        }
+
+        const uriParts = asset.uri.split('.');
+        const fileExtension = uriParts[uriParts.length - 1];
+        const fileName = asset.fileName || `photo_${Date.now()}_${i}.${fileExtension}`;
+        const mimeType = asset.mimeType || 'image/jpeg';
+
+        try {
+          // For web: blob URLs need to be fetched and converted to actual Blob
+          if (asset.uri.startsWith('blob:')) {
+            console.log('🌐 Web platform: fetching blob from URI...');
+            const response = await fetch(asset.uri);
+            const blob = await response.blob();
+            console.log('✅ Blob fetched, size:', blob.size, 'type:', blob.type);
+            formData.append('Photos', blob, fileName);
+          } else {
+            // For React Native mobile: use uri/name/type structure
+            console.log('📱 Native platform: using uri structure');
+            // @ts-ignore - React Native FormData typing
+            formData.append('Photos', {
+              uri: asset.uri,
+              name: fileName,
+              type: mimeType,
+            });
+          }
+          
+          console.log(`✅ Added photo to FormData:`, {
+            uri: asset.uri.substring(0, 50) + '...',
+            name: fileName,
+            type: mimeType
+          });
+        } catch (photoError) {
+          console.error(`🔴 Error processing photo ${i}:`, photoError);
+          throw new Error(`Failed to process photo: ${photoError}`);
+        }
+      }
+
+      // Debug: Check FormData content
+      console.log('📦 Total photos in array:', photos.length);
+      console.log('📤 Dispatching createIssue...');
+      
+      const result = await dispatch(createIssue(formData)).unwrap();
+      console.log('🟢 Issue created successfully:', result);
+      
       Alert.alert('Success', 'Issue created successfully');
       navigation.navigate('IssuesList');
     } catch (err: any) {
-      Alert.alert('Error', err || 'Failed to create issue');
+      console.error('🔴 Error creating issue:', err);
+      console.error('🔴 Error stack:', err.stack);
+      Alert.alert('Error', err?.message || err || 'Failed to create issue');
     }
   };
 

@@ -1,25 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import * as SecureStore from 'expo-secure-store';
-import { Platform } from 'react-native';
 import { authAPI } from '../../api/endpoints';
 import { User } from '../../types/api';
-
-// Helper functions for storage
-const setStorageItem = async (key: string, value: string) => {
-  if (Platform.OS === 'web') {
-    localStorage.setItem(key, value);
-  } else {
-    await SecureStore.setItemAsync(key, value);
-  }
-};
-
-const deleteStorageItem = async (key: string) => {
-  if (Platform.OS === 'web') {
-    localStorage.removeItem(key);
-  } else {
-    await SecureStore.deleteItemAsync(key);
-  }
-};
+import { storage } from '../../utils/storage';
 
 export interface AuthState {
   user: User | null;
@@ -50,8 +32,8 @@ export const login = createAsyncThunk(
         return rejectWithValue('Invalid response from server');
       }
       
-      await setStorageItem('authToken', accessToken);
-      await setStorageItem('refreshToken', refreshToken);
+      await storage.setItemAsync('authToken', accessToken);
+      await storage.setItemAsync('refreshToken', refreshToken);
       
       console.log('Login successful for user:', user.email);
       return { accessToken, refreshToken, user };
@@ -84,8 +66,8 @@ const authSlice = createSlice({
       state.user = null;
       state.accessToken = null;
       state.refreshToken = null;
-      deleteStorageItem('authToken');
-      deleteStorageItem('refreshToken');
+      storage.deleteItemAsync('authToken');
+      storage.deleteItemAsync('refreshToken');
     },
     setUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;

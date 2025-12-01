@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 
 namespace Application.DTOs
 {
     public class CreateIssueRequest
     {
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public string Category { get; set; }
-        public string Priority { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string Category { get; set; } = string.Empty;
+        public string Priority { get; set; } = string.Empty;
         public Guid PropertyId { get; set; }
-        public List<string> Photos { get; set; } = new List<string>();
+        public List<IFormFile>? Photos { get; set; }
     }
 }

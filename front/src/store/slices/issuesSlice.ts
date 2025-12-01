@@ -42,7 +42,7 @@ export const fetchIssueById = createAsyncThunk(
 
 export const createIssue = createAsyncThunk(
   'issues/create',
-  async (data: any, { rejectWithValue }) => {
+  async (data: FormData, { rejectWithValue }) => {
     try {
       const response = await issuesAPI.create(data);
       return response.data;
@@ -79,10 +79,15 @@ const issuesSlice = createSlice({
       })
       .addCase(createIssue.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(createIssue.fulfilled, (state, action) => {
         state.loading = false;
         state.issues.push(action.payload);
+      })
+      .addCase(createIssue.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });

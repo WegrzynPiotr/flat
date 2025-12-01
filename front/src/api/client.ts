@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
-import * as SecureStore from 'expo-secure-store';
 import { API_BASE_URL } from '@env';
+import { storage } from '../utils/storage';
 
 const API_URL = API_BASE_URL || 'http://localhost:5000/api';
 
@@ -16,9 +16,14 @@ const client: AxiosInstance = axios.create({
 client.interceptors.request.use(
   async (config) => {
     try {
-      const token = await SecureStore.getItemAsync('authToken');
+      const token = await storage.getItemAsync('authToken');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+      }
+      
+      // Allow FormData to set its own Content-Type with boundary
+      if (config.data instanceof FormData) {
+        delete config.headers['Content-Type'];
       }
     } catch (error) {
       console.error('Error retrieving token:', error);
@@ -35,13 +40,13 @@ client.interceptors.response.use(
     if (error.response?.status === 401) {
       // Token expired - spróbuj refresh
       try {
-        const refreshToken = await SecureStore.getItemAsync('refreshToken');
+        const refreshToken = await storage.getItemAsync('refreshToken');
         if (refreshToken) {
           const response = await axios.post(`${API_URL}/auth/refresh-token`, {
             refreshToken,
           });
           const { accessToken } = response.data;
-          await SecureStore.setItemAsync('authToken', accessToken);
+          await storage.setItemAsync('authToken', accessToken);
           
           // Ponów oryginalny request
           if (error.config) {
@@ -51,8 +56,8 @@ client.interceptors.response.use(
         }
       } catch (refreshError) {
         // Refresh failed - wyloguj
-        await SecureStore.deleteItemAsync('authToken');
-        await SecureStore.deleteItemAsync('refreshToken');
+        await storage.deleteItemAsync('authToken');
+        await storage.deleteItemAsync('refreshToken');
       }
     }
     return Promise.reject(error);

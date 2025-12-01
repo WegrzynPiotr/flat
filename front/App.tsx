@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './src/store/store';
 import RootNavigator from './src/navigation/RootNavigator';
-import * as SecureStore from 'expo-secure-store';
+import { storage } from './src/utils/storage';
 
 export default function App() {
   useEffect(() => {
@@ -15,7 +15,7 @@ export default function App() {
 
   const checkAuthStatus = async () => {
     try {
-      const token = await SecureStore.getItemAsync('authToken');
+      const token = await storage.getItemAsync('authToken');
       if (token) {
         console.log('User is authenticated');
       }
