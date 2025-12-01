@@ -33,7 +33,7 @@ namespace Infrastructure
 				entity.Property(e => e.Address).IsRequired().HasMaxLength(200);
 				entity.Property(e => e.City).IsRequired().HasMaxLength(100);
 				entity.Property(e => e.PostalCode).HasMaxLength(10);
-				entity.Property(e => e.Area).HasColumnType("decimal(10,2)");
+				entity.Property(e => e.Area);
 
 				entity.HasOne(e => e.Owner)
 					.WithMany(u => u.OwnedProperties)

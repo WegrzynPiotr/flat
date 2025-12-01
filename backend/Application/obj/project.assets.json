@@ -1,11 +1,30 @@
 {
   "version": 3,
   "targets": {
-    "net9.0": {}
+    "net9.0": {
+      "Core/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v9.0",
+        "compile": {
+          "bin/placeholder/Core.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Core.dll": {}
+        }
+      }
+    }
   },
-  "libraries": {},
+  "libraries": {
+    "Core/1.0.0": {
+      "type": "project",
+      "path": "../Core/Core.csproj",
+      "msbuildProject": "../Core/Core.csproj"
+    }
+  },
   "projectFileDependencyGroups": {
-    "net9.0": []
+    "net9.0": [
+      "Core >= 1.0.0"
+    ]
   },
   "packageFolders": {
     "C:\\Users\\Jawgrzyn\\.nuget\\packages\\": {},
@@ -38,7 +57,11 @@
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Users\\Jawgrzyn\\source\\repos\\flat\\backend\\Core\\Core.csproj": {
+              "projectPath": "C:\\Users\\Jawgrzyn\\source\\repos\\flat\\backend\\Core\\Core.csproj"
+            }
+          }
         }
       },
       "warningProperties": {
