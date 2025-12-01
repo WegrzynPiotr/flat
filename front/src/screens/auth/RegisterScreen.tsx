@@ -44,12 +44,12 @@ export default function RegisterScreen({ navigation }: any) {
       confirmPassword: '',
     };
 
-    if (!validateEmail(formData.email)) {
-      newErrors.email = 'Nieprawidłowy adres email';
+    if (!formData.email) {
+      newErrors.email = 'Email jest wymagany';
     }
 
-    if (formData.password.length < 6) {
-      newErrors.password = 'Hasło musi mieć co najmniej 6 znaków';
+    if (!formData.password) {
+      newErrors.password = 'Hasło jest wymagane';
     }
 
     if (formData.password !== formData.confirmPassword) {
@@ -68,7 +68,7 @@ export default function RegisterScreen({ navigation }: any) {
         password: formData.password,
         firstName: formData.firstName,
         lastName: formData.lastName,
-        role: 'Tenant', // Dodaj domyślną rolę
+        role: 'Najemca',
       })).unwrap();
       
       Alert.alert('Sukces', 'Konto zostało utworzone');

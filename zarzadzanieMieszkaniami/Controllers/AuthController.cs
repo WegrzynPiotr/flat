@@ -57,6 +57,7 @@ namespace zarzadzanieMieszkaniami.Controllers
                 return Ok(new
                 {
                     accessToken = "fake-jwt-token", // Zamie� na prawdziwy JWT
+                    refreshToken = "fake-refresh-token",
                     user = new
                     {
                         user.Id,

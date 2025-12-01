@@ -24,10 +24,8 @@ export const issuesAPI = {
   getAll: (filters?: any) =>
     client.get<Issue[]>('/issues', { params: filters }),
   getById: (id: string) => client.get<Issue>(`/issues/${id}`),
-  create: (data: FormData) =>
-    client.post<Issue>('/issues', data, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }),
+  create: (data: any) =>
+    client.post<Issue>('/issues', data),
   update: (id: string, data: Partial<Issue>) =>
     client.put<Issue>(`/issues/${id}`, data),
   delete: (id: string) => client.delete(`/issues/${id}`),

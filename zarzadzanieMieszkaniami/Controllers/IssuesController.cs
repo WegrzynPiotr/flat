@@ -1,5 +1,7 @@
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Application.DTOs;
 using Application.Services;
 using Core.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -35,8 +37,26 @@ namespace zarzadzanieMieszkaniami.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Issue issue)
+        public async Task<IActionResult> Create([FromBody] CreateIssueRequest request)
         {
+            // Pobierz ID zalogowanego użytkownika z JWT tokenu
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = !string.IsNullOrEmpty(userIdClaim) ? Guid.Parse(userIdClaim) : Guid.Empty;
+
+            var issue = new Issue
+            {
+                Id = Guid.NewGuid(),
+                Title = request.Title,
+                Description = request.Description,
+                Category = request.Category,
+                Priority = request.Priority,
+                Status = "Nowe",
+                PropertyId = request.PropertyId,
+                ReportedById = userId,
+                ReportedAt = DateTime.UtcNow,
+                Photos = request.Photos ?? new System.Collections.Generic.List<string>()
+            };
+
             var createdIssue = await _issueService.CreateIssueAsync(issue);
             return CreatedAtAction(nameof(GetById), new { id = createdIssue.Id }, createdIssue);
         }

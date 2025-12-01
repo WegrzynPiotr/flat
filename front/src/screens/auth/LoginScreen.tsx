@@ -20,10 +20,7 @@ export default function LoginScreen({ navigation }: any) {
     const newErrors: typeof errors = {};
     
     if (!email) newErrors.email = 'Email is required';
-    else if (!validateEmail(email)) newErrors.email = 'Invalid email format';
-    
     if (!password) newErrors.password = 'Password is required';
-    else if (password.length < 6) newErrors.password = 'Password must be at least 6 characters';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);

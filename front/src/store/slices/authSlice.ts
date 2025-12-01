@@ -1,7 +1,25 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 import { authAPI } from '../../api/endpoints';
 import { User } from '../../types/api';
+
+// Helper functions for storage
+const setStorageItem = async (key: string, value: string) => {
+  if (Platform.OS === 'web') {
+    localStorage.setItem(key, value);
+  } else {
+    await SecureStore.setItemAsync(key, value);
+  }
+};
+
+const deleteStorageItem = async (key: string) => {
+  if (Platform.OS === 'web') {
+    localStorage.removeItem(key);
+  } else {
+    await SecureStore.deleteItemAsync(key);
+  }
+};
 
 export interface AuthState {
   user: User | null;
@@ -24,13 +42,21 @@ export const login = createAsyncThunk(
   async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
     try {
       const response = await authAPI.login(email, password);
+      console.log('Login response:', response.data);
       const { accessToken, refreshToken, user } = response.data;
       
-      await SecureStore.setItemAsync('authToken', accessToken);
-      await SecureStore.setItemAsync('refreshToken', refreshToken);
+      if (!accessToken || !refreshToken || !user) {
+        console.error('Missing data in response:', { accessToken: !!accessToken, refreshToken: !!refreshToken, user: !!user });
+        return rejectWithValue('Invalid response from server');
+      }
       
+      await setStorageItem('authToken', accessToken);
+      await setStorageItem('refreshToken', refreshToken);
+      
+      console.log('Login successful for user:', user.email);
       return { accessToken, refreshToken, user };
     } catch (error: any) {
+      console.error('Login error:', error);
       return rejectWithValue(error.response?.data?.message || 'Login failed');
     }
   }
@@ -41,11 +67,9 @@ export const register = createAsyncThunk(
   async (data: any, { rejectWithValue }) => {
     try {
       const response = await authAPI.register(data);
-      const { accessToken, user } = response.data;
-      
-      await SecureStore.setItemAsync('authToken', accessToken);
-      
-      return { accessToken, user };
+      // Backend zwraca tylko message i user, bez accessToken
+      // Użytkownik musi się zalogować po rejestracji
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Registration failed');
     }
@@ -60,8 +84,8 @@ const authSlice = createSlice({
       state.user = null;
       state.accessToken = null;
       state.refreshToken = null;
-      SecureStore.deleteItemAsync('authToken');
-      SecureStore.deleteItemAsync('refreshToken');
+      deleteStorageItem('authToken');
+      deleteStorageItem('refreshToken');
     },
     setUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
@@ -89,8 +113,8 @@ const authSlice = createSlice({
       })
       .addCase(register.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload.user;
-        state.accessToken = action.payload.accessToken;
+        // Nie logujemy użytkownika automatycznie po rejestracji
+        // Użytkownik musi się zalogować osobno
       })
       .addCase(register.rejected, (state, action) => {
         state.loading = false;

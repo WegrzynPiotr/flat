@@ -42,7 +42,7 @@ export const fetchIssueById = createAsyncThunk(
 
 export const createIssue = createAsyncThunk(
   'issues/create',
-  async (data: FormData, { rejectWithValue }) => {
+  async (data: any, { rejectWithValue }) => {
     try {
       const response = await issuesAPI.create(data);
       return response.data;

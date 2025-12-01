@@ -25,6 +25,7 @@ const PRIORITIES = ['Niska', 'Średnia', 'Wysoka', 'Krytyczna'];
 export default function CreateIssueScreen({ navigation }: any) {
   const dispatch = useDispatch<AppDispatch>();
   const { loading } = useSelector((state: RootState) => state.issues);
+  const { user } = useSelector((state: RootState) => state.auth);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -58,21 +59,19 @@ export default function CreateIssueScreen({ navigation }: any) {
     }
 
     try {
-      const formData = new FormData();
-      formData.append('title', title);
-      formData.append('description', description);
-      formData.append('category', category);
-      formData.append('priority', priority);
+      // Prosty payload - tylko potrzebne dane
+      const photoUris = photos.map(photo => photo.uri).filter(uri => uri);
+      
+      const issueData = {
+        title,
+        description,
+        category,
+        priority,
+        propertyId: '00000000-0000-0000-0000-000000000000', // TODO: wybór nieruchomości przez użytkownika
+        photos: photoUris
+      };
 
-      photos.forEach((photo, index) => {
-        formData.append('photos', {
-          uri: photo.uri,
-          type: photo.type || 'image/jpeg',
-          name: `photo_${index}.jpg`,
-        } as any);
-      });
-
-      await dispatch(createIssue(formData)).unwrap();
+      await dispatch(createIssue(issueData)).unwrap();
       Alert.alert('Success', 'Issue created successfully');
       navigation.navigate('IssuesList');
     } catch (err: any) {
