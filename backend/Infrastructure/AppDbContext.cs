@@ -1,4 +1,4 @@
-using Core.Models;
+ï»¿using Core.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure
@@ -10,6 +10,7 @@ namespace Infrastructure
         public DbSet<User> Users { get; set; }
         public DbSet<Property> Properties { get; set; }
         public DbSet<Issue> Issues { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }  //  Dodaj to
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -33,8 +34,6 @@ namespace Infrastructure
                 entity.Property(e => e.Address).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.City).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.PostalCode).HasMaxLength(10);
-                // InMemory nie obs³uguje HasColumnType
-                // entity.Property(e => e.Area).HasColumnType("decimal(10,2)");
 
                 entity.HasOne(e => e.Owner)
                     .WithMany(u => u.OwnedProperties)
@@ -52,7 +51,6 @@ namespace Infrastructure
                 entity.Property(e => e.Priority).HasMaxLength(30);
                 entity.Property(e => e.Status).HasMaxLength(30);
 
-                //  Konfiguracja dla List<string> Photos
                 entity.Property(e => e.Photos)
                     .HasConversion(
                         v => string.Join(',', v),
@@ -69,15 +67,22 @@ namespace Infrastructure
                     .HasForeignKey(e => e.ReportedById)
                     .OnDelete(DeleteBehavior.Restrict);
             });
-            // Konfiguracja RefreshToken
+
+            //  Konfiguracja RefreshToken
             modelBuilder.Entity<RefreshToken>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Token).IsRequired();
+                entity.Property(e => e.Token).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.ExpiresAt).IsRequired();
+                entity.Property(e => e.CreatedAt).IsRequired();
+                entity.Property(e => e.IsRevoked).IsRequired();
+
                 entity.HasOne(e => e.User)
                     .WithMany()
                     .HasForeignKey(e => e.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(e => e.Token);
             });
         }
     }
