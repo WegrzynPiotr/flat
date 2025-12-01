@@ -25,10 +25,21 @@ namespace zarzadzanieMieszkaniami.Controllers
                     request.Password,
                     request.FirstName,
                     request.LastName,
-                    request.Role
+                    request.Role ?? "Tenant"
                 );
 
-                return Ok(new { message = "User registered successfully", userId = user.Id });
+                return Ok(new
+                {
+                    accessToken = "fake-jwt-token", // ZamieÅ„ na prawdziwy JWT
+                    user = new
+                    {
+                        user.Id,
+                        user.Email,
+                        user.FirstName,
+                        user.LastName,
+                        user.Role
+                    }
+                });
             }
             catch (System.Exception ex)
             {
@@ -45,7 +56,7 @@ namespace zarzadzanieMieszkaniami.Controllers
                 // Tutaj dodaj generowanie JWT tokena
                 return Ok(new
                 {
-                    accessToken = "fake-jwt-token", // Zamieñ na prawdziwy JWT
+                    accessToken = "fake-jwt-token", // Zamieï¿½ na prawdziwy JWT
                     user = new
                     {
                         user.Id,
