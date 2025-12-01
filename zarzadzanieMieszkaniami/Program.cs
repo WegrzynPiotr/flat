@@ -38,6 +38,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+app.UseStaticFiles();
 
 // DODAJ TO - Middleware do logowania requestów
 app.Use(async (context, next) =>

@@ -1,12 +1,20 @@
 {
   "Version": 1,
-  "Hash": "8UCmRPyTfJaEudCCToavA09kddhCUQyv38G31yKk77g=",
+  "Hash": "BzoAJmD5Us1WnZ7rrpYXk8S/o4fKIgai76Q9e8hENeg=",
   "Source": "zarzadzanieMieszkaniami",
   "BasePath": "_content/zarzadzanieMieszkaniami",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "zarzadzanieMieszkaniami\\wwwroot",
+      "Source": "zarzadzanieMieszkaniami",
+      "ContentRoot": "C:\\Users\\Jawgrzyn\\source\\repos\\flat\\zarzadzanieMieszkaniami\\wwwroot\\",
+      "BasePath": "_content/zarzadzanieMieszkaniami",
+      "Pattern": "**"
+    }
+  ],
   "Assets": [],
   "Endpoints": []
 }
