@@ -1,7 +1,9 @@
 using System;
 using System.Threading.Tasks;
+using System.Linq;
 using Core.Interfaces;
 using Core.Models;
+using Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace zarzadzanieMieszkaniami.Controllers
@@ -21,7 +23,19 @@ namespace zarzadzanieMieszkaniami.Controllers
         public async Task<IActionResult> GetAll()
         {
             var properties = await _propertyRepository.GetAllAsync();
-            return Ok(properties);
+            var dtos = properties.Select(p => new PropertyResponse
+            {
+                Id = p.Id,
+                Address = p.Address,
+                City = p.City,
+                PostalCode = p.PostalCode,
+                RoomsCount = p.RoomsCount,
+                Area = p.Area,
+                OwnerId = p.OwnerId,
+                CurrentTenantId = p.CurrentTenantId,
+                CreatedAt = p.CreatedAt
+            }).ToList();
+            return Ok(dtos);
         }
 
         [HttpGet("{id}")]
@@ -31,7 +45,20 @@ namespace zarzadzanieMieszkaniami.Controllers
             if (property == null)
                 return NotFound();
 
-            return Ok(property);
+            var dto = new PropertyResponse
+            {
+                Id = property.Id,
+                Address = property.Address,
+                City = property.City,
+                PostalCode = property.PostalCode,
+                RoomsCount = property.RoomsCount,
+                Area = property.Area,
+                OwnerId = property.OwnerId,
+                CurrentTenantId = property.CurrentTenantId,
+                CreatedAt = property.CreatedAt
+            };
+
+            return Ok(dto);
         }
 
         [HttpPost]
@@ -40,7 +67,21 @@ namespace zarzadzanieMieszkaniami.Controllers
             property.Id = Guid.NewGuid();
             property.CreatedAt = DateTime.UtcNow;
             var created = await _propertyRepository.AddAsync(property);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+            
+            var dto = new PropertyResponse
+            {
+                Id = created.Id,
+                Address = created.Address,
+                City = created.City,
+                PostalCode = created.PostalCode,
+                RoomsCount = created.RoomsCount,
+                Area = created.Area,
+                OwnerId = created.OwnerId,
+                CurrentTenantId = created.CurrentTenantId,
+                CreatedAt = created.CreatedAt
+            };
+            
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, dto);
         }
     }
 }

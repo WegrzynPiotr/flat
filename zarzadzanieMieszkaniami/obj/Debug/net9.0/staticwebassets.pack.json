@@ -1,35 +1,59 @@
 {
   "Files": [
     {
-      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\033c3bb0-3d13-4617-98c4-673004b41b6c.jpg",
+      "Id": "C:\\Users\\Jawgrzyn\\test\\flat\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\033c3bb0-3d13-4617-98c4-673004b41b6c.jpg",
       "PackagePath": "staticwebassets\\uploads\\033c3bb0-3d13-4617-98c4-673004b41b6c.jpg"
     },
     {
-      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\205add6b-112d-4ac5-984b-7b76d86782f6.png",
+      "Id": "C:\\Users\\Jawgrzyn\\test\\flat\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\05cc5294-a940-4473-8ac2-a767c7b44d02.png",
+      "PackagePath": "staticwebassets\\uploads\\05cc5294-a940-4473-8ac2-a767c7b44d02.png"
+    },
+    {
+      "Id": "C:\\Users\\Jawgrzyn\\test\\flat\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\205add6b-112d-4ac5-984b-7b76d86782f6.png",
       "PackagePath": "staticwebassets\\uploads\\205add6b-112d-4ac5-984b-7b76d86782f6.png"
     },
     {
-      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\3ac67e28-d1ae-4918-90c5-a96963f8abd1.png",
+      "Id": "C:\\Users\\Jawgrzyn\\test\\flat\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\3ac67e28-d1ae-4918-90c5-a96963f8abd1.png",
       "PackagePath": "staticwebassets\\uploads\\3ac67e28-d1ae-4918-90c5-a96963f8abd1.png"
     },
     {
-      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\3e3fcf5d-cee0-44ca-acfe-04bab714b6c8.jpg",
+      "Id": "C:\\Users\\Jawgrzyn\\test\\flat\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\3e3fcf5d-cee0-44ca-acfe-04bab714b6c8.jpg",
       "PackagePath": "staticwebassets\\uploads\\3e3fcf5d-cee0-44ca-acfe-04bab714b6c8.jpg"
     },
     {
-      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\409d8fe1-2a8e-4e73-80f0-9cf45e423fc2.png",
+      "Id": "C:\\Users\\Jawgrzyn\\test\\flat\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\409d8fe1-2a8e-4e73-80f0-9cf45e423fc2.png",
       "PackagePath": "staticwebassets\\uploads\\409d8fe1-2a8e-4e73-80f0-9cf45e423fc2.png"
     },
     {
-      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\7f7b283a-14be-4903-9cca-16dbd16c4ce9.png",
+      "Id": "C:\\Users\\Jawgrzyn\\test\\flat\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\7bde6791-80f0-4be5-a0eb-481f788ecc97.png",
+      "PackagePath": "staticwebassets\\uploads\\7bde6791-80f0-4be5-a0eb-481f788ecc97.png"
+    },
+    {
+      "Id": "C:\\Users\\Jawgrzyn\\test\\flat\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\7f7b283a-14be-4903-9cca-16dbd16c4ce9.png",
       "PackagePath": "staticwebassets\\uploads\\7f7b283a-14be-4903-9cca-16dbd16c4ce9.png"
     },
     {
-      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\948cce5f-dc85-4bb9-a0c4-50086c764011.png",
+      "Id": "C:\\Users\\Jawgrzyn\\test\\flat\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\948cce5f-dc85-4bb9-a0c4-50086c764011.png",
       "PackagePath": "staticwebassets\\uploads\\948cce5f-dc85-4bb9-a0c4-50086c764011.png"
     },
     {
-      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\fcbdf928-0f46-40a5-84db-f9b2c9ab73af.png",
+      "Id": "C:\\Users\\Jawgrzyn\\test\\flat\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\b65895ca-59b7-4134-88d9-59a22ba299b8.png",
+      "PackagePath": "staticwebassets\\uploads\\b65895ca-59b7-4134-88d9-59a22ba299b8.png"
+    },
+    {
+      "Id": "C:\\Users\\Jawgrzyn\\test\\flat\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\ce12b72e-58be-473f-8496-9dcd45ef48ed.PNG",
+      "PackagePath": "staticwebassets\\uploads\\ce12b72e-58be-473f-8496-9dcd45ef48ed.PNG"
+    },
+    {
+      "Id": "C:\\Users\\Jawgrzyn\\test\\flat\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\dc6c9b94-30f3-493b-8d01-822e318bc053.png",
+      "PackagePath": "staticwebassets\\uploads\\dc6c9b94-30f3-493b-8d01-822e318bc053.png"
+    },
+    {
+      "Id": "C:\\Users\\Jawgrzyn\\test\\flat\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\f52934f0-a4d4-4fb4-9e21-ecfd70b4406f.jpg",
+      "PackagePath": "staticwebassets\\uploads\\f52934f0-a4d4-4fb4-9e21-ecfd70b4406f.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Jawgrzyn\\test\\flat\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\fcbdf928-0f46-40a5-84db-f9b2c9ab73af.png",
       "PackagePath": "staticwebassets\\uploads\\fcbdf928-0f46-40a5-84db-f9b2c9ab73af.png"
     },
     {

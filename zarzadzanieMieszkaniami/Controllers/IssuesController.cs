@@ -49,11 +49,29 @@ namespace zarzadzanieMieszkaniami.Controllers
             var issues = await _issueService.GetAllIssuesAsync(userId, userRole);
             var issuesList = issues.ToList();
             Console.WriteLine($"Returning {issuesList.Count} issues");
-            foreach (var issue in issuesList)
+            
+            var dtos = issuesList.Select(issue => new IssueResponse
+            {
+                Id = issue.Id,
+                Title = issue.Title,
+                Description = issue.Description,
+                Category = issue.Category,
+                Priority = issue.Priority,
+                Status = issue.Status,
+                PropertyId = issue.PropertyId,
+                PropertyAddress = issue.Property?.Address ?? "Unknown",
+                ReportedById = issue.ReportedById,
+                ReportedByName = issue.ReportedBy != null ? $"{issue.ReportedBy.FirstName} {issue.ReportedBy.LastName}" : "Unknown",
+                ReportedAt = issue.ReportedAt,
+                ResolvedAt = issue.ResolvedAt,
+                Photos = issue.Photos ?? new List<string>()
+            }).ToList();
+            
+            foreach (var issue in dtos)
             {
                 Console.WriteLine($"  Issue: {issue.Id} - {issue.Title}, Photos: {issue.Photos?.Count ?? 0}");
             }
-            return Ok(issuesList);
+            return Ok(dtos);
         }
 
         [HttpGet("{id}")]
@@ -63,7 +81,24 @@ namespace zarzadzanieMieszkaniami.Controllers
             if (issue == null)
                 return NotFound();
 
-            return Ok(issue);
+            var dto = new IssueResponse
+            {
+                Id = issue.Id,
+                Title = issue.Title,
+                Description = issue.Description,
+                Category = issue.Category,
+                Priority = issue.Priority,
+                Status = issue.Status,
+                PropertyId = issue.PropertyId,
+                PropertyAddress = issue.Property?.Address ?? "Unknown",
+                ReportedById = issue.ReportedById,
+                ReportedByName = issue.ReportedBy != null ? $"{issue.ReportedBy.FirstName} {issue.ReportedBy.LastName}" : "Unknown",
+                ReportedAt = issue.ReportedAt,
+                ResolvedAt = issue.ResolvedAt,
+                Photos = issue.Photos ?? new List<string>()
+            };
+
+            return Ok(dto);
         }
 
         [HttpPost]

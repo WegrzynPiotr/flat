@@ -8,23 +8,23 @@
     "net9.0": []
   },
   "packageFolders": {
-    "C:\\Users\\Piotr\\.nuget\\packages\\": {},
+    "C:\\Users\\Jawgrzyn\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Core\\Core.csproj",
+      "projectUniqueName": "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Core\\Core.csproj",
       "projectName": "Core",
-      "projectPath": "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Core\\Core.csproj",
-      "packagesPath": "C:\\Users\\Piotr\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Core\\obj\\",
+      "projectPath": "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Core\\Core.csproj",
+      "packagesPath": "C:\\Users\\Jawgrzyn\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Core\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Piotr\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Jawgrzyn\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],

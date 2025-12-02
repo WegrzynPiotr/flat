@@ -5,6 +5,7 @@ using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,7 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls("http://0.0.0.0:5162");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseInMemoryDatabase("TestDb"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL")));
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();

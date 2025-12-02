@@ -564,23 +564,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Piotr\\.nuget\\packages\\": {},
+    "C:\\Users\\Jawgrzyn\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Application\\Application.csproj",
+      "projectUniqueName": "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Application\\Application.csproj",
       "projectName": "Application",
-      "projectPath": "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Application\\Application.csproj",
-      "packagesPath": "C:\\Users\\Piotr\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Application\\obj\\",
+      "projectPath": "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Application\\Application.csproj",
+      "packagesPath": "C:\\Users\\Jawgrzyn\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Application\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Piotr\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Jawgrzyn\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -595,8 +595,8 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Core\\Core.csproj": {
-              "projectPath": "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Core\\Core.csproj"
+            "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Core\\Core.csproj": {
+              "projectPath": "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Core\\Core.csproj"
             }
           }
         }

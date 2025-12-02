@@ -1,21 +1,21 @@
 {
   "version": 2,
-  "dgSpecHash": "2USfHe9GkCc=",
+  "dgSpecHash": "tGwLZBztvac=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Application\\Application.csproj",
+  "projectFilePath": "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Application\\Application.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Piotr\\.nuget\\packages\\microsoft.aspnetcore.http.abstractions\\2.2.0\\microsoft.aspnetcore.http.abstractions.2.2.0.nupkg.sha512",
-    "C:\\Users\\Piotr\\.nuget\\packages\\microsoft.aspnetcore.http.features\\2.2.0\\microsoft.aspnetcore.http.features.2.2.0.nupkg.sha512",
-    "C:\\Users\\Piotr\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\10.0.0\\microsoft.extensions.configuration.abstractions.10.0.0.nupkg.sha512",
-    "C:\\Users\\Piotr\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.0\\microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512",
-    "C:\\Users\\Piotr\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.0\\microsoft.extensions.logging.abstractions.8.0.0.nupkg.sha512",
-    "C:\\Users\\Piotr\\.nuget\\packages\\microsoft.extensions.primitives\\10.0.0\\microsoft.extensions.primitives.10.0.0.nupkg.sha512",
-    "C:\\Users\\Piotr\\.nuget\\packages\\microsoft.identitymodel.abstractions\\8.15.0\\microsoft.identitymodel.abstractions.8.15.0.nupkg.sha512",
-    "C:\\Users\\Piotr\\.nuget\\packages\\microsoft.identitymodel.jsonwebtokens\\8.15.0\\microsoft.identitymodel.jsonwebtokens.8.15.0.nupkg.sha512",
-    "C:\\Users\\Piotr\\.nuget\\packages\\microsoft.identitymodel.logging\\8.15.0\\microsoft.identitymodel.logging.8.15.0.nupkg.sha512",
-    "C:\\Users\\Piotr\\.nuget\\packages\\microsoft.identitymodel.tokens\\8.15.0\\microsoft.identitymodel.tokens.8.15.0.nupkg.sha512",
-    "C:\\Users\\Piotr\\.nuget\\packages\\system.identitymodel.tokens.jwt\\8.15.0\\system.identitymodel.tokens.jwt.8.15.0.nupkg.sha512",
-    "C:\\Users\\Piotr\\.nuget\\packages\\system.text.encodings.web\\4.5.0\\system.text.encodings.web.4.5.0.nupkg.sha512"
+    "C:\\Users\\Jawgrzyn\\.nuget\\packages\\microsoft.aspnetcore.http.abstractions\\2.2.0\\microsoft.aspnetcore.http.abstractions.2.2.0.nupkg.sha512",
+    "C:\\Users\\Jawgrzyn\\.nuget\\packages\\microsoft.aspnetcore.http.features\\2.2.0\\microsoft.aspnetcore.http.features.2.2.0.nupkg.sha512",
+    "C:\\Users\\Jawgrzyn\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\10.0.0\\microsoft.extensions.configuration.abstractions.10.0.0.nupkg.sha512",
+    "C:\\Users\\Jawgrzyn\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.0\\microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\Jawgrzyn\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.0\\microsoft.extensions.logging.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\Jawgrzyn\\.nuget\\packages\\microsoft.extensions.primitives\\10.0.0\\microsoft.extensions.primitives.10.0.0.nupkg.sha512",
+    "C:\\Users\\Jawgrzyn\\.nuget\\packages\\microsoft.identitymodel.abstractions\\8.15.0\\microsoft.identitymodel.abstractions.8.15.0.nupkg.sha512",
+    "C:\\Users\\Jawgrzyn\\.nuget\\packages\\microsoft.identitymodel.jsonwebtokens\\8.15.0\\microsoft.identitymodel.jsonwebtokens.8.15.0.nupkg.sha512",
+    "C:\\Users\\Jawgrzyn\\.nuget\\packages\\microsoft.identitymodel.logging\\8.15.0\\microsoft.identitymodel.logging.8.15.0.nupkg.sha512",
+    "C:\\Users\\Jawgrzyn\\.nuget\\packages\\microsoft.identitymodel.tokens\\8.15.0\\microsoft.identitymodel.tokens.8.15.0.nupkg.sha512",
+    "C:\\Users\\Jawgrzyn\\.nuget\\packages\\system.identitymodel.tokens.jwt\\8.15.0\\system.identitymodel.tokens.jwt.8.15.0.nupkg.sha512",
+    "C:\\Users\\Jawgrzyn\\.nuget\\packages\\system.text.encodings.web\\4.5.0\\system.text.encodings.web.4.5.0.nupkg.sha512"
   ],
   "logs": []
 }

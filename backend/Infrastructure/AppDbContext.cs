@@ -1,5 +1,7 @@
 ﻿using Core.Models;
+using Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Infrastructure
 {
@@ -15,6 +17,33 @@ namespace Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // Konwencje PostgreSQL - snake_case dla nazw kolumn
+            foreach (var entity in modelBuilder.Model.GetEntityTypes())
+            {
+                // Zmiana nazwy tabeli na snake_case (jeśli potrzebne)
+                entity.SetTableName(entity.GetTableName()?.ToSnakeCase());
+
+                foreach (var property in entity.GetProperties())
+                {
+                    property.SetColumnName(property.GetColumnName().ToSnakeCase());
+                }
+
+                foreach (var key in entity.GetKeys())
+                {
+                    key.SetName(key.GetName()?.ToSnakeCase());
+                }
+
+                foreach (var foreignKey in entity.GetForeignKeys())
+                {
+                    foreignKey.SetConstraintName(foreignKey.GetConstraintName()?.ToSnakeCase());
+                }
+
+                foreach (var index in entity.GetIndexes())
+                {
+                    index.SetDatabaseName(index.GetDatabaseName()?.ToSnakeCase());
+                }
+            }
 
             // Konfiguracja User
             modelBuilder.Entity<User>(entity =>
@@ -53,8 +82,8 @@ namespace Infrastructure
 
                 entity.Property(e => e.Photos)
                     .HasConversion(
-                        v => string.Join(',', v),
-                        v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()
+                        v => v != null && v.Count > 0 ? string.Join(',', v) : null,
+                        v => string.IsNullOrEmpty(v) ? new List<string>() : v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()
                     );
 
                 entity.HasOne(e => e.Property)

@@ -1,0 +1,295 @@
+═════════════════════════════════════════════════════════════════════════════════
+🎉 MIGRACJA Z IN-MEMORY DATABASE NA POSTGRESQL - UKOŃCZONE
+═════════════════════════════════════════════════════════════════════════════════
+
+📋 PODSUMOWANIE WDROŻENIA
+─────────────────────────────────────────────────────────────────────────────────
+
+🎯 CELE OSIĄGNIĘTE:
+   ✅ Zamieniono In-Memory Database na PostgreSQL
+   ✅ Stworzone 4 tabele z prawidłowymi relacjami
+   ✅ Konfiguracja Entity Framework Core dla PostgreSQL
+   ✅ Migracje EF Core przygotowane
+   ✅ Dokumentacja i skrypty testowe
+
+═════════════════════════════════════════════════════════════════════════════════
+📊 TABELE W BAZIE DANYCH
+═════════════════════════════════════════════════════════════════════════════════
+
+1️⃣  USERS (Użytkownicy)
+─────────────────────────────────────────────────────────────────────────────────
+   Kolumny:
+      • id              : UUID (Primary Key)
+      • email           : VARCHAR(100) UNIQUE
+      • password_hash   : TEXT
+      • first_name      : VARCHAR(50)
+      • last_name       : VARCHAR(50)
+      • role            : VARCHAR(30) - Właściciel, Najemca, Serwisant, Administrator
+      • phone_number    : VARCHAR(20) nullable
+      • created_at      : TIMESTAMP
+      • updated_at      : TIMESTAMP nullable
+   
+   Relacje:
+      → OwnedProperties (1:N z properties - owner_id)
+      → ReportedIssues (1:N z issues - reported_by_id)
+      → RefreshTokens (1:N - deleted cascade)
+
+2️⃣  PROPERTIES (Nieruchomości)
+─────────────────────────────────────────────────────────────────────────────────
+   Kolumny:
+      • id                  : UUID (Primary Key)
+      • address             : VARCHAR(200)
+      • city                : VARCHAR(100)
+      • postal_code         : VARCHAR(10) nullable
+      • rooms_count         : INT
+      • area                : DECIMAL(10,2)
+      • owner_id            : UUID (Foreign Key → users)
+      • current_tenant_id   : UUID nullable (Foreign Key → users)
+      • created_at          : TIMESTAMP
+   
+   Relacje:
+      → Owner (N:1 z users - required)
+      → CurrentTenant (N:1 z users - nullable)
+      → Issues (1:N - cascade delete)
+
+3️⃣  ISSUES (Zgłoszenia/Tickety)
+─────────────────────────────────────────────────────────────────────────────────
+   Kolumny:
+      • id             : UUID (Primary Key)
+      • title          : VARCHAR(200)
+      • description    : VARCHAR(2000) nullable
+      • category       : VARCHAR(50) nullable - Hydraulika, Elektryka, Ogrzewanie, itd
+      • priority       : VARCHAR(30) nullable - Niska, Średnia, Wysoka, Krytyczna
+      • status         : VARCHAR(30) nullable - Nowe, Przypisane, WTrakcie, Rozwiązane, Zamknięte
+      • property_id    : UUID (Foreign Key → properties)
+      • reported_by_id : UUID (Foreign Key → users)
+      • reported_at    : TIMESTAMP
+      • resolved_at    : TIMESTAMP nullable
+      • photos         : TEXT nullable (CSV format - URL oddzielone przecinkami)
+   
+   Relacje:
+      → Property (N:1 - cascade delete)
+      → ReportedBy (N:1 - restrict delete)
+
+4️⃣  REFRESH_TOKENS (Tokeny JWT)
+─────────────────────────────────────────────────────────────────────────────────
+   Kolumny:
+      • id          : UUID (Primary Key)
+      • user_id     : UUID (Foreign Key → users)
+      • token       : VARCHAR(500)
+      • expires_at  : TIMESTAMP
+      • created_at  : TIMESTAMP
+      • is_revoked  : BOOLEAN
+   
+   Relacje:
+      → User (N:1 - cascade delete)
+
+═════════════════════════════════════════════════════════════════════════════════
+🔄 RELACJE MIĘDZY TABELAMI
+═════════════════════════════════════════════════════════════════════════════════
+
+USERS ────────────────────┐
+  ├─ OwnedProperties ────→ PROPERTIES ────→ ISSUES ────┐
+  ├─ ReportedIssues ─────────────────────────────────┘
+  ├─ CurrentTenant ──────→ (reverse)
+  └─ RefreshTokens ──────→ REFRESH_TOKENS
+
+Delete Behavior:
+   • users → properties: RESTRICT (nie można usunąć użytkownika jeśli ma nieruchomości)
+   • properties → issues: CASCADE (usunięcie nieruchomości usuwa tickety)
+   • users → issues: RESTRICT (nie można usunąć użytkownika który ma tickety)
+   • users → refresh_tokens: CASCADE (usunięcie użytkownika usuwa tokeny)
+
+═════════════════════════════════════════════════════════════════════════════════
+📁 ZMIENIONE PLIKI
+═════════════════════════════════════════════════════════════════════════════════
+
+PROGRAM.CS
+─────────────────────────────────────────────────────────────────────────────────
+   Zmiana:
+      PRZED: options.UseInMemoryDatabase("TestDb")
+      PO:    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL"))
+   
+   Dodane importy:
+      + using Npgsql.EntityFrameworkCore.PostgreSQL;
+
+APPSETTINGS.JSON
+─────────────────────────────────────────────────────────────────────────────────
+   Dodane:
+      "ConnectionStrings": {
+          "PostgreSQL": "Host=localhost;Port=5432;Database=mieszkania_db;Username=postgres;Password=postgres"
+      }
+
+APPSETTINGS.DEVELOPMENT.JSON
+─────────────────────────────────────────────────────────────────────────────────
+   Dodane:
+      "ConnectionStrings": {
+          "PostgreSQL": "Host=localhost;Port=5432;Database=mieszkania_db;Username=postgres;Password=postgres"
+      }
+
+ZARZADZANIEMIESZKANIAMI.CSPROJ
+─────────────────────────────────────────────────────────────────────────────────
+   Dodane pakiety:
+      ✓ Npgsql.EntityFrameworkCore.PostgreSQL v7.0.10
+      ✓ Microsoft.EntityFrameworkCore.Design v7.0.10
+   
+   Usunięte:
+      - Microsoft.EntityFrameworkCore.InMemory v7.0.10
+
+BACKEND/INFRASTRUCTURE/INFRASTRUCTURE.CSPROJ
+─────────────────────────────────────────────────────────────────────────────────
+   Dodane pakiety:
+      ✓ Npgsql.EntityFrameworkCore.PostgreSQL v7.0.10
+      ✓ Microsoft.EntityFrameworkCore.Design v7.0.10
+   
+   Usunięte:
+      - Microsoft.EntityFrameworkCore.InMemory v7.0.10
+
+BACKEND/INFRASTRUCTURE/APPDBCONTEXT.CS
+─────────────────────────────────────────────────────────────────────────────────
+   Dodane importy:
+      + using Infrastructure.Extensions;
+      + using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+   
+   Dodane konwencje:
+      + Konwersja naming (PascalCase → snake_case dla kolumn PostgreSQL)
+
+BACKEND/INFRASTRUCTURE/EXTENSIONS/STRINGEXTENSIONS.CS
+─────────────────────────────────────────────────────────────────────────────────
+   Nowy plik - Metody rozszerzające:
+      + ToSnakeCase() - PascalCase → snake_case
+      + ToPascalCase() - snake_case → PascalCase
+
+═════════════════════════════════════════════════════════════════════════════════
+📁 NOWE PLIKI
+═════════════════════════════════════════════════════════════════════════════════
+
+DATABASE_INIT.SQL
+   → SQL script do ręcznego tworzenia bazy danych i tabel
+
+DATABASE_SAMPLE_DATA.SQL
+   → Przykładowe dane (3 użytkowników, 2 nieruchomości, 2 issues)
+
+BACKEND/INFRASTRUCTURE/MIGRATIONS/20240102000000_INITIALCREATE.CS
+   → Entity Framework Core migacja do PostgreSQL
+
+BACKEND/INFRASTRUCTURE/MIGRATIONS/APPDBCONTEXTMODELSNAPSHOT.CS
+   → Model snapshot dla EF Core
+
+POSTGRESQL_SETUP.MD
+   → Pełna instrukcja konfiguracji PostgreSQL
+
+MIGRATION_NOTES.MD
+   → Checklist migracji + Troubleshooting
+
+IMPLEMENTATION_SUMMARY.MD
+   → Szczegółowe podsumowanie wszystkich zmian
+
+QUICKSTART.MD
+   → 5-minutowa instrukcja setup
+
+TABLES_SUMMARY.MD
+   → Wizualne podsumowanie tabel i relacji
+
+TEST_MIGRATION.PS1
+   → PowerShell script do automatycznego testowania migracji
+
+TEST_MIGRATION.SH
+   → Bash script do testowania na Linux/Mac
+
+═════════════════════════════════════════════════════════════════════════════════
+🚀 INSTRUKCJA WDROŻENIA
+═════════════════════════════════════════════════════════════════════════════════
+
+KROK 1: INSTALACJA POSTGRESQL
+─────────────────────────────────────────────────────────────────────────────────
+   Windows: https://www.postgresql.org/download/windows/
+   macOS:   brew install postgresql
+   Linux:   sudo apt install postgresql
+   
+   Domyślne:
+      • Username: postgres
+      • Password: postgres
+      • Port: 5432
+
+KROK 2: PRZYWRÓCENIE PAKIETÓW
+─────────────────────────────────────────────────────────────────────────────────
+   cd c:\Users\Jawgrzyn\test\flat\zarzadzanieMieszkaniami
+   dotnet restore
+
+KROK 3: TWORZENIE BAZY DANYCH
+─────────────────────────────────────────────────────────────────────────────────
+   Opcja A - Entity Framework (POLECANE):
+      dotnet ef database update
+   
+   Opcja B - Ręcznie (SQL):
+      psql -U postgres -f ../database_init.sql
+
+KROK 4: (OPCJONALNIE) ZAŁADUJ PRZYKŁADOWE DANE
+─────────────────────────────────────────────────────────────────────────────────
+   psql -U postgres -d mieszkania_db -f ../database_sample_data.sql
+
+KROK 5: URUCHOMIENIE APLIKACJI
+─────────────────────────────────────────────────────────────────────────────────
+   dotnet run
+   
+   Aplikacja będzie dostępna na: http://localhost:5162
+   Swagger UI: http://localhost:5162/swagger
+
+═════════════════════════════════════════════════════════════════════════════════
+⚠️  WAŻNE UWAGI
+═════════════════════════════════════════════════════════════════════════════════
+
+CONNECTION STRING SECURITY
+   ⚠️ Connection string zawiera hasło!
+   • Nie commituj appsettings.Development.json z prawdziwymi hasłami
+   • W produkcji: użyj zmiennych środowiskowych lub secrets management
+   • Dodaj do .gitignore
+
+ZMIANA HASŁA POSTGRESQL
+   Jeśli Twoja baza ma inne hasło, zmień w:
+      • appsettings.json
+      • appsettings.Development.json
+   
+   Szukaj: "Password=postgres"
+
+EF CORE TOOLS
+   Jeśli brakuje Ci dotnet ef:
+      dotnet tool install --global dotnet-ef
+
+═════════════════════════════════════════════════════════════════════════════════
+📞 TROUBLESHOOTING
+═════════════════════════════════════════════════════════════════════════════════
+
+BŁĄD: "Cannot connect to PostgreSQL"
+   → Uruchom PostgreSQL: pg_ctl -D "C:\Program Files\PostgreSQL\15\data" start
+   → Sprawdź connection string w appsettings.json
+
+BŁĄD: "Database does not exist"
+   → Uruchom: dotnet ef database update
+
+BŁĄD: "Column name errors"
+   → Usuń folder Migrations i ponownie stwórz migracje
+
+BŁĄD: "Port already in use"
+   → PostgreSQL domyślnie na port 5432, zmień connection string
+
+═════════════════════════════════════════════════════════════════════════════════
+✅ GOTOWE!
+═════════════════════════════════════════════════════════════════════════════════
+
+Aplikacja jest gotowa do użytku z PostgreSQL. 
+
+Następnie:
+   1. Zainstaluj PostgreSQL
+   2. Uruchom: dotnet ef database update
+   3. Uruchom: dotnet run
+   4. Testuj na http://localhost:5162
+
+📚 Więcej informacji w dokumentacji markdown:
+   • QUICKSTART.md - szybki setup
+   • POSTGRESQL_SETUP.md - szczegółowa konfiguracja
+   • MIGRATION_NOTES.md - troubleshooting
+
+🎉 Powodzenia!
+═════════════════════════════════════════════════════════════════════════════════

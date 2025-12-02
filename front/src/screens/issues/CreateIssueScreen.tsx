@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   ScrollView,
@@ -9,6 +9,7 @@ import {
   Alert,
   ActivityIndicator,
   Image,
+  Pressable,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import * as ImagePicker from 'expo-image-picker';
@@ -18,6 +19,8 @@ import { Colors } from '../../styles/colors';
 import { Spacing } from '../../styles/spacing';
 import { Typography } from '../../styles/typography';
 import { Ionicons } from '@expo/vector-icons';
+import { propertiesAPI } from '../../api/endpoints';
+import { Property } from '../../types/api';
 
 const CATEGORIES = ['Hydraulika', 'Elektryka', 'Ogrzewanie', 'OknaIDrzwi', 'AGD', 'Inne'];
 const PRIORITIES = ['Niska', 'Średnia', 'Wysoka', 'Krytyczna'];
@@ -30,8 +33,34 @@ export default function CreateIssueScreen({ navigation }: any) {
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('Inne');
   const [priority, setPriority] = useState('Średnia');
+  const [propertyId, setPropertyId] = useState<string>('');
   const [photos, setPhotos] = useState<ImagePicker.ImagePickerAsset[]>([]);
-  const [errors, setErrors] = useState<{ title?: string; description?: string }>({});
+  const [errors, setErrors] = useState<{ title?: string; description?: string; propertyId?: string }>({});
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [loadingProperties, setLoadingProperties] = useState(false);
+  const [showPropertyList, setShowPropertyList] = useState(false);
+
+  useEffect(() => {
+    loadProperties();
+  }, []);
+
+  const loadProperties = async () => {
+    try {
+      setLoadingProperties(true);
+      const response = await propertiesAPI.getAll();
+      if (response.data) {
+        setProperties(response.data);
+        if (response.data.length > 0) {
+          setPropertyId(response.data[0].id);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading properties:', error);
+      Alert.alert('Error', 'Failed to load properties');
+    } finally {
+      setLoadingProperties(false);
+    }
+  };
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -52,6 +81,7 @@ export default function CreateIssueScreen({ navigation }: any) {
 
     if (!title.trim()) newErrors.title = 'Title is required';
     if (!description.trim()) newErrors.description = 'Description is required';
+    if (!propertyId) newErrors.propertyId = 'Property is required';
 
     if (Object.keys(newErrors).length > 0) {
       console.log('🔴 Validation errors:', newErrors);
@@ -67,7 +97,7 @@ export default function CreateIssueScreen({ navigation }: any) {
       formData.append('Description', description);
       formData.append('Category', category);
       formData.append('Priority', priority);
-      formData.append('PropertyId', '00000000-0000-0000-0000-000000000000'); // TODO: allow user to select property
+      formData.append('PropertyId', propertyId);
 
       console.log('📝 Basic fields added to FormData');
 
@@ -133,6 +163,54 @@ export default function CreateIssueScreen({ navigation }: any) {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.form}>
+        <View style={styles.inputGroup}>
+          <Text style={Typography.label}>Nieruchomość *</Text>
+          {loadingProperties ? (
+            <ActivityIndicator size="large" color="#0000ff" />
+          ) : (
+            <View>
+              <Pressable
+                style={[styles.input, styles.propertySelector, errors.propertyId && styles.inputError]}
+                onPress={() => setShowPropertyList(!showPropertyList)}
+              >
+                <Text style={styles.propertySelectorText}>
+                  {propertyId
+                    ? properties.find((p) => p.id === propertyId)?.address || 'Wybierz nieruchomość'
+                    : 'Wybierz nieruchomość'}
+                </Text>
+              </Pressable>
+              {showPropertyList && (
+                <View style={styles.propertyList}>
+                  {properties.map((prop) => (
+                    <Pressable
+                      key={prop.id}
+                      style={[
+                        styles.propertyOption,
+                        propertyId === prop.id && styles.propertyOptionSelected,
+                      ]}
+                      onPress={() => {
+                        setPropertyId(prop.id);
+                        setShowPropertyList(false);
+                        setErrors({ ...errors, propertyId: undefined });
+                      }}
+                    >
+                      <Text
+                        style={[
+                          styles.propertyOptionText,
+                          propertyId === prop.id && styles.propertyOptionTextSelected,
+                        ]}
+                      >
+                        {prop.address}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              )}
+            </View>
+          )}
+          {errors.propertyId && <Text style={styles.errorText}>{errors.propertyId}</Text>}
+        </View>
+
         <View style={styles.inputGroup}>
           <Text style={Typography.label}>Tytuł *</Text>
           <TextInput
@@ -373,5 +451,37 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  propertySelector: {
+    justifyContent: 'center',
+  },
+  propertySelectorText: {
+    color: Colors.text,
+    fontSize: 16,
+  },
+  propertyList: {
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 8,
+    marginTop: Spacing.xs,
+    backgroundColor: Colors.surface,
+    maxHeight: 200,
+  },
+  propertyOption: {
+    paddingHorizontal: Spacing.m,
+    paddingVertical: Spacing.m,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  propertyOptionSelected: {
+    backgroundColor: '#f0f0f0',
+  },
+  propertyOptionText: {
+    color: Colors.text,
+    fontSize: 16,
+  },
+  propertyOptionTextSelected: {
+    fontWeight: 'bold',
+    color: Colors.primary,
   },
 });

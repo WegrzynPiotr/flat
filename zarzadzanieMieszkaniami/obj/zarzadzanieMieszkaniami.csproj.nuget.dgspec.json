@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\zarzadzanieMieszkaniami.csproj": {}
+    "C:\\Users\\Jawgrzyn\\test\\flat\\zarzadzanieMieszkaniami\\zarzadzanieMieszkaniami.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Application\\Application.csproj": {
+    "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Application\\Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Application\\Application.csproj",
+        "projectUniqueName": "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Application\\Application.csproj",
         "projectName": "Application",
-        "projectPath": "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Application\\Application.csproj",
-        "packagesPath": "C:\\Users\\Piotr\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Application\\obj\\",
+        "projectPath": "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Application\\Application.csproj",
+        "packagesPath": "C:\\Users\\Jawgrzyn\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Piotr\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Jawgrzyn\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -32,8 +32,8 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Core\\Core.csproj": {
-                "projectPath": "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Core\\Core.csproj"
+              "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Core\\Core.csproj": {
+                "projectPath": "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Core\\Core.csproj"
               }
             }
           }
@@ -91,20 +91,20 @@
         }
       }
     },
-    "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Core\\Core.csproj": {
+    "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Core\\Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Core\\Core.csproj",
+        "projectUniqueName": "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Core\\Core.csproj",
         "projectName": "Core",
-        "projectPath": "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Core\\Core.csproj",
-        "packagesPath": "C:\\Users\\Piotr\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Core\\obj\\",
+        "projectPath": "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Core\\Core.csproj",
+        "packagesPath": "C:\\Users\\Jawgrzyn\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Core\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Piotr\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Jawgrzyn\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -156,20 +156,20 @@
         }
       }
     },
-    "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Infrastructure\\Infrastructure.csproj": {
+    "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Infrastructure\\Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Infrastructure\\Infrastructure.csproj",
+        "projectUniqueName": "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Infrastructure\\Infrastructure.csproj",
         "projectName": "Infrastructure",
-        "projectPath": "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Infrastructure\\Infrastructure.csproj",
-        "packagesPath": "C:\\Users\\Piotr\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Infrastructure\\obj\\",
+        "projectPath": "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Infrastructure\\Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\Jawgrzyn\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Piotr\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Jawgrzyn\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -184,11 +184,11 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Application\\Application.csproj": {
-                "projectPath": "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Application\\Application.csproj"
+              "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Application\\Application.csproj": {
+                "projectPath": "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Application\\Application.csproj"
               },
-              "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Core\\Core.csproj": {
-                "projectPath": "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Core\\Core.csproj"
+              "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Core\\Core.csproj": {
+                "projectPath": "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Core\\Core.csproj"
               }
             }
           }
@@ -211,11 +211,15 @@
           "dependencies": {
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[7.0.10, )"
+              "version": "[7.0.11, )"
             },
-            "Microsoft.EntityFrameworkCore.InMemory": {
+            "Microsoft.EntityFrameworkCore.Design": {
               "target": "Package",
-              "version": "[7.0.10, )"
+              "version": "[7.0.11, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[7.0.11, )"
             }
           },
           "imports": [
@@ -238,20 +242,20 @@
         }
       }
     },
-    "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\zarzadzanieMieszkaniami.csproj": {
+    "C:\\Users\\Jawgrzyn\\test\\flat\\zarzadzanieMieszkaniami\\zarzadzanieMieszkaniami.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\zarzadzanieMieszkaniami.csproj",
+        "projectUniqueName": "C:\\Users\\Jawgrzyn\\test\\flat\\zarzadzanieMieszkaniami\\zarzadzanieMieszkaniami.csproj",
         "projectName": "zarzadzanieMieszkaniami",
-        "projectPath": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\zarzadzanieMieszkaniami.csproj",
-        "packagesPath": "C:\\Users\\Piotr\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\obj\\",
+        "projectPath": "C:\\Users\\Jawgrzyn\\test\\flat\\zarzadzanieMieszkaniami\\zarzadzanieMieszkaniami.csproj",
+        "packagesPath": "C:\\Users\\Jawgrzyn\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Jawgrzyn\\test\\flat\\zarzadzanieMieszkaniami\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Piotr\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Jawgrzyn\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -266,14 +270,14 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Application\\Application.csproj": {
-                "projectPath": "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Application\\Application.csproj"
+              "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Application\\Application.csproj": {
+                "projectPath": "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Application\\Application.csproj"
               },
-              "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Core\\Core.csproj": {
-                "projectPath": "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Core\\Core.csproj"
+              "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Core\\Core.csproj": {
+                "projectPath": "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Core\\Core.csproj"
               },
-              "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Infrastructure\\Infrastructure.csproj": {
-                "projectPath": "C:\\Users\\Piotr\\Downloads\\praca_inz\\backend\\Infrastructure\\Infrastructure.csproj"
+              "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\Jawgrzyn\\test\\flat\\backend\\Infrastructure\\Infrastructure.csproj"
               }
             }
           }
@@ -304,15 +308,19 @@
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[7.0.10, )"
+              "version": "[7.0.11, )"
             },
-            "Microsoft.EntityFrameworkCore.InMemory": {
+            "Microsoft.EntityFrameworkCore.Design": {
               "target": "Package",
-              "version": "[7.0.10, )"
+              "version": "[7.0.11, )"
             },
             "Microsoft.OpenApi": {
               "target": "Package",
               "version": "[1.6.17, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[7.0.11, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
