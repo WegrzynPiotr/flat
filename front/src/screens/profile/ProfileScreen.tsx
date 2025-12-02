@@ -1,32 +1,34 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutAsync } from '../../store/slices/authSlice';
-import { RootState } from '../../store/store';
+import { RootState, AppDispatch } from '../../store/store';
 import { Colors } from '../../styles/colors';
 import { Typography } from '../../styles/typography';
 import { Spacing } from '../../styles/spacing';
 
 export default function ProfileScreen() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector((state: RootState) => state.auth);
 
   const handleLogout = () => {
-    Alert.alert(
-      'Wylogowanie',
-      'Czy na pewno chcesz się wylogować?',
-      [
-        { text: 'Anuluj', style: 'cancel' },
-        {
-          text: 'Wyloguj',
-          style: 'destructive',
-          onPress: () => {
-            // @ts-ignore
-            dispatch(logoutAsync());
-          },
-        },
-      ]
-    );
+    console.log('🔴 PROFILE: Logout button clicked');
+    
+    const confirmed = Platform.OS === 'web' 
+      ? window.confirm('Czy na pewno chcesz się wylogować?')
+      : true;
+    
+    if (confirmed) {
+      console.log('🔴 PROFILE: User confirmed logout');
+      dispatch(logoutAsync())
+        .unwrap()
+        .then(() => {
+          console.log('🔴 PROFILE: Logout successful');
+        })
+        .catch((error) => {
+          console.error('🔴 PROFILE: Logout failed:', error);
+        });
+    }
   };
 
   return (

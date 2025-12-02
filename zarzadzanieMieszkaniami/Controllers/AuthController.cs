@@ -106,7 +106,6 @@ namespace zarzadzanieMieszkaniami.Controllers
             }
         }
 
-        [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout([FromBody] LogoutRequest request)
         {

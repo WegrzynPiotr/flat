@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { authAPI } from '../../api/endpoints';
 import { User } from '../../types/api';
 import { storage } from '../../utils/storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface AuthState {
   user: User | null;
@@ -69,23 +70,46 @@ export const logoutAsync = createAsyncThunk(
   'auth/logout',
   async (_, { getState, rejectWithValue }) => {
     try {
+      console.log('🔴 logoutAsync started');
       const state = getState() as { auth: AuthState };
       const refreshToken = state.auth.refreshToken;
       
       if (refreshToken) {
+        console.log('🔴 Calling backend logout');
         // Wywołaj endpoint backend aby unieważnić refresh token
         await authAPI.logout(refreshToken);
       }
       
+      console.log('🔴 Clearing storage...');
       // Usuń tokeny z lokalnego storage
       await storage.deleteItemAsync('authToken');
       await storage.deleteItemAsync('refreshToken');
       
+      // Wyczyść Redux Persist storage
+      await AsyncStorage.removeItem('persist:root');
+      
+      // Dla pewności wyczyść także web localStorage
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.removeItem('authToken');
+        window.localStorage.removeItem('refreshToken');
+        window.localStorage.removeItem('persist:root');
+      }
+      
+      console.log('🔴 Logout completed successfully');
       return true;
     } catch (error: any) {
+      console.error('🔴 Logout error:', error);
       // Nawet jeśli backend zwróci błąd, wyloguj lokalnie
       await storage.deleteItemAsync('authToken');
       await storage.deleteItemAsync('refreshToken');
+      await AsyncStorage.removeItem('persist:root');
+      
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.removeItem('authToken');
+        window.localStorage.removeItem('refreshToken');
+        window.localStorage.removeItem('persist:root');
+      }
+      
       return rejectWithValue(error.response?.data?.message || 'Logout failed');
     }
   }
@@ -122,11 +146,19 @@ const authSlice = createSlice({
   reducers: {
     logout: (state) => {
       // Synchroniczne wylogowanie (np. przy błędzie 401)
+      console.log('🔴 Synchronous logout called');
       state.user = null;
       state.accessToken = null;
       state.refreshToken = null;
       storage.deleteItemAsync('authToken');
       storage.deleteItemAsync('refreshToken');
+      AsyncStorage.removeItem('persist:root');
+      
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.removeItem('authToken');
+        window.localStorage.removeItem('refreshToken');
+        window.localStorage.removeItem('persist:root');
+      }
     },
     setUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
@@ -170,15 +202,18 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       })
       .addCase(logoutAsync.pending, (state) => {
+        console.log('🔴 logoutAsync.pending');
         state.loading = true;
       })
       .addCase(logoutAsync.fulfilled, (state) => {
+        console.log('🔴 logoutAsync.fulfilled - clearing state');
         state.loading = false;
         state.user = null;
         state.accessToken = null;
         state.refreshToken = null;
       })
       .addCase(logoutAsync.rejected, (state) => {
+        console.log('🔴 logoutAsync.rejected - clearing state anyway');
         // Nawet przy błędzie wyloguj lokalnie
         state.loading = false;
         state.user = null;
