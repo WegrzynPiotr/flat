@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Core.Interfaces;
@@ -21,6 +22,13 @@ namespace Infrastructure.Repositories
             return await _context.RefreshTokens
                 .Include(rt => rt.User)
                 .FirstOrDefaultAsync(rt => rt.Token == token);
+        }
+
+        public async Task<IEnumerable<RefreshToken>> GetAllByUserIdAsync(Guid userId)
+        {
+            return await _context.RefreshTokens
+                .Where(rt => rt.UserId == userId)
+                .ToListAsync();
         }
 
         public async Task<RefreshToken> AddAsync(RefreshToken refreshToken)

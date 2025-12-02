@@ -1,18 +1,19 @@
 ﻿using Core.Models;
 using Infrastructure.Extensions;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Infrastructure
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public DbSet<User> Users { get; set; }
         public DbSet<Property> Properties { get; set; }
         public DbSet<Issue> Issues { get; set; }
-        public DbSet<RefreshToken> RefreshTokens { get; set; }  //  Dodaj to
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -45,15 +46,11 @@ namespace Infrastructure
                 }
             }
 
-            // Konfiguracja User
+            // Konfiguracja User (dodatkowe właściwości)
             modelBuilder.Entity<User>(entity =>
             {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.FirstName).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.LastName).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.Role).IsRequired().HasMaxLength(30);
-                entity.HasIndex(e => e.Email).IsUnique();
             });
 
             // Konfiguracja Property

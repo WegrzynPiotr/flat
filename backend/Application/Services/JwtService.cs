@@ -13,10 +13,12 @@ namespace Application.Services
     public class JwtService
     {
         private readonly IConfiguration _configuration;
+        private readonly EncryptionService _encryptionService;
 
-        public JwtService(IConfiguration configuration)
+        public JwtService(IConfiguration configuration, EncryptionService encryptionService)
         {
             _configuration = configuration;
+            _encryptionService = encryptionService;
         }
 
         public string GenerateAccessToken(User user)
@@ -26,6 +28,7 @@ namespace Application.Services
             var audience = _configuration["JwtSettings:Audience"];
             var expirationMinutes = int.Parse(_configuration["JwtSettings:AccessTokenExpirationMinutes"]);
 
+            // Używamy HMAC-SHA256 dla podpisu JWT (standard)
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
@@ -34,8 +37,7 @@ namespace Application.Services
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.GivenName, user.FirstName),
-                new Claim(ClaimTypes.Surname, user.LastName),
-                new Claim(ClaimTypes.Role, user.Role)
+                new Claim(ClaimTypes.Surname, user.LastName)
             };
 
             var token = new JwtSecurityToken(
@@ -54,7 +56,10 @@ namespace Application.Services
             var randomNumber = new byte[32];
             using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomNumber);
-            return Convert.ToBase64String(randomNumber);
+            var refreshToken = Convert.ToBase64String(randomNumber);
+            
+            // Szyfrujemy refresh token używając AES-256 przed zapisem do bazy
+            return _encryptionService.Encrypt(refreshToken);
         }
 
         public ClaimsPrincipal ValidateToken(string token)

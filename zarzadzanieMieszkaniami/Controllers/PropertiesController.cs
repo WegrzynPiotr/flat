@@ -1,9 +1,11 @@
 using System;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Security.Claims;
 using Core.Interfaces;
 using Core.Models;
 using Application.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace zarzadzanieMieszkaniami.Controllers
@@ -20,6 +22,7 @@ namespace zarzadzanieMieszkaniami.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAll()
         {
             var properties = await _propertyRepository.GetAllAsync();
@@ -39,6 +42,7 @@ namespace zarzadzanieMieszkaniami.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetById(Guid id)
         {
             var property = await _propertyRepository.GetByIdAsync(id);
@@ -62,10 +66,23 @@ namespace zarzadzanieMieszkaniami.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Property property)
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> Create([FromBody] CreatePropertyRequest request)
         {
-            property.Id = Guid.NewGuid();
-            property.CreatedAt = DateTime.UtcNow;
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            
+            var property = new Property
+            {
+                Id = Guid.NewGuid(),
+                Address = request.Address,
+                City = request.City,
+                PostalCode = request.PostalCode,
+                RoomsCount = request.RoomsCount,
+                Area = request.Area,
+                OwnerId = userId,
+                CreatedAt = DateTime.UtcNow
+            };
+            
             var created = await _propertyRepository.AddAsync(property);
             
             var dto = new PropertyResponse

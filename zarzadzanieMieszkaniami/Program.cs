@@ -1,8 +1,10 @@
 using Application.Services;
 using Core.Interfaces;
+using Core.Models;
 using Infrastructure;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
@@ -14,14 +16,37 @@ var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls("http://0.0.0.0:5162");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL"),
+        b => b.MigrationsAssembly("zarzadzanieMieszkaniami")));
 
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+// ASP.NET Identity
+builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
+{
+    // Konfiguracja hasła
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequiredLength = 8;
+    
+    // Konfiguracja użytkownika
+    options.User.RequireUniqueEmail = true;
+    
+    // Konfiguracja lockout
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
+})
+.AddEntityFrameworkStores<AppDbContext>()
+.AddDefaultTokenProviders();
+
 builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
 builder.Services.AddScoped<IIssueRepository, IssueRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-builder.Services.AddScoped<JwtService>();
 
+// Serwisy szyfrowania i JWT
+builder.Services.AddSingleton<EncryptionService>();
+builder.Services.AddScoped<JwtService>();
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<IssueService>();

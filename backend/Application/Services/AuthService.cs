@@ -1,27 +1,28 @@
 using System;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Core.Interfaces;
 using Core.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace Application.Services
 {
     public class AuthService
     {
-        private readonly IUserRepository _userRepository;
+        private readonly UserManager<User> _userManager;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly JwtService _jwtService;
         private readonly IConfiguration _configuration;
 
         public AuthService(
-            IUserRepository userRepository,
+            UserManager<User> userManager,
             IRefreshTokenRepository refreshTokenRepository,
             JwtService jwtService,
             IConfiguration configuration)
         {
-            _userRepository = userRepository;
+            _userManager = userManager;
             _refreshTokenRepository = refreshTokenRepository;
             _jwtService = jwtService;
             _configuration = configuration;
@@ -29,30 +30,38 @@ namespace Application.Services
 
         public async Task<User> RegisterAsync(string email, string password, string firstName, string lastName, string role)
         {
-            var existingUser = await _userRepository.GetByEmailAsync(email);
-            if (existingUser != null)
-            {
-                throw new Exception("User with this email already exists");
-            }
-
             var user = new User
             {
                 Id = Guid.NewGuid(),
-                Email = email,
-                PasswordHash = HashPassword(password),
-                FirstName = firstName,
-                LastName = lastName,
-                Role = role,
+                UserName = email,
+                Email = email.ToLower().Trim(),
+                FirstName = firstName.Trim(),
+                LastName = lastName.Trim(),
                 CreatedAt = DateTime.UtcNow
             };
 
-            return await _userRepository.AddAsync(user);
+            var result = await _userManager.CreateAsync(user, password);
+            
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new Exception($"Registration failed: {errors}");
+            }
+
+            // Dodaj rolę
+            if (!string.IsNullOrEmpty(role))
+            {
+                await _userManager.AddToRoleAsync(user, role);
+            }
+
+            return user;
         }
 
         public async Task<(string AccessToken, string RefreshToken, User User)> LoginAsync(string email, string password)
         {
             Console.WriteLine($"=== LOGIN ATTEMPT: {email} ===");
-            var user = await _userRepository.GetByEmailAsync(email);
+            
+            var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
                 Console.WriteLine("User not found");
@@ -61,7 +70,9 @@ namespace Application.Services
             
             Console.WriteLine($"User found: {user.Id} - {user.FirstName} {user.LastName}");
             
-            if (!VerifyPassword(password, user.PasswordHash))
+            var isPasswordValid = await _userManager.CheckPasswordAsync(user, password);
+            
+            if (!isPasswordValid)
             {
                 Console.WriteLine("Password verification failed");
                 throw new Exception("Invalid email or password");
@@ -123,16 +134,30 @@ namespace Application.Services
             return (newAccessToken, newRefreshToken);
         }
 
-        private string HashPassword(string password)
+        public async Task<bool> LogoutAsync(string refreshToken)
         {
-            using var sha256 = SHA256.Create();
-            var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return Convert.ToBase64String(bytes);
+            var tokenEntity = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
+            if (tokenEntity == null)
+            {
+                return false;
+            }
+
+            tokenEntity.IsRevoked = true;
+            await _refreshTokenRepository.UpdateAsync(tokenEntity);
+            return true;
         }
 
-        private bool VerifyPassword(string password, string hash)
+        public async Task RevokeAllUserTokensAsync(Guid userId)
         {
-            return HashPassword(password) == hash;
+            var tokens = await _refreshTokenRepository.GetAllByUserIdAsync(userId);
+            foreach (var token in tokens)
+            {
+                if (!token.IsRevoked)
+                {
+                    token.IsRevoked = true;
+                    await _refreshTokenRepository.UpdateAsync(token);
+                }
+            }
         }
     }
 }
