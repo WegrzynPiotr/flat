@@ -14,6 +14,11 @@ export const authAPI = {
     }),
   register: (data: any) =>
     client.post<{ accessToken: string; user: User }>('/auth/register', data),
+  logout: async (refreshToken: string) =>
+    client.post('/auth/logout', { refreshToken }),
+  refreshToken: async (refreshToken: string) =>
+    client.post<{ accessToken: string; refreshToken: string }>('/auth/refresh-token', { refreshToken }),
+  getMe: () => client.get<User>('/auth/me'),
 };
 
 // Users

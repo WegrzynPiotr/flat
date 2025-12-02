@@ -58,8 +58,24 @@ namespace Application.Services
             rng.GetBytes(randomNumber);
             var refreshToken = Convert.ToBase64String(randomNumber);
             
-            // Szyfrujemy refresh token używając AES-256 przed zapisem do bazy
-            return _encryptionService.Encrypt(refreshToken);
+            // Zwracamy niezaszyfrowany token - szyfrowanie nastąpi przed zapisem do bazy
+            return refreshToken;
+        }
+
+        /// <summary>
+        /// Szyfruje refresh token używając AES-256 przed zapisem do bazy
+        /// </summary>
+        public string EncryptRefreshToken(string token)
+        {
+            return _encryptionService.Encrypt(token);
+        }
+
+        /// <summary>
+        /// Deszyfruje refresh token z bazy danych
+        /// </summary>
+        public string DecryptRefreshToken(string encryptedToken)
+        {
+            return _encryptionService.Decrypt(encryptedToken);
         }
 
         public ClaimsPrincipal ValidateToken(string token)

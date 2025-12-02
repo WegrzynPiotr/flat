@@ -149,22 +149,39 @@ namespace zarzadzanieMieszkaniami.Controllers
 
         [Authorize]
         [HttpGet("me")]
-        public IActionResult GetCurrentUser()
+        public async Task<IActionResult> GetCurrentUser()
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var email = User.FindFirst(ClaimTypes.Email)?.Value;
-            var firstName = User.FindFirst(ClaimTypes.GivenName)?.Value;
-            var lastName = User.FindFirst(ClaimTypes.Surname)?.Value;
-            var role = User.FindFirst(ClaimTypes.Role)?.Value;
-
-            return Ok(new
+            try
             {
-                id = userId,
-                email,
-                firstName,
-                lastName,
-                role
-            });
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim))
+                {
+                    return Unauthorized();
+                }
+
+                var userId = Guid.Parse(userIdClaim);
+                var user = await _userManager.FindByIdAsync(userId.ToString());
+                
+                if (user == null)
+                {
+                    return NotFound(new { message = "User not found" });
+                }
+
+                var roles = await _userManager.GetRolesAsync(user);
+
+                return Ok(new
+                {
+                    id = user.Id,
+                    email = user.Email,
+                    firstName = user.FirstName,
+                    lastName = user.LastName,
+                    role = roles.FirstOrDefault()
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 

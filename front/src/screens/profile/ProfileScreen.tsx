@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { logout } from '../../store/slices/authSlice';
+import { logoutAsync } from '../../store/slices/authSlice';
 import { RootState } from '../../store/store';
 import { Colors } from '../../styles/colors';
 import { Typography } from '../../styles/typography';
@@ -20,7 +20,10 @@ export default function ProfileScreen() {
         {
           text: 'Wyloguj',
           style: 'destructive',
-          onPress: () => dispatch(logout()),
+          onPress: () => {
+            // @ts-ignore
+            dispatch(logoutAsync());
+          },
         },
       ]
     );

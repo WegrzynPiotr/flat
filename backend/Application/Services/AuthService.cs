@@ -89,7 +89,7 @@ namespace Application.Services
             {
                 Id = Guid.NewGuid(),
                 UserId = user.Id,
-                Token = refreshToken,
+                Token = _jwtService.EncryptRefreshToken(refreshToken), // Szyfrujemy przed zapisem do bazy
                 ExpiresAt = DateTime.UtcNow.AddDays(refreshTokenExpirationDays),
                 CreatedAt = DateTime.UtcNow,
                 IsRevoked = false
@@ -103,7 +103,9 @@ namespace Application.Services
 
         public async Task<(string AccessToken, string RefreshToken)> RefreshTokenAsync(string refreshToken)
         {
-            var tokenEntity = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
+            // Szyfrujemy token od klienta aby porównać z zaszyfrowanym tokenem w bazie
+            var encryptedToken = _jwtService.EncryptRefreshToken(refreshToken);
+            var tokenEntity = await _refreshTokenRepository.GetByTokenAsync(encryptedToken);
 
             if (tokenEntity == null || tokenEntity.IsRevoked || tokenEntity.ExpiresAt < DateTime.UtcNow)
             {
@@ -123,7 +125,7 @@ namespace Application.Services
             {
                 Id = Guid.NewGuid(),
                 UserId = user.Id,
-                Token = newRefreshToken,
+                Token = _jwtService.EncryptRefreshToken(newRefreshToken), // Szyfrujemy przed zapisem
                 ExpiresAt = DateTime.UtcNow.AddDays(refreshTokenExpirationDays),
                 CreatedAt = DateTime.UtcNow,
                 IsRevoked = false
@@ -136,7 +138,9 @@ namespace Application.Services
 
         public async Task<bool> LogoutAsync(string refreshToken)
         {
-            var tokenEntity = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
+            // Szyfrujemy token od klienta aby znaleźć w bazie
+            var encryptedToken = _jwtService.EncryptRefreshToken(refreshToken);
+            var tokenEntity = await _refreshTokenRepository.GetByTokenAsync(encryptedToken);
             if (tokenEntity == null)
             {
                 return false;

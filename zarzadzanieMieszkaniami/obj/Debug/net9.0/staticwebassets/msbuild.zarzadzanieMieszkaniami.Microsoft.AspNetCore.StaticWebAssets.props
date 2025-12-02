@@ -216,6 +216,24 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\ce12b72e-58be-473f-8496-9dcd45ef48ed.PNG'))</OriginalItemSpec>
     </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\cfcf68a0-8406-458f-b30b-0673ebb89b5f.jpg'))">
+      <SourceType>Package</SourceType>
+      <SourceId>zarzadzanieMieszkaniami</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/zarzadzanieMieszkaniami</BasePath>
+      <RelativePath>uploads/cfcf68a0-8406-458f-b30b-0673ebb89b5f.jpg</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>6okmbbx8ux</Fingerprint>
+      <Integrity>JhlEGbWvVSYlaaCX8zxE7j7+2wxREADbs97NAADzzZ4=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\cfcf68a0-8406-458f-b30b-0673ebb89b5f.jpg'))</OriginalItemSpec>
+    </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\dc6c9b94-30f3-493b-8d01-822e318bc053.png'))">
       <SourceType>Package</SourceType>
       <SourceId>zarzadzanieMieszkaniami</SourceId>
