@@ -22,10 +22,13 @@ export default function AssignTenantForm() {
 
   const loadData = async () => {
     try {
+      console.log('🔵 Loading properties and tenants...');
       const [propsResponse, tenantsResponse] = await Promise.all([
         propertiesAPI.getAll(),
         userManagementAPI.getMyTenants(),
       ]);
+      console.log('🔵 Properties:', propsResponse.data);
+      console.log('🔵 Tenants:', tenantsResponse.data);
       setProperties(propsResponse.data);
       setTenants(tenantsResponse.data);
     } catch (error) {
@@ -42,20 +45,25 @@ export default function AssignTenantForm() {
       return;
     }
 
+    const payload = {
+      propertyId: selectedProperty,
+      tenantId: selectedTenant,
+      startDate: new Date(startDate).toISOString(),
+    };
+
+    console.log('🔵 Assigning tenant with payload:', payload);
+
     setSubmitting(true);
     try {
-      await userManagementAPI.assignTenant({
-        propertyId: selectedProperty,
-        tenantId: selectedTenant,
-        startDate,
-      });
+      await userManagementAPI.assignTenant(payload);
       
       Alert.alert('Sukces', 'Najemca został przypisany do nieruchomości');
       setSelectedProperty('');
       setSelectedTenant('');
       await loadData();
     } catch (error: any) {
-      console.error('Failed to assign tenant:', error);
+      console.error('🔴 Failed to assign tenant:', error);
+      console.error('🔴 Error response:', error.response?.data);
       Alert.alert('Błąd', error.response?.data?.message || 'Nie udało się przypisać najemcy');
     } finally {
       setSubmitting(false);

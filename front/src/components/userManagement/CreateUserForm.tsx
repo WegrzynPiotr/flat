@@ -5,10 +5,10 @@ import { RootState } from '../../store/store';
 import { userManagementAPI } from '../../api/endpoints';
 import { Colors } from '../../styles/colors';
 import { Spacing } from '../../styles/spacing';
+import { Typography } from '../../styles/typography';
+
 export default function CreateUserForm() {
   const userRole = useSelector((state: RootState) => state.auth.user?.role);
-  const [formData, setFormData] = useState({
-export default function CreateUserForm() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -18,6 +18,7 @@ export default function CreateUserForm() {
     role: 'Najemca' as 'Najemca' | 'Serwisant',
   });
   const [loading, setLoading] = useState(false);
+
   const handleSubmit = async () => {
     console.log('🔵 Current user role:', userRole);
     
@@ -31,12 +32,10 @@ export default function CreateUserForm() {
     try {
       console.log('🔵 Sending request to API...');
       const response = await userManagementAPI.createUser({
-      const response = await userManagementAPI.createUser({
         email: formData.email,
         password: formData.password,
         firstName: formData.firstName,
         lastName: formData.lastName,
-        phoneNumber: formData.phoneNumber || undefined,
         role: formData.role,
       });
       
@@ -67,83 +66,83 @@ export default function CreateUserForm() {
       <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
         <Text style={Typography.h2}>Utwórz nowego użytkownika</Text>
 
-      <View style={styles.form}>
-        <Text style={styles.label}>Email *</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="email@example.com"
-          value={formData.email}
-          onChangeText={(text) => setFormData({ ...formData, email: text })}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
+        <View style={styles.form}>
+          <Text style={styles.label}>Email *</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="email@example.com"
+            value={formData.email}
+            onChangeText={(text) => setFormData({ ...formData, email: text })}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
 
-        <Text style={styles.label}>Hasło *</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Minimum 6 znaków"
-          value={formData.password}
-          onChangeText={(text) => setFormData({ ...formData, password: text })}
-          secureTextEntry
-        />
+          <Text style={styles.label}>Hasło *</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Minimum 6 znaków"
+            value={formData.password}
+            onChangeText={(text) => setFormData({ ...formData, password: text })}
+            secureTextEntry
+          />
 
-        <Text style={styles.label}>Imię *</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Jan"
-          value={formData.firstName}
-          onChangeText={(text) => setFormData({ ...formData, firstName: text })}
-        />
+          <Text style={styles.label}>Imię *</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Jan"
+            value={formData.firstName}
+            onChangeText={(text) => setFormData({ ...formData, firstName: text })}
+          />
 
-        <Text style={styles.label}>Nazwisko *</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Kowalski"
-          value={formData.lastName}
-          onChangeText={(text) => setFormData({ ...formData, lastName: text })}
-        />
+          <Text style={styles.label}>Nazwisko *</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Kowalski"
+            value={formData.lastName}
+            onChangeText={(text) => setFormData({ ...formData, lastName: text })}
+          />
 
-        <Text style={styles.label}>Telefon</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="+48 123 456 789"
-          value={formData.phoneNumber}
-          onChangeText={(text) => setFormData({ ...formData, phoneNumber: text })}
-          keyboardType="phone-pad"
-        />
+          <Text style={styles.label}>Telefon</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="+48 123 456 789"
+            value={formData.phoneNumber}
+            onChangeText={(text) => setFormData({ ...formData, phoneNumber: text })}
+            keyboardType="phone-pad"
+          />
 
-        <Text style={styles.label}>Rola *</Text>
-        <View style={styles.roleButtons}>
+          <Text style={styles.label}>Rola *</Text>
+          <View style={styles.roleButtons}>
+            <TouchableOpacity
+              style={[styles.roleButton, formData.role === 'Najemca' && styles.roleButtonActive]}
+              onPress={() => setFormData({ ...formData, role: 'Najemca' })}
+            >
+              <Text style={[styles.roleButtonText, formData.role === 'Najemca' && styles.roleButtonTextActive]}>
+                Najemca
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.roleButton, formData.role === 'Serwisant' && styles.roleButtonActive]}
+              onPress={() => setFormData({ ...formData, role: 'Serwisant' })}
+            >
+              <Text style={[styles.roleButtonText, formData.role === 'Serwisant' && styles.roleButtonTextActive]}>
+                Serwisant
+              </Text>
+            </TouchableOpacity>
+          </View>
+
           <TouchableOpacity
-            style={[styles.roleButton, formData.role === 'Najemca' && styles.roleButtonActive]}
-            onPress={() => setFormData({ ...formData, role: 'Najemca' })}
+            style={[styles.submitButton, loading && styles.submitButtonDisabled]}
+            onPress={handleSubmit}
+            disabled={loading}
           >
-            <Text style={[styles.roleButtonText, formData.role === 'Najemca' && styles.roleButtonTextActive]}>
-              Najemca
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.roleButton, formData.role === 'Serwisant' && styles.roleButtonActive]}
-            onPress={() => setFormData({ ...formData, role: 'Serwisant' })}
-          >
-            <Text style={[styles.roleButtonText, formData.role === 'Serwisant' && styles.roleButtonTextActive]}>
-              Serwisant
+            <Text style={styles.submitButtonText}>
+              {loading ? 'Tworzenie...' : 'Utwórz użytkownika'}
             </Text>
           </TouchableOpacity>
         </View>
-
-        <TouchableOpacity
-          style={[styles.submitButton, loading && styles.submitButtonDisabled]}
-          onPress={handleSubmit}
-          disabled={loading}
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+      </ScrollView>
     </KeyboardAvoidingView>
-  );
-}       </TouchableOpacity>
-      </View>
-    </ScrollView>
   );
 }
 
@@ -207,3 +206,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+

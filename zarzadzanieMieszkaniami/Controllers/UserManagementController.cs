@@ -148,18 +148,35 @@ namespace zarzadzanieMieszkaniami.Controllers
             return Ok();
         }
 
-        // Pobierz listę najemców wynajmującego
+        // Pobierz listę najemców wynajmującego (wszystkich utworzonych przez tego właściciela)
         [HttpGet("my-tenants")]
         [Authorize(Roles = "Wlasciciel")]
         public async Task<IActionResult> GetMyTenants()
         {
             var landlordId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
-            var tenants = await _context.PropertyTenants
-                .Where(pt => _context.Properties.Any(p => p.OwnerId == landlordId && p.Id == pt.PropertyId))
-                .Select(pt => pt.Tenant)
-                .Distinct()
+            Console.WriteLine($"🔵 Getting tenants for landlord: {landlordId}");
+
+            // Pobierz wszystkich użytkowników utworzonych przez tego właściciela z rolą Najemca
+            var allUsers = await _context.Users
+                .Where(u => u.CreatedByLandlordId == landlordId)
                 .ToListAsync();
+
+            Console.WriteLine($"🔵 Found {allUsers.Count} users created by landlord");
+
+            // Filtruj tylko tych z rolą Najemca
+            var tenants = new List<User>();
+            foreach (var user in allUsers)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                if (roles.Contains("Najemca"))
+                {
+                    tenants.Add(user);
+                    Console.WriteLine($"✅ Tenant found: {user.FirstName} {user.LastName}");
+                }
+            }
+
+            Console.WriteLine($"🔵 Total tenants: {tenants.Count}");
 
             var responses = tenants.Select(t => new UserResponse
             {
