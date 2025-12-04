@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { messagesAPI } from '../../api/endpoints';
-import { ConversationUser } from '../../types/api';
+import { ConversationUser, MessageResponse } from '../../types/api';
 import { Colors } from '../../styles/colors';
 import { Spacing } from '../../styles/spacing';
 import { Typography } from '../../styles/typography';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store/store';
+import { startSignalRConnection, onReceiveMessage, offReceiveMessage } from '../../services/signalrService';
 
 interface MessagesListProps {
   onSelectContact: (userId: string, name: string) => void;
@@ -13,10 +16,52 @@ interface MessagesListProps {
 export default function MessagesList({ onSelectContact }: MessagesListProps) {
   const [contacts, setContacts] = useState<ConversationUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const currentUserId = useSelector((state: RootState) => state.auth.user?.id);
+  const token = useSelector((state: RootState) => state.auth.accessToken);
 
   useEffect(() => {
     loadContacts();
-  }, []);
+
+    let cleanup: (() => void) | undefined;
+
+    // Połączenie SignalR dla otrzymywania powiadomień o nowych wiadomościach
+    if (token) {
+      console.log('🔌 Initializing SignalR in MessagesList');
+      startSignalRConnection(token)
+        .then(() => {
+          console.log('📡 SignalR connected in MessagesList');
+          
+          // Nasłuchuj na nowe wiadomości
+          cleanup = onReceiveMessage((message: MessageResponse) => {
+            console.log('📨 New message notification in MessagesList:', message);
+            
+            // Jeśli jestem odbiorcą wiadomości, zwiększ licznik nieodczytanych
+            if (message.receiverId === currentUserId) {
+              console.log('✅ Message is for me, updating unread count');
+              setContacts(prevContacts => {
+                return prevContacts.map(contact => {
+                  if (contact.userId === message.senderId) {
+                    return {
+                      ...contact,
+                      unreadCount: contact.unreadCount + 1
+                    };
+                  }
+                  return contact;
+                });
+              });
+            }
+          });
+        })
+        .catch(err => console.error('❌ SignalR connection failed in MessagesList:', err));
+    } else {
+      console.log('⚠️ No token available for SignalR connection in MessagesList');
+    }
+
+    return () => {
+      console.log('🔌 Cleaning up SignalR listeners in MessagesList');
+      if (cleanup) cleanup();
+    };
+  }, [token, currentUserId]);
 
   const loadContacts = async () => {
     try {

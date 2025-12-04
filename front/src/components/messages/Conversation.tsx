@@ -7,6 +7,7 @@ import { Spacing } from '../../styles/spacing';
 import { Typography } from '../../styles/typography';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
+import { startSignalRConnection, stopSignalRConnection, onReceiveMessage, offReceiveMessage } from '../../services/signalrService';
 
 interface ConversationProps {
   userId: string;
@@ -20,13 +21,70 @@ export default function Conversation({ userId, userName, onBack }: ConversationP
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const currentUserId = useSelector((state: RootState) => state.auth.user?.id);
+  const token = useSelector((state: RootState) => state.auth.accessToken);
   const flatListRef = useRef<FlatList>(null);
 
   useEffect(() => {
     loadMessages();
-    const interval = setInterval(loadMessages, 5000); // Odświeżaj co 5s
-    return () => clearInterval(interval);
-  }, [userId]);
+
+    let cleanup: (() => void) | undefined;
+
+    // Połączenie SignalR
+    if (token) {
+      console.log('🔌 Initializing SignalR for conversation with:', userId);
+      startSignalRConnection(token)
+        .then(() => {
+          console.log('📡 SignalR connected in Conversation');
+          
+          // Nasłuchuj na nowe wiadomości
+          cleanup = onReceiveMessage((message: MessageResponse) => {
+            console.log('📨 New message received via SignalR:', message);
+            console.log('📨 Current conversation userId:', userId);
+            console.log('📨 Current user ID:', currentUserId);
+            
+            // Dodaj wiadomość jeśli jest w tej konwersacji
+            // Wiadomość należy do tej konwersacji jeśli:
+            // 1. Jest od userId do mnie LUB
+            // 2. Jest ode mnie do userId
+            const isFromConversationPartner = message.senderId === userId && message.receiverId === currentUserId;
+            const isToConversationPartner = message.senderId === currentUserId && message.receiverId === userId;
+            
+            if (isFromConversationPartner || isToConversationPartner) {
+              console.log('✅ Message belongs to this conversation, adding to list');
+              setMessages(prev => {
+                // Sprawdź czy już nie mamy tej wiadomości
+                if (prev.some(m => m.id === message.id)) {
+                  console.log('⚠️ Message already exists in list');
+                  return prev;
+                }
+                const newMessages = [...prev, message];
+                console.log('✅ Added message, new count:', newMessages.length);
+                return newMessages;
+              });
+              
+              // Oznacz jako przeczytaną jeśli jesteśmy odbiorcą
+              if (message.receiverId === currentUserId) {
+                console.log('📖 Marking message as read');
+                messagesAPI.markAsRead(message.id).catch(console.error);
+              }
+              
+              // Scroll do końca
+              setTimeout(() => flatListRef.current?.scrollToEnd(), 100);
+            } else {
+              console.log('⚠️ Message does not belong to this conversation');
+            }
+          });
+        })
+        .catch(err => console.error('❌ SignalR connection failed:', err));
+    } else {
+      console.log('⚠️ No token available for SignalR connection');
+    }
+
+    return () => {
+      console.log('🔌 Cleaning up SignalR listeners');
+      if (cleanup) cleanup();
+    };
+  }, [userId, token, currentUserId]);
 
   const loadMessages = async () => {
     try {
@@ -51,7 +109,15 @@ export default function Conversation({ userId, userName, onBack }: ConversationP
     setSending(true);
     try {
       const response = await messagesAPI.send(userId, newMessage.trim());
-      setMessages([...messages, response.data]);
+      
+      // Dodaj wiadomość lokalnie (SignalR też wyśle ale dla pewności)
+      setMessages(prev => {
+        if (prev.some(m => m.id === response.data.id)) {
+          return prev;
+        }
+        return [...prev, response.data];
+      });
+      
       setNewMessage('');
       setTimeout(() => flatListRef.current?.scrollToEnd(), 100);
     } catch (error) {
