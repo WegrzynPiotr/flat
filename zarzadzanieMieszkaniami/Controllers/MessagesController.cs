@@ -173,12 +173,36 @@ namespace zarzadzanieMieszkaniami.Controllers
                 var unreadCount = await _context.Messages
                     .CountAsync(m => m.SenderId == contactId && m.ReceiverId == userId && !m.IsRead);
 
+                // Pobierz adres mieszkania powiązanego z kontaktem
+                string propertyAddress = null;
+                
+                if (role == "Najemca")
+                {
+                    // Dla najemcy - pobierz adres mieszkania, które wynajmuje
+                    propertyAddress = await _context.PropertyTenants
+                        .Where(pt => pt.TenantId == contactId)
+                        .Join(_context.Properties, pt => pt.PropertyId, p => p.Id, (pt, p) => p.Address)
+                        .FirstOrDefaultAsync();
+                }
+                else if (role == "Wlasciciel" && userRole == "Najemca")
+                {
+                    // Dla właściciela (gdy najemca pyta) - pobierz adres mieszkania najemcy
+                    propertyAddress = await _context.PropertyTenants
+                        .Where(pt => pt.TenantId == userId)
+                        .Join(_context.Properties, pt => pt.PropertyId, p => p.Id, (pt, p) => p)
+                        .Where(p => p.OwnerId == contactId)
+                        .Select(p => p.Address)
+                        .FirstOrDefaultAsync();
+                }
+                // Serwisant nie ma przypisanego mieszkania - pomijamy
+
                 contacts.Add(new ConversationUserResponse
                 {
                     UserId = contactId,
                     Name = $"{user.FirstName} {user.LastName}",
                     Role = role,
-                    UnreadCount = unreadCount
+                    UnreadCount = unreadCount,
+                    PropertyAddress = propertyAddress
                 });
             }
 

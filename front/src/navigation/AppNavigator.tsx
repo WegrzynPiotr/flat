@@ -8,6 +8,7 @@ import IssuesListScreen from '../screens/issues/IssuesListScreen';
 import IssueDetailsScreen from '../screens/issues/IssueDetailsScreen';
 import CreateIssueScreen from '../screens/issues/CreateIssueScreen';
 import PropertiesScreen from '../screens/properties/PropertiesScreen';
+import PropertyDetailsScreen from '../screens/properties/PropertyDetailsScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 import MessagesScreen from '../screens/messages/MessagesScreen';
 import ManagementScreen from '../screens/management/ManagementScreen';
@@ -45,6 +46,30 @@ function IssuesStack() {
   );
 }
 
+function PropertiesStack() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: true,
+        headerStyle: { backgroundColor: Colors.primary },
+        headerTintColor: '#fff',
+        headerTitleStyle: { fontWeight: 'bold' },
+      }}
+    >
+      <Stack.Screen
+        name="PropertiesList"
+        component={PropertiesScreen}
+        options={{ title: 'Moje mieszkania' }}
+      />
+      <Stack.Screen
+        name="PropertyDetails"
+        component={PropertyDetailsScreen}
+        options={{ title: 'Szczegóły mieszkania' }}
+      />
+    </Stack.Navigator>
+  );
+}
+
 export default function AppNavigator() {
   const userRole = useSelector((state: RootState) => state.auth.user?.role);
 
@@ -72,7 +97,7 @@ export default function AppNavigator() {
     >
       <Tab.Screen name="Issues" component={IssuesStack} options={{ headerShown: false, title: 'Usterki' }} />
       {userRole !== 'Serwisant' && (
-        <Tab.Screen name="Properties" component={PropertiesScreen} options={{ title: 'Mieszkania' }} />
+        <Tab.Screen name="Properties" component={PropertiesStack} options={{ headerShown: false, title: 'Mieszkania' }} />
       )}
       <Tab.Screen name="Messages" component={MessagesScreen} options={{ title: 'Wiadomości' }} />
       {userRole === 'Wlasciciel' && (

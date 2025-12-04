@@ -94,6 +94,8 @@ export const propertiesAPI = {
   getById: (id: string) => client.get<PropertyResponse>(`/properties/${id}`),
   create: (data: Partial<Property>) =>
     client.post<PropertyResponse>('/properties', data),
+  update: (id: string, data: Partial<Property>) =>
+    client.put<PropertyResponse>(`/properties/${id}`, data),
 };
 
 // Comments

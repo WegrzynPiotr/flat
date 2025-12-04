@@ -24,5 +24,6 @@ namespace Application.DTOs
         public string Name { get; set; }
         public string Role { get; set; }
         public int UnreadCount { get; set; }
+        public string PropertyAddress { get; set; }
     }
 }

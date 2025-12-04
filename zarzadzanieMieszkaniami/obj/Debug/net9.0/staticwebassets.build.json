@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "Rq/+fF8CgrE/R7y/lkWVB0DOap8rzRwruI1F2UnQy1g=",
+  "Hash": "BIQLqNhrCURGcqbX51Pfvvi6tAxmEA6S+SlZE9nzpqs=",
   "Source": "zarzadzanieMieszkaniami",
   "BasePath": "_content/zarzadzanieMieszkaniami",
   "Mode": "Default",
@@ -309,6 +309,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\uploads\\948cce5f-dc85-4bb9-a0c4-50086c764011.png"
+    },
+    {
+      "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\a1bbf340-e9d8-43c5-af29-fa8f5f7fdf17.png",
+      "SourceId": "zarzadzanieMieszkaniami",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\",
+      "BasePath": "_content/zarzadzanieMieszkaniami",
+      "RelativePath": "uploads/a1bbf340-e9d8-43c5-af29-fa8f5f7fdf17#[.{fingerprint}]?.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "6qnxmmv8tb",
+      "Integrity": "XtST+FsU2yRSmmtiFk+a4/4HR6bXVbDYudku5iZ9abY=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\a1bbf340-e9d8-43c5-af29-fa8f5f7fdf17.png"
     },
     {
       "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\b65895ca-59b7-4134-88d9-59a22ba299b8.png",
@@ -1583,6 +1604,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-HjLGRe95Rzj+cHR0vYBPXYLaJYjtD5grkeBY60LIqUY="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/a1bbf340-e9d8-43c5-af29-fa8f5f7fdf17.6qnxmmv8tb.png",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\a1bbf340-e9d8-43c5-af29-fa8f5f7fdf17.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "6945"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"XtST+FsU2yRSmmtiFk+a4/4HR6bXVbDYudku5iZ9abY=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 04 Dec 2025 23:17:51 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "6qnxmmv8tb"
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/a1bbf340-e9d8-43c5-af29-fa8f5f7fdf17.png"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-XtST+FsU2yRSmmtiFk+a4/4HR6bXVbDYudku5iZ9abY="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/a1bbf340-e9d8-43c5-af29-fa8f5f7fdf17.png",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\a1bbf340-e9d8-43c5-af29-fa8f5f7fdf17.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "6945"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"XtST+FsU2yRSmmtiFk+a4/4HR6bXVbDYudku5iZ9abY=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 04 Dec 2025 23:17:51 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-XtST+FsU2yRSmmtiFk+a4/4HR6bXVbDYudku5iZ9abY="
         }
       ]
     },

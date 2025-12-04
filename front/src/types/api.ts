@@ -23,6 +23,7 @@ export interface Property {
   city?: string;
   postalCode?: string;
   ownerId?: string;
+  photos?: string[];
   tenants?: TenantInfo[];
   roomsCount?: number;
   area?: number;
@@ -82,6 +83,7 @@ export interface ConversationUser {
   name: string;
   role: string;
   unreadCount: number;
+  propertyAddress?: string;
 }
 
 export interface Repair {
@@ -104,6 +106,7 @@ export interface PropertyResponse {
   postalCode?: string;
   roomsCount?: number;
   area?: number;
+  photos?: string[];
   tenants: TenantInfo[];
   createdAt?: string;
 }

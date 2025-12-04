@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Modal, ScrollView } from 'react-native';
+import { View, FlatList, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Modal, ScrollView, Image } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { Ionicons } from '@expo/vector-icons';
 import { fetchProperties } from '../../store/slices/propertiesSlice';
 import { AppDispatch, RootState } from '../../store/store';
 import { propertiesAPI } from '../../api/endpoints';
@@ -9,7 +10,7 @@ import { Colors } from '../../styles/colors';
 import { Typography } from '../../styles/typography';
 import { Spacing } from '../../styles/spacing';
 
-export default function PropertiesScreen() {
+export default function PropertiesScreen({ navigation }: any) {
   const dispatch = useDispatch<AppDispatch>();
   const { properties, loading } = useSelector((state: RootState) => state.properties);
   const userRole = useSelector((state: RootState) => state.auth.user?.role);
@@ -66,16 +67,42 @@ export default function PropertiesScreen() {
     return <Loading />;
   }
 
-  const renderProperty = ({ item }: any) => (
-    <View style={styles.card}>
-      <Text style={Typography.h3}>{item.address}</Text>
-      <Text style={styles.city}>{item.city}, {item.postalCode}</Text>
-      <View style={styles.details}>
-        <Text style={styles.detailText}>Pokoje: {item.roomsCount}</Text>
-        <Text style={styles.detailText}>Powierzchnia: {item.area} m²</Text>
-      </View>
-    </View>
-  );
+  const renderProperty = ({ item }: any) => {
+    const firstPhoto = item.photos && item.photos.length > 0 ? item.photos[0] : null;
+    
+    return (
+      <TouchableOpacity 
+        style={styles.card}
+        onPress={() => navigation.navigate('PropertyDetails', { propertyId: item.id })}
+        activeOpacity={0.7}
+      >
+        {firstPhoto && (
+          <Image 
+            source={{ uri: firstPhoto }} 
+            style={styles.propertyImage}
+            resizeMode="cover"
+          />
+        )}
+        <View style={styles.cardContent}>
+          <View style={styles.cardHeader}>
+            <Text style={Typography.h3}>{item.address}</Text>
+            <Ionicons name="chevron-forward" size={24} color={Colors.textSecondary} />
+          </View>
+          <Text style={styles.city}>{item.city}, {item.postalCode}</Text>
+          <View style={styles.details}>
+            <View style={styles.detailBadge}>
+              <Ionicons name="bed-outline" size={16} color={Colors.primary} />
+              <Text style={styles.detailText}>{item.roomsCount} pokoi</Text>
+            </View>
+            <View style={styles.detailBadge}>
+              <Ionicons name="resize-outline" size={16} color={Colors.primary} />
+              <Text style={styles.detailText}>{item.area} m²</Text>
+            </View>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -213,13 +240,27 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: Colors.surface,
-    padding: Spacing.l,
     borderRadius: 12,
+    marginBottom: Spacing.md,
+    overflow: 'hidden',
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
+  },
+  propertyImage: {
+    width: '100%',
+    height: 180,
+    backgroundColor: Colors.disabled,
+  },
+  cardContent: {
+    padding: Spacing.lg,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   city: {
     fontSize: 14,
@@ -228,12 +269,22 @@ const styles = StyleSheet.create({
   },
   details: {
     flexDirection: 'row',
-    gap: Spacing.m,
-    marginTop: Spacing.m,
+    gap: Spacing.md,
+    marginTop: Spacing.md,
+  },
+  detailBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: Colors.background,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 6,
+    borderRadius: 8,
   },
   detailText: {
     fontSize: 14,
     color: Colors.text,
+    fontWeight: '500',
   },
   emptyText: {
     textAlign: 'center',

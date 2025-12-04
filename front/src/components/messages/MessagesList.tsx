@@ -82,6 +82,9 @@ export default function MessagesList({ onSelectContact }: MessagesListProps) {
       <View style={styles.contactInfo}>
         <Text style={styles.contactName}>{item.name}</Text>
         <Text style={styles.contactRole}>{item.role}</Text>
+        {item.propertyAddress && (
+          <Text style={styles.contactProperty}>{item.propertyAddress}</Text>
+        )}
       </View>
       {item.unreadCount > 0 && (
         <View style={styles.badge}>
@@ -149,6 +152,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Colors.textSecondary,
     marginTop: 4,
+  },
+  contactProperty: {
+    fontSize: 11,
+    color: Colors.primary,
+    marginTop: 2,
+    fontStyle: 'italic',
   },
   badge: {
     backgroundColor: Colors.error,
