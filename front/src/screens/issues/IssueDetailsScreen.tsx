@@ -82,9 +82,18 @@ export default function IssueDetailsScreen({ route }: any) {
       </View>
 
       {userRole === 'Wlasciciel' && (
-        <View style={styles.card}>
-          <AssignServicemanForm issueId={id} onAssigned={handleServicemanAssigned} />
-        </View>
+        <>
+          <View style={styles.card}>
+            <AssignServicemanForm issueId={id} onAssigned={handleServicemanAssigned} />
+          </View>
+          <View style={styles.card}>
+            <UpdateStatusForm 
+              issueId={id} 
+              currentStatus={selectedIssue.status} 
+              onStatusUpdated={handleStatusUpdated} 
+            />
+          </View>
+        </>
       )}
 
       {userRole === 'Serwisant' && (
