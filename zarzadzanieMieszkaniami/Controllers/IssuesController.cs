@@ -62,6 +62,12 @@ namespace zarzadzanieMieszkaniami.Controllers
                 PropertyAddress = issue.Property?.Address ?? "Unknown",
                 ReportedById = issue.ReportedById,
                 ReportedByName = issue.ReportedBy != null ? $"{issue.ReportedBy.FirstName} {issue.ReportedBy.LastName}" : "Unknown",
+                AssignedServicemen = issue.AssignedServicemen?.Select(ais => new ServicemanInfo
+                {
+                    ServicemanId = ais.ServicemanId,
+                    ServicemanName = $"{ais.Serviceman?.FirstName} {ais.Serviceman?.LastName}",
+                    AssignedAt = ais.AssignedAt
+                }).ToList() ?? new List<ServicemanInfo>(),
                 ReportedAt = issue.ReportedAt,
                 ResolvedAt = issue.ResolvedAt,
                 Photos = issue.Photos ?? new List<string>()
@@ -201,6 +207,42 @@ namespace zarzadzanieMieszkaniami.Controllers
             }
 
             return photoUrls;
+        }
+
+        [HttpPut("{id}/status")]
+        [Authorize(Roles = "Serwisant,Wlasciciel")]
+        public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateIssueStatusRequest request)
+        {
+            var issue = await _issueService.GetIssueByIdAsync(id);
+            if (issue == null)
+                return NotFound("Zgłoszenie nie zostało znalezione");
+
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            // Serwisant może aktualizować tylko swoje zgłoszenia
+            if (userRole == "Serwisant")
+            {
+                var isAssigned = issue.AssignedServicemen?.Any(ais => ais.ServicemanId == userId) ?? false;
+                if (!isAssigned)
+                    return Forbid("Nie jesteś przypisany do tego zgłoszenia");
+            }
+            // Właściciel może aktualizować zgłoszenia ze swoich nieruchomości
+            else if (userRole == "Wlasciciel")
+            {
+                if (issue.Property?.OwnerId != userId)
+                    return Forbid("Nie jesteś właścicielem tej nieruchomości");
+            }
+
+            issue.Status = request.Status;
+            if (request.Status == "Rozwiązane" && !issue.ResolvedAt.HasValue)
+            {
+                issue.ResolvedAt = DateTime.UtcNow;
+            }
+
+            await _issueService.UpdateIssueAsync(issue);
+
+            return Ok(new { message = "Status został zaktualizowany", status = issue.Status });
         }
     }
 }

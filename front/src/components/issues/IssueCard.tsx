@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { Issue } from '../../types/api';
+import { IssueResponse } from '../../types/api';
 import { Colors } from '../../styles/colors';
 import { Spacing } from '../../styles/spacing';
 
 interface IssueCardProps {
-  issue: Issue;
+  issue: IssueResponse;
   onPress: () => void;
 }
 
@@ -42,6 +42,11 @@ export default function IssueCard({ issue, onPress }: IssueCardProps) {
         </Text>
         <Text style={styles.category}>{issue.category}</Text>
         <Text style={styles.status}>Status: {issue.status}</Text>
+        {issue.assignedServicemen && issue.assignedServicemen.length > 0 && (
+          <Text style={styles.servicemen}>
+            Serwisanci: {issue.assignedServicemen.map(s => s.servicemanName).join(', ')}
+          </Text>
+        )}
       </View>
     </TouchableOpacity>
   );
@@ -102,5 +107,11 @@ const styles = StyleSheet.create({
   status: {
     fontSize: 12,
     color: Colors.textSecondary,
+  },
+  servicemen: {
+    fontSize: 12,
+    color: Colors.success,
+    marginTop: 4,
+    fontWeight: '500',
   },
 });

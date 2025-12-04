@@ -83,6 +83,8 @@ export const issuesAPI = {
   },
   update: (id: string, data: Partial<Issue>) =>
     client.put<Issue>(`/issues/${id}`, data),
+  updateStatus: (id: string, status: string) =>
+    client.put(`/issues/${id}/status`, { status }),
   delete: (id: string) => client.delete(`/issues/${id}`),
 };
 

@@ -53,6 +53,22 @@ namespace Infrastructure.Repositories
                         .Reference(i => i.ReportedBy)
                         .LoadAsync();
                 }
+                
+                // Załaduj przypisanych serwisantów
+                await _context.Entry(issue)
+                    .Collection(i => i.AssignedServicemen)
+                    .LoadAsync();
+                
+                // Załaduj dane serwisantów
+                if (issue.AssignedServicemen != null)
+                {
+                    foreach (var assignedServiceman in issue.AssignedServicemen)
+                    {
+                        await _context.Entry(assignedServiceman)
+                            .Reference(ais => ais.Serviceman)
+                            .LoadAsync();
+                    }
+                }
             }
             
             Console.WriteLine($"Query returned {result.Count} issues");

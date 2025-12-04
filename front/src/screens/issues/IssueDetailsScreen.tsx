@@ -6,6 +6,7 @@ import { AppDispatch, RootState } from '../../store/store';
 import Loading from '../../components/common/Loading';
 import CommentsList from '../../components/issues/CommentsList';
 import AssignServicemanForm from '../../components/userManagement/AssignServicemanForm';
+import UpdateStatusForm from '../../components/issues/UpdateStatusForm';
 import { Colors } from '../../styles/colors';
 import { Typography } from '../../styles/typography';
 import { Spacing } from '../../styles/spacing';
@@ -21,6 +22,10 @@ export default function IssueDetailsScreen({ route }: any) {
   }, [id, dispatch]);
 
   const handleServicemanAssigned = () => {
+    dispatch(fetchIssueById(id));
+  };
+
+  const handleStatusUpdated = () => {
     dispatch(fetchIssueById(id));
   };
 
@@ -77,6 +82,16 @@ export default function IssueDetailsScreen({ route }: any) {
       {userRole === 'Wlasciciel' && (
         <View style={styles.card}>
           <AssignServicemanForm issueId={id} onAssigned={handleServicemanAssigned} />
+        </View>
+      )}
+
+      {userRole === 'Serwisant' && (
+        <View style={styles.card}>
+          <UpdateStatusForm 
+            issueId={id} 
+            currentStatus={selectedIssue.status} 
+            onStatusUpdated={handleStatusUpdated} 
+          />
         </View>
       )}
 

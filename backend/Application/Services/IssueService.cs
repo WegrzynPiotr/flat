@@ -28,6 +28,15 @@ namespace Application.Services
                 return allIssues;
             }
             
+            // Serwisant widzi tylko usterki przypisane do niego
+            if (userRole == "Serwisant")
+            {
+                return allIssues.Where(i => 
+                    i.AssignedServicemen != null && 
+                    i.AssignedServicemen.Any(ais => ais.ServicemanId == userId)
+                ).ToList();
+            }
+            
             // Pobierz nieruchomości powiązane z użytkownikiem
             var userProperties = await _propertyRepository.GetAllAsync();
             var accessiblePropertyIds = userProperties
