@@ -12,6 +12,7 @@ import { Spacing } from '../../styles/spacing';
 export default function PropertiesScreen() {
   const dispatch = useDispatch<AppDispatch>();
   const { properties, loading } = useSelector((state: RootState) => state.properties);
+  const userRole = useSelector((state: RootState) => state.auth.user?.role);
   const [modalVisible, setModalVisible] = useState(false);
   const [formData, setFormData] = useState({
     address: '',
@@ -80,12 +81,14 @@ export default function PropertiesScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={Typography.h2}>Moje mieszkania</Text>
-        <TouchableOpacity 
-          style={styles.addButton}
-          onPress={() => setModalVisible(true)}
-        >
-          <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
+        {userRole === 'Wlasciciel' && (
+          <TouchableOpacity 
+            style={styles.addButton}
+            onPress={() => setModalVisible(true)}
+          >
+            <Text style={styles.addButtonText}>+</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <FlatList

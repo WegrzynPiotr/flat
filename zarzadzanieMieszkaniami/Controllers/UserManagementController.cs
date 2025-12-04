@@ -46,7 +46,10 @@ namespace zarzadzanieMieszkaniami.Controllers
 
             var result = await _userManager.CreateAsync(user, request.Password);
             if (!result.Succeeded)
-                return BadRequest(result.Errors);
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                return BadRequest(new { message = errors });
+            }
 
             await _userManager.AddToRoleAsync(user, request.Role);
 

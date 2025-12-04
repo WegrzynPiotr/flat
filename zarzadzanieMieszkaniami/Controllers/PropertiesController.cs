@@ -26,11 +26,27 @@ namespace zarzadzanieMieszkaniami.Controllers
         public async Task<IActionResult> GetAll()
         {
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
             
-            Console.WriteLine($"🔵 GetAll properties for user: {userId}");
+            Console.WriteLine($"🔵 GetAll properties for user: {userId}, role: {userRole}");
             
-            // Pobierz tylko mieszkania należące do zalogowanego użytkownika
-            var properties = await _propertyRepository.GetByOwnerIdAsync(userId);
+            IEnumerable<Property> properties;
+            
+            if (userRole == "Wlasciciel")
+            {
+                // Właściciel widzi swoje mieszkania
+                properties = await _propertyRepository.GetByOwnerIdAsync(userId);
+            }
+            else if (userRole == "Najemca")
+            {
+                // Najemca widzi mieszkania do których jest przypisany
+                properties = await _propertyRepository.GetByTenantIdAsync(userId);
+            }
+            else
+            {
+                // Serwisant lub inna rola - brak mieszkań
+                properties = new List<Property>();
+            }
             
             Console.WriteLine($"🔵 Found {properties.Count()} properties");
             

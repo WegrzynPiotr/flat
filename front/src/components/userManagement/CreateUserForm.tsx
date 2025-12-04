@@ -31,6 +31,11 @@ export default function CreateUserForm({ onUserCreated }: CreateUserFormProps) {
       return;
     }
 
+    if (formData.password.length < 6) {
+      Alert.alert('Błąd', 'Hasło musi zawierać minimum 6 znaków');
+      return;
+    }
+
     console.log('🔵 Creating user with data:', formData);
     setLoading(true);
     try {
