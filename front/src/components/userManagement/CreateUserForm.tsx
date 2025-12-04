@@ -7,7 +7,11 @@ import { Colors } from '../../styles/colors';
 import { Spacing } from '../../styles/spacing';
 import { Typography } from '../../styles/typography';
 
-export default function CreateUserForm() {
+interface CreateUserFormProps {
+  onUserCreated?: () => void;
+}
+
+export default function CreateUserForm({ onUserCreated }: CreateUserFormProps) {
   const userRole = useSelector((state: RootState) => state.auth.user?.role);
   const [formData, setFormData] = useState({
     email: '',
@@ -49,6 +53,7 @@ export default function CreateUserForm() {
         phoneNumber: '',
         role: 'Najemca',
       });
+      onUserCreated?.();
     } catch (error: any) {
       console.error('🔴 Failed to create user:', error);
       console.error('🔴 Error response:', error.response?.data);

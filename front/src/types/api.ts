@@ -128,12 +128,12 @@ export interface IssueResponse {
 }
 
 export interface UserManagementResponse {
-  userId: string;
+  id: string;
   email: string;
   firstName: string;
   lastName: string;
-  phoneNumber?: string;
   role: string;
+  createdAt: string;
 }
 
 export interface CreateUserRequest {

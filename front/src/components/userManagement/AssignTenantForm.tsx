@@ -7,7 +7,11 @@ import { Colors } from '../../styles/colors';
 import { Spacing } from '../../styles/spacing';
 import { Typography } from '../../styles/typography';
 
-export default function AssignTenantForm() {
+interface AssignTenantFormProps {
+  onTenantAssigned?: () => void;
+}
+
+export default function AssignTenantForm({ onTenantAssigned }: AssignTenantFormProps) {
   const [properties, setProperties] = useState<PropertyResponse[]>([]);
   const [tenants, setTenants] = useState<UserManagementResponse[]>([]);
   const [selectedProperty, setSelectedProperty] = useState<string>('');
@@ -61,6 +65,7 @@ export default function AssignTenantForm() {
       setSelectedProperty('');
       setSelectedTenant('');
       await loadData();
+      onTenantAssigned?.();
     } catch (error: any) {
       console.error('🔴 Failed to assign tenant:', error);
       console.error('🔴 Error response:', error.response?.data);
@@ -106,7 +111,7 @@ export default function AssignTenantForm() {
           >
             <Picker.Item label="Wybierz najemcę..." value="" />
             {tenants.map((tenant) => (
-              <Picker.Item key={tenant.userId} label={`${tenant.firstName} ${tenant.lastName}`} value={tenant.userId} />
+              <Picker.Item key={tenant.id} label={`${tenant.firstName} ${tenant.lastName}`} value={tenant.id} />
             ))}
           </Picker>
         </View>
@@ -129,7 +134,7 @@ export default function AssignTenantForm() {
             data={properties.find(p => p.id === selectedProperty)?.tenants || []}
             renderItem={({ item }) => (
               <View style={styles.tenantCard}>
-                <Text style={Typography.bodyBold}>{item.name}</Text>
+                <Text style={Typography.bodyBold}>{item.tenantName}</Text>
                 <Text style={styles.dateText}>
                   Od: {new Date(item.startDate).toLocaleDateString('pl-PL')}
                   {item.endDate && ` Do: ${new Date(item.endDate).toLocaleDateString('pl-PL')}`}
