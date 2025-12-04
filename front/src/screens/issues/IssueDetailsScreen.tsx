@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Modal, Dimensions } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { Ionicons } from '@expo/vector-icons';
 import { fetchIssueById, fetchIssues } from '../../store/slices/issuesSlice';
 import { AppDispatch, RootState } from '../../store/store';
 import Loading from '../../components/common/Loading';
@@ -16,6 +17,7 @@ export default function IssueDetailsScreen({ route }: any) {
   const dispatch = useDispatch<AppDispatch>();
   const { selectedIssue, loading } = useSelector((state: RootState) => state.issues);
   const userRole = useSelector((state: RootState) => state.auth.user?.role);
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
 
   useEffect(() => {
     dispatch(fetchIssueById(id));
@@ -76,12 +78,43 @@ export default function IssueDetailsScreen({ route }: any) {
             <Text style={[Typography.label, styles.marginTop]}>Zdjęcia</Text>
             <View style={styles.photosGrid}>
               {selectedIssue.photos.map((photo, index) => (
-                <Image key={index} source={{ uri: photo }} style={styles.photo} />
+                <TouchableOpacity 
+                  key={index} 
+                  onPress={() => setSelectedPhoto(photo)}
+                  activeOpacity={0.8}
+                >
+                  <Image source={{ uri: photo }} style={styles.photo} />
+                </TouchableOpacity>
               ))}
             </View>
           </>
         )}
       </View>
+
+      {/* Lightbox Modal */}
+      <Modal
+        visible={selectedPhoto !== null}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setSelectedPhoto(null)}
+      >
+        <View style={styles.lightboxContainer}>
+          <TouchableOpacity 
+            style={styles.lightboxClose}
+            onPress={() => setSelectedPhoto(null)}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="close" size={32} color="#fff" />
+          </TouchableOpacity>
+          {selectedPhoto && (
+            <Image 
+              source={{ uri: selectedPhoto }} 
+              style={styles.lightboxImage}
+              resizeMode="contain"
+            />
+          )}
+        </View>
+      </Modal>
 
       {userRole === 'Wlasciciel' && (
         <>
@@ -161,5 +194,22 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 8,
+  },
+  lightboxContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.95)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  lightboxClose: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    zIndex: 10,
+    padding: 10,
+  },
+  lightboxImage: {
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height,
   },
 });

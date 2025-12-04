@@ -227,16 +227,8 @@ export default function IssuesListScreen({ navigation }: any) {
         </View>
       )}
       
-      <FlatList
-        data={filteredIssues}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <IssueCard
-            issue={item}
-            onPress={() => navigation.navigate('IssueDetails', { id: item.id })}
-          />
-        )}
-        contentContainerStyle={styles.listContent}
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -244,10 +236,22 @@ export default function IssuesListScreen({ navigation }: any) {
             tintColor={Colors.primary}
           />
         }
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>Brak usterek do wyświetlenia</Text>
-        }
-      />
+      >
+        <View style={styles.gridContainer}>
+          {filteredIssues.length > 0 ? (
+            filteredIssues.map((item) => (
+              <View key={item.id} style={styles.gridItem}>
+                <IssueCard
+                  issue={item}
+                  onPress={() => navigation.navigate('IssueDetails', { id: item.id })}
+                />
+              </View>
+            ))
+          ) : (
+            <Text style={styles.emptyText}>Brak usterek do wyświetlenia</Text>
+          )}
+        </View>
+      </ScrollView>
 
       <TouchableOpacity
         style={styles.fab}
@@ -397,9 +401,20 @@ const styles = StyleSheet.create({
   pickerItem: {
     fontSize: 15,
   },
-  listContent: {
+  scrollContent: {
+    flexGrow: 1,
+  },
+  gridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     padding: Spacing.md,
     gap: Spacing.md,
+    justifyContent: 'center',
+  },
+  gridItem: {
+    minWidth: 300,
+    maxWidth: 450,
+    flex: 1,
   },
   emptyText: {
     textAlign: 'center',

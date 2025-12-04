@@ -56,13 +56,14 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: Colors.surface,
     borderRadius: 12,
-    marginBottom: Spacing.m,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     overflow: 'hidden',
+    width: '100%',
+    height: '100%',
   },
   photo: {
     width: '100%',
