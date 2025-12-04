@@ -21,6 +21,9 @@ client.interceptors.request.use(
       const token = await storage.getItemAsync('authToken');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+        console.log('🔑 Token being sent:', token.substring(0, 50) + '...');
+      } else {
+        console.log('❌ No token found in storage');
       }
       
       // Allow FormData to set its own Content-Type with boundary
