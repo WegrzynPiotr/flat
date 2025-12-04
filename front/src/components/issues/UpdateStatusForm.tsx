@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { issuesAPI } from '../../api/endpoints';
+import { issuesAPI, commentsAPI } from '../../api/endpoints';
 import { Colors } from '../../styles/colors';
 import { Spacing } from '../../styles/spacing';
 import { Typography } from '../../styles/typography';
@@ -32,6 +32,11 @@ export default function UpdateStatusForm({ issueId, currentStatus, onStatusUpdat
     setSubmitting(true);
     try {
       await issuesAPI.updateStatus(issueId, selectedStatus);
+      // Dodaj komentarz o zmianie statusu
+      await commentsAPI.create(
+        issueId,
+        `Status zmieniony z "${currentStatus}" na "${selectedStatus}"`
+      );
       Alert.alert('Sukces', 'Status został zaktualizowany');
       onStatusUpdated();
     } catch (error: any) {

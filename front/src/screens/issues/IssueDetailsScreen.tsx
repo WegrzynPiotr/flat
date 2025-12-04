@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchIssueById } from '../../store/slices/issuesSlice';
+import { fetchIssueById, fetchIssues } from '../../store/slices/issuesSlice';
 import { AppDispatch, RootState } from '../../store/store';
 import Loading from '../../components/common/Loading';
 import CommentsList from '../../components/issues/CommentsList';
@@ -27,6 +27,8 @@ export default function IssueDetailsScreen({ route }: any) {
 
   const handleStatusUpdated = () => {
     dispatch(fetchIssueById(id));
+    // Odśwież też listę zgłoszeń w tle
+    dispatch(fetchIssues({}));
   };
 
   if (loading || !selectedIssue) {
