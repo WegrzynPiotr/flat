@@ -92,9 +92,9 @@ namespace zarzadzanieMieszkaniami.Controllers
 
             var contactIds = new List<Guid>();
 
-            if (userRole == "Wynajmujący")
+            if (userRole == "Wlasciciel")
             {
-                // Wynajmujący widzi: swoich najemców i serwisantów
+                // Właściciel widzi: swoich najemców i serwisantów
                 var tenantIds = await _context.PropertyTenants
                     .Where(pt => _context.Properties.Any(p => p.OwnerId == userId && p.Id == pt.PropertyId))
                     .Select(pt => pt.TenantId)
@@ -129,7 +129,7 @@ namespace zarzadzanieMieszkaniami.Controllers
             }
             else if (userRole == "Serwisant")
             {
-                // Serwisant widzi: wynajmujących i najemców z przypisanych zgłoszeń
+                // Serwisant widzi: właścicieli i najemców z przypisanych zgłoszeń
                 var landlordIds = await _context.LandlordServicemen
                     .Where(ls => ls.ServicemanId == userId)
                     .Select(ls => ls.LandlordId)

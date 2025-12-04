@@ -74,7 +74,7 @@ export default function IssueDetailsScreen({ route }: any) {
         )}
       </View>
 
-      {userRole === 'Wynajmujący' && (
+      {userRole === 'Wlasciciel' && (
         <View style={styles.card}>
           <AssignServicemanForm issueId={id} onAssigned={handleServicemanAssigned} />
         </View>

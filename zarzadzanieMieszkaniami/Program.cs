@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
 using System.Text;
+using zarzadzanieMieszkaniami.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -136,8 +137,22 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowAll");
 app.UseStaticFiles();
-app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
+// Inicjalizacja ról
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        await DbInitializer.InitializeRoles(services);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error initializing roles: {ex.Message}");
+    }
+}
+
+app.Run();
 app.Run();

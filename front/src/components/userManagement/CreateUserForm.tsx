@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store/store';
 import { userManagementAPI } from '../../api/endpoints';
 import { Colors } from '../../styles/colors';
 import { Spacing } from '../../styles/spacing';
-import { Typography } from '../../styles/typography';
-
+export default function CreateUserForm() {
+  const userRole = useSelector((state: RootState) => state.auth.user?.role);
+  const [formData, setFormData] = useState({
 export default function CreateUserForm() {
   const [formData, setFormData] = useState({
     email: '',
@@ -15,16 +18,20 @@ export default function CreateUserForm() {
     role: 'Najemca' as 'Najemca' | 'Serwisant',
   });
   const [loading, setLoading] = useState(false);
-
   const handleSubmit = async () => {
+    console.log('🔵 Current user role:', userRole);
+    
     if (!formData.email || !formData.password || !formData.firstName || !formData.lastName) {
       Alert.alert('Błąd', 'Wypełnij wszystkie wymagane pola');
       return;
     }
 
+    console.log('🔵 Creating user with data:', formData);
     setLoading(true);
     try {
-      await userManagementAPI.createUser({
+      console.log('🔵 Sending request to API...');
+      const response = await userManagementAPI.createUser({
+      const response = await userManagementAPI.createUser({
         email: formData.email,
         password: formData.password,
         firstName: formData.firstName,
@@ -33,6 +40,7 @@ export default function CreateUserForm() {
         role: formData.role,
       });
       
+      console.log('🟢 User created successfully:', response.data);
       Alert.alert('Sukces', 'Użytkownik został utworzony');
       setFormData({
         email: '',
@@ -43,7 +51,8 @@ export default function CreateUserForm() {
         role: 'Najemca',
       });
     } catch (error: any) {
-      console.error('Failed to create user:', error);
+      console.error('🔴 Failed to create user:', error);
+      console.error('🔴 Error response:', error.response?.data);
       Alert.alert('Błąd', error.response?.data?.message || 'Nie udało się utworzyć użytkownika');
     } finally {
       setLoading(false);
@@ -51,8 +60,12 @@ export default function CreateUserForm() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={Typography.h2}>Utwórz nowego użytkownika</Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{ flex: 1 }}
+    >
+      <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
+        <Text style={Typography.h2}>Utwórz nowego użytkownika</Text>
 
       <View style={styles.form}>
         <Text style={styles.label}>Email *</Text>
@@ -123,11 +136,12 @@ export default function CreateUserForm() {
           style={[styles.submitButton, loading && styles.submitButtonDisabled]}
           onPress={handleSubmit}
           disabled={loading}
-        >
-          <Text style={styles.submitButtonText}>
-            {loading ? 'Tworzę...' : 'Utwórz użytkownika'}
-          </Text>
         </TouchableOpacity>
+      </View>
+    </ScrollView>
+    </KeyboardAvoidingView>
+  );
+}       </TouchableOpacity>
       </View>
     </ScrollView>
   );

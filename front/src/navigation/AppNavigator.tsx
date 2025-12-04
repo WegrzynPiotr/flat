@@ -73,7 +73,7 @@ export default function AppNavigator() {
       <Tab.Screen name="Issues" component={IssuesStack} options={{ headerShown: false, title: 'Usterki' }} />
       <Tab.Screen name="Properties" component={PropertiesScreen} options={{ title: 'Mieszkania' }} />
       <Tab.Screen name="Messages" component={MessagesScreen} options={{ title: 'Wiadomości' }} />
-      {userRole === 'Wynajmujący' && (
+      {userRole === 'Wlasciciel' && (
         <Tab.Screen name="UserManagement" component={UserManagementScreen} options={{ title: 'Zarządzanie' }} />
       )}
       <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profil' }} />

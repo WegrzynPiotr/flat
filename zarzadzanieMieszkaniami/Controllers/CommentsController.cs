@@ -36,7 +36,7 @@ namespace zarzadzanieMieszkaniami.Controllers
 
             // Sprawdź uprawnienia
             var hasAccess = false;
-            if (userRole == "Wynajmujący" && issue.Property.OwnerId == userId)
+            if (userRole == "Wlasciciel" && issue.Property.OwnerId == userId)
                 hasAccess = true;
             else if (userRole == "Najemca" && issue.ReportedById == userId)
                 hasAccess = true;

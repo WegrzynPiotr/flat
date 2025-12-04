@@ -30,12 +30,16 @@ namespace Infrastructure.Repositories
         {
             return await _context.Properties
                 .Include(p => p.Owner)
+                .Include(p => p.Tenants)
+                    .ThenInclude(pt => pt.Tenant)
                 .ToListAsync();
         }
 
         public async Task<IEnumerable<Property>> GetByOwnerIdAsync(Guid ownerId)
         {
             return await _context.Properties
+                .Include(p => p.Tenants)
+                    .ThenInclude(pt => pt.Tenant)
                 .Where(p => p.OwnerId == ownerId)
                 .ToListAsync();
         }

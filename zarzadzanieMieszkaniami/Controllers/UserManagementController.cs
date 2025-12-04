@@ -22,9 +22,9 @@ namespace zarzadzanieMieszkaniami.Controllers
             _userManager = userManager;
         }
 
-        // Wynajmujący tworzy konto dla najemcy lub serwisanta
+        // Właściciel tworzy konto dla najemcy lub serwisanta
         [HttpPost("create-user")]
-        [Authorize(Roles = "Wynajmujący")]
+        [Authorize(Roles = "Wlasciciel")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
         {
             var landlordId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
@@ -75,7 +75,7 @@ namespace zarzadzanieMieszkaniami.Controllers
 
         // Przypisz najemcę do mieszkania
         [HttpPost("assign-tenant")]
-        [Authorize(Roles = "Wynajmujący")]
+        [Authorize(Roles = "Wlasciciel")]
         public async Task<IActionResult> AssignTenant([FromBody] AssignTenantRequest request)
         {
             var landlordId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
@@ -107,7 +107,7 @@ namespace zarzadzanieMieszkaniami.Controllers
 
         // Przypisz serwisanta do zgłoszenia
         [HttpPost("assign-serviceman")]
-        [Authorize(Roles = "Wynajmujący")]
+        [Authorize(Roles = "Wlasciciel")]
         public async Task<IActionResult> AssignServiceman([FromBody] AssignServicemanToIssueRequest request)
         {
             var landlordId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
@@ -150,7 +150,7 @@ namespace zarzadzanieMieszkaniami.Controllers
 
         // Pobierz listę najemców wynajmującego
         [HttpGet("my-tenants")]
-        [Authorize(Roles = "Wynajmujący")]
+        [Authorize(Roles = "Wlasciciel")]
         public async Task<IActionResult> GetMyTenants()
         {
             var landlordId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
@@ -176,7 +176,7 @@ namespace zarzadzanieMieszkaniami.Controllers
 
         // Pobierz listę serwisantów wynajmującego
         [HttpGet("my-servicemen")]
-        [Authorize(Roles = "Wynajmujący")]
+        [Authorize(Roles = "Wlasciciel")]
         public async Task<IActionResult> GetMyServicemen()
         {
             var landlordId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
