@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "rYotf76iyTngrqB+/4RIhpglje7bpVamLUeKZvR0H7k=",
+  "Hash": "WAXdYE+smMPM3tql4FjlYz7C0R0z2aWoiDBq0tx6tXE=",
   "Source": "zarzadzanieMieszkaniami",
   "BasePath": "_content/zarzadzanieMieszkaniami",
   "Mode": "Default",
@@ -204,6 +204,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\uploads\\7f7b283a-14be-4903-9cca-16dbd16c4ce9.png"
+    },
+    {
+      "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\8f2d992f-deb3-49f6-9542-317acf48d0ab.png",
+      "SourceId": "zarzadzanieMieszkaniami",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\",
+      "BasePath": "_content/zarzadzanieMieszkaniami",
+      "RelativePath": "uploads/8f2d992f-deb3-49f6-9542-317acf48d0ab#[.{fingerprint}]?.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "qch9ecczfc",
+      "Integrity": "Gr4DvpU9FkM+hT2wETRTP5Rbv7WmIVY6gGk5j8XnuCc=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\8f2d992f-deb3-49f6-9542-317acf48d0ab.png"
     },
     {
       "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\948cce5f-dc85-4bb9-a0c4-50086c764011.png",
@@ -1089,6 +1110,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-Jav/ANT7ku3I3LYSoiJlc06r48Pnq5RdGhOajNcT12E="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/8f2d992f-deb3-49f6-9542-317acf48d0ab.png",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\8f2d992f-deb3-49f6-9542-317acf48d0ab.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "227827"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Gr4DvpU9FkM+hT2wETRTP5Rbv7WmIVY6gGk5j8XnuCc=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 04 Dec 2025 21:21:37 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-Gr4DvpU9FkM+hT2wETRTP5Rbv7WmIVY6gGk5j8XnuCc="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/8f2d992f-deb3-49f6-9542-317acf48d0ab.qch9ecczfc.png",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\8f2d992f-deb3-49f6-9542-317acf48d0ab.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "227827"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Gr4DvpU9FkM+hT2wETRTP5Rbv7WmIVY6gGk5j8XnuCc=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 04 Dec 2025 21:21:37 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "qch9ecczfc"
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/8f2d992f-deb3-49f6-9542-317acf48d0ab.png"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-Gr4DvpU9FkM+hT2wETRTP5Rbv7WmIVY6gGk5j8XnuCc="
         }
       ]
     },

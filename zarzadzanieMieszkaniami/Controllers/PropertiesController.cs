@@ -25,7 +25,15 @@ namespace zarzadzanieMieszkaniami.Controllers
         [Authorize]
         public async Task<IActionResult> GetAll()
         {
-            var properties = await _propertyRepository.GetAllAsync();
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            
+            Console.WriteLine($"🔵 GetAll properties for user: {userId}");
+            
+            // Pobierz tylko mieszkania należące do zalogowanego użytkownika
+            var properties = await _propertyRepository.GetByOwnerIdAsync(userId);
+            
+            Console.WriteLine($"🔵 Found {properties.Count()} properties");
+            
             var dtos = properties.Select(p => new PropertyResponse
             {
                 Id = p.Id,
@@ -35,7 +43,7 @@ namespace zarzadzanieMieszkaniami.Controllers
                 RoomsCount = p.RoomsCount,
                 Area = p.Area,
                 OwnerId = p.OwnerId,
-                Tenants = p.Tenants.Select(pt => new TenantInfo
+                Tenants = (p.Tenants ?? new List<PropertyTenant>()).Select(pt => new TenantInfo
                 {
                     TenantId = pt.TenantId,
                     TenantName = pt.Tenant.FirstName + " " + pt.Tenant.LastName,
@@ -44,6 +52,9 @@ namespace zarzadzanieMieszkaniami.Controllers
                 }).ToList(),
                 CreatedAt = p.CreatedAt
             }).ToList();
+            
+            Console.WriteLine($"🔵 Returning {dtos.Count} properties");
+            
             return Ok(dtos);
         }
 
@@ -78,10 +89,15 @@ namespace zarzadzanieMieszkaniami.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Wlasciciel")]
         public async Task<IActionResult> Create([FromBody] CreatePropertyRequest request)
         {
+            Console.WriteLine("🔵 POST /properties called");
+            Console.WriteLine($"🔵 User claims: {string.Join(", ", User.Claims.Select(c => $"{c.Type}={c.Value}"))}");
+            
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            
+            Console.WriteLine($"🔵 Creating property for user: {userId}");
             
             var property = new Property
             {
