@@ -23,6 +23,8 @@ export default function IssueDetailsScreen({ route }: any) {
 
   const handleServicemanAssigned = () => {
     dispatch(fetchIssueById(id));
+    // Odśwież też listę zgłoszeń w tle
+    dispatch(fetchIssues({}));
   };
 
   const handleStatusUpdated = () => {

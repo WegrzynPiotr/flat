@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 
 namespace zarzadzanieMieszkaniami.Controllers
@@ -15,11 +16,13 @@ namespace zarzadzanieMieszkaniami.Controllers
     {
         private readonly AppDbContext _context;
         private readonly UserManager<User> _userManager;
+        private readonly ILogger<UserManagementController> _logger;
 
-        public UserManagementController(AppDbContext context, UserManager<User> userManager)
+        public UserManagementController(AppDbContext context, UserManager<User> userManager, ILogger<UserManagementController> logger)
         {
             _context = context;
             _userManager = userManager;
+            _logger = logger;
         }
 
         // Właściciel tworzy konto dla najemcy lub serwisanta
@@ -115,13 +118,29 @@ namespace zarzadzanieMieszkaniami.Controllers
         {
             var landlordId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
-            // Sprawdź czy zgłoszenie dotyczy mieszkania wynajmującego
-            var issue = await _context.Issues
-                .Include(i => i.Property)
-                .FirstOrDefaultAsync(i => i.Id == request.IssueId);
+            // Sprawdź czy zgłoszenie istnieje i należy do właściciela
+            var issueWithProperty = await (from issue in _context.Issues
+                                          join property in _context.Properties on issue.PropertyId equals property.Id
+                                          where issue.Id == request.IssueId
+                                          select new
+                                          {
+                                              Issue = issue,
+                                              PropertyOwnerId = property.OwnerId
+                                          }).FirstOrDefaultAsync();
 
-            if (issue == null || issue.Property.OwnerId != landlordId)
+            if (issueWithProperty == null)
+            {
+                _logger.LogWarning($"Issue not found: {request.IssueId}");
+                return NotFound("Zgłoszenie nie zostało znalezione");
+            }
+
+            _logger.LogInformation($"Checking ownership - LandlordId: {landlordId}, PropertyOwnerId: {issueWithProperty.PropertyOwnerId}");
+
+            if (issueWithProperty.PropertyOwnerId != landlordId)
+            {
+                _logger.LogWarning($"Access denied - Issue {request.IssueId} belongs to property owned by {issueWithProperty.PropertyOwnerId}, not {landlordId}");
                 return Forbid();
+            }
 
             // Sprawdź czy serwisant należy do wynajmującego
             var hasServiceman = await _context.LandlordServicemen
@@ -145,9 +164,10 @@ namespace zarzadzanieMieszkaniami.Controllers
             });
 
             // Zmień status zgłoszenia
-            issue.Status = "Przypisane";
+            issueWithProperty.Issue.Status = "Przypisane";
             await _context.SaveChangesAsync();
 
+            _logger.LogInformation($"Successfully assigned serviceman {request.ServicemanId} to issue {request.IssueId}");
             return Ok();
         }
 
