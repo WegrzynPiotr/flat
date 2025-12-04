@@ -9,8 +9,8 @@ namespace Core.Models
         public string Title { get; set; }
         public string Description { get; set; }
         public string Category { get; set; } // "Hydraulika", "Elektryka", "Ogrzewanie", etc.
-        public string Priority { get; set; } // "Niska", "Œrednia", "Wysoka", "Krytyczna"
-        public string Status { get; set; } // "Nowe", "Przypisane", "WTrakcie", "Rozwi¹zane", "Zamkniête"
+        public string Priority { get; set; } // "Niska", "Åšrednia", "Wysoka", "Krytyczna"
+        public string Status { get; set; } // "Nowe", "Przypisane", "WTrakcie", "RozwiÄ…zane", "ZamkniÄ™te"
         public Guid PropertyId { get; set; }
         public Guid ReportedById { get; set; }
         public DateTime ReportedAt { get; set; }
@@ -20,5 +20,11 @@ namespace Core.Models
         // Relacje
         public Property Property { get; set; }
         public User ReportedBy { get; set; }
+        
+        // Komentarze/wpisy (ticket system)
+        public ICollection<IssueComment> Comments { get; set; }
+        
+        // Przypisani serwisanci (many-to-many)
+        public ICollection<IssueServiceman> AssignedServicemen { get; set; }
     }
 }

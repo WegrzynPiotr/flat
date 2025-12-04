@@ -35,7 +35,13 @@ namespace zarzadzanieMieszkaniami.Controllers
                 RoomsCount = p.RoomsCount,
                 Area = p.Area,
                 OwnerId = p.OwnerId,
-                CurrentTenantId = p.CurrentTenantId,
+                Tenants = p.Tenants.Select(pt => new TenantInfo
+                {
+                    TenantId = pt.TenantId,
+                    TenantName = pt.Tenant.FirstName + " " + pt.Tenant.LastName,
+                    StartDate = pt.StartDate,
+                    EndDate = pt.EndDate
+                }).ToList(),
                 CreatedAt = p.CreatedAt
             }).ToList();
             return Ok(dtos);
@@ -58,7 +64,13 @@ namespace zarzadzanieMieszkaniami.Controllers
                 RoomsCount = property.RoomsCount,
                 Area = property.Area,
                 OwnerId = property.OwnerId,
-                CurrentTenantId = property.CurrentTenantId,
+                Tenants = property.Tenants.Select(pt => new TenantInfo
+                {
+                    TenantId = pt.TenantId,
+                    TenantName = pt.Tenant.FirstName + " " + pt.Tenant.LastName,
+                    StartDate = pt.StartDate,
+                    EndDate = pt.EndDate
+                }).ToList(),
                 CreatedAt = property.CreatedAt
             };
 
@@ -94,7 +106,7 @@ namespace zarzadzanieMieszkaniami.Controllers
                 RoomsCount = created.RoomsCount,
                 Area = created.Area,
                 OwnerId = created.OwnerId,
-                CurrentTenantId = created.CurrentTenantId,
+                Tenants = new List<TenantInfo>(),
                 CreatedAt = created.CreatedAt
             };
             

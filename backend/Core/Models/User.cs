@@ -10,9 +10,29 @@ namespace Core.Models
         public string LastName { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        
+        // Wynajmujący - ID wynajmującego który utworzył to konto (dla najemców i serwisantów)
+        public Guid? CreatedByLandlordId { get; set; }
 
-        // Relacje
+        // Relacje - Nieruchomości
         public ICollection<Property> OwnedProperties { get; set; }
+        
+        // Relacje - Najemcy (many-to-many przez PropertyTenant)
+        public ICollection<PropertyTenant> TenantProperties { get; set; }
+        
+        // Relacje - Zgłoszenia
         public ICollection<Issue> ReportedIssues { get; set; }
+        public ICollection<IssueServiceman> AssignedIssues { get; set; }
+        
+        // Relacje - Komentarze
+        public ICollection<IssueComment> Comments { get; set; }
+        
+        // Relacje - Wiadomości
+        public ICollection<Message> SentMessages { get; set; }
+        public ICollection<Message> ReceivedMessages { get; set; }
+        
+        // Relacje - Wynajmujący <-> Serwisant
+        public ICollection<LandlordServiceman> LandlordServicemen { get; set; }
+        public ICollection<LandlordServiceman> ServicemanLandlords { get; set; }
     }
 }

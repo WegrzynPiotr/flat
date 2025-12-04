@@ -2,11 +2,15 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store/store';
 import IssuesListScreen from '../screens/issues/IssuesListScreen';
 import IssueDetailsScreen from '../screens/issues/IssueDetailsScreen';
 import CreateIssueScreen from '../screens/issues/CreateIssueScreen';
 import PropertiesScreen from '../screens/properties/PropertiesScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
+import MessagesScreen from '../screens/messages/MessagesScreen';
+import UserManagementScreen from '../screens/userManagement/UserManagementScreen';
 import { Colors } from '../styles/colors';
 
 const Stack = createStackNavigator();
@@ -42,6 +46,8 @@ function IssuesStack() {
 }
 
 export default function AppNavigator() {
+  const userRole = useSelector((state: RootState) => state.auth.user?.role);
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -51,6 +57,10 @@ export default function AppNavigator() {
             iconName = focused ? 'alert-circle' : 'alert-circle-outline';
           } else if (route.name === 'Properties') {
             iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Messages') {
+            iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+          } else if (route.name === 'UserManagement') {
+            iconName = focused ? 'people' : 'people-outline';
           } else if (route.name === 'Profile') {
             iconName = focused ? 'person' : 'person-outline';
           }
@@ -62,6 +72,10 @@ export default function AppNavigator() {
     >
       <Tab.Screen name="Issues" component={IssuesStack} options={{ headerShown: false, title: 'Usterki' }} />
       <Tab.Screen name="Properties" component={PropertiesScreen} options={{ title: 'Mieszkania' }} />
+      <Tab.Screen name="Messages" component={MessagesScreen} options={{ title: 'Wiadomości' }} />
+      {userRole === 'Wynajmujący' && (
+        <Tab.Screen name="UserManagement" component={UserManagementScreen} options={{ title: 'Zarządzanie' }} />
+      )}
       <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profil' }} />
     </Tab.Navigator>
   );

@@ -1,5 +1,13 @@
 namespace Application.DTOs
 {
+    public class TenantInfo
+    {
+        public Guid TenantId { get; set; }
+        public string TenantName { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+    }
+
     public class PropertyResponse
     {
         public Guid Id { get; set; }
@@ -9,7 +17,7 @@ namespace Application.DTOs
         public int RoomsCount { get; set; }
         public decimal Area { get; set; }
         public Guid OwnerId { get; set; }
-        public Guid? CurrentTenantId { get; set; }
+        public List<TenantInfo> Tenants { get; set; } = new List<TenantInfo>();
         public DateTime CreatedAt { get; set; }
     }
 }

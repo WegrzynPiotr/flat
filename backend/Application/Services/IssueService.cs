@@ -31,7 +31,8 @@ namespace Application.Services
             // Pobierz nieruchomości powiązane z użytkownikiem
             var userProperties = await _propertyRepository.GetAllAsync();
             var accessiblePropertyIds = userProperties
-                .Where(p => p.OwnerId == userId || p.CurrentTenantId == userId)
+                .Where(p => p.OwnerId == userId || 
+                           p.Tenants.Any(pt => pt.TenantId == userId)) // Zmienione: many-to-many
                 .Select(p => p.Id)
                 .ToList();
             

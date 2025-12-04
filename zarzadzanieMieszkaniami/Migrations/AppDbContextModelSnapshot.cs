@@ -92,6 +92,129 @@ namespace zarzadzanieMieszkaniami.Migrations
                     b.ToTable("issues");
                 });
 
+            modelBuilder.Entity("Core.Models.IssueComment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("author_id");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("content");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("IssueId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("issue_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("p_k_issue_comments");
+
+                    b.HasIndex("AuthorId")
+                        .HasDatabaseName("i_x_issue_comments_author_id");
+
+                    b.HasIndex("IssueId")
+                        .HasDatabaseName("i_x_issue_comments_issue_id");
+
+                    b.ToTable("issue_comments");
+                });
+
+            modelBuilder.Entity("Core.Models.IssueServiceman", b =>
+                {
+                    b.Property<Guid>("IssueId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("issue_id");
+
+                    b.Property<Guid>("ServicemanId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("serviceman_id");
+
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("assigned_at");
+
+                    b.HasKey("IssueId", "ServicemanId");
+
+                    b.HasIndex("ServicemanId")
+                        .HasDatabaseName("i_x_issue_servicemen_serviceman_id");
+
+                    b.ToTable("issue_servicemen");
+                });
+
+            modelBuilder.Entity("Core.Models.LandlordServiceman", b =>
+                {
+                    b.Property<Guid>("LandlordId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("landlord_id");
+
+                    b.Property<Guid>("ServicemanId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("serviceman_id");
+
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("assigned_at");
+
+                    b.HasKey("LandlordId", "ServicemanId");
+
+                    b.HasIndex("ServicemanId");
+
+                    b.ToTable("landlord_servicemen");
+                });
+
+            modelBuilder.Entity("Core.Models.Message", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("content");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_read");
+
+                    b.Property<Guid>("ReceiverId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("receiver_id");
+
+                    b.Property<Guid>("SenderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("sender_id");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sent_at");
+
+                    b.HasKey("Id")
+                        .HasName("p_k_messages");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("messages");
+                });
+
             modelBuilder.Entity("Core.Models.Property", b =>
                 {
                     b.Property<Guid>("Id")
@@ -119,10 +242,6 @@ namespace zarzadzanieMieszkaniami.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<Guid?>("CurrentTenantId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("current_tenant_id");
-
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("uuid")
                         .HasColumnName("owner_id");
@@ -140,11 +259,36 @@ namespace zarzadzanieMieszkaniami.Migrations
                     b.HasKey("Id")
                         .HasName("p_k_properties");
 
-                    b.HasIndex("CurrentTenantId");
-
-                    b.HasIndex("OwnerId");
+                    b.HasIndex("OwnerId")
+                        .HasDatabaseName("i_x_properties_owner_id");
 
                     b.ToTable("properties");
+                });
+
+            modelBuilder.Entity("Core.Models.PropertyTenant", b =>
+                {
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("end_date");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("start_date");
+
+                    b.HasKey("PropertyId", "TenantId");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("i_x_property_tenants_tenant_id");
+
+                    b.ToTable("property_tenants");
                 });
 
             modelBuilder.Entity("Core.Models.RefreshToken", b =>
@@ -206,6 +350,10 @@ namespace zarzadzanieMieszkaniami.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedByLandlordId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_landlord_id");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -471,21 +619,117 @@ namespace zarzadzanieMieszkaniami.Migrations
                     b.Navigation("ReportedBy");
                 });
 
+            modelBuilder.Entity("Core.Models.IssueComment", b =>
+                {
+                    b.HasOne("Core.Models.User", "Author")
+                        .WithMany("Comments")
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("f_k_issue_comments__asp_net_users_author_id");
+
+                    b.HasOne("Core.Models.Issue", "Issue")
+                        .WithMany("Comments")
+                        .HasForeignKey("IssueId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("f_k_issue_comments_issues_issue_id");
+
+                    b.Navigation("Author");
+
+                    b.Navigation("Issue");
+                });
+
+            modelBuilder.Entity("Core.Models.IssueServiceman", b =>
+                {
+                    b.HasOne("Core.Models.Issue", "Issue")
+                        .WithMany("AssignedServicemen")
+                        .HasForeignKey("IssueId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("f_k_issue_servicemen_issues_issue_id");
+
+                    b.HasOne("Core.Models.User", "Serviceman")
+                        .WithMany("AssignedIssues")
+                        .HasForeignKey("ServicemanId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("f_k_issue_servicemen__asp_net_users_serviceman_id");
+
+                    b.Navigation("Issue");
+
+                    b.Navigation("Serviceman");
+                });
+
+            modelBuilder.Entity("Core.Models.LandlordServiceman", b =>
+                {
+                    b.HasOne("Core.Models.User", "Landlord")
+                        .WithMany("LandlordServicemen")
+                        .HasForeignKey("LandlordId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Core.Models.User", "Serviceman")
+                        .WithMany("ServicemanLandlords")
+                        .HasForeignKey("ServicemanId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Landlord");
+
+                    b.Navigation("Serviceman");
+                });
+
+            modelBuilder.Entity("Core.Models.Message", b =>
+                {
+                    b.HasOne("Core.Models.User", "Receiver")
+                        .WithMany("ReceivedMessages")
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Core.Models.User", "Sender")
+                        .WithMany("SentMessages")
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("Sender");
+                });
+
             modelBuilder.Entity("Core.Models.Property", b =>
                 {
-                    b.HasOne("Core.Models.User", "CurrentTenant")
-                        .WithMany()
-                        .HasForeignKey("CurrentTenantId");
-
                     b.HasOne("Core.Models.User", "Owner")
                         .WithMany("OwnedProperties")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("CurrentTenant");
+                        .IsRequired()
+                        .HasConstraintName("f_k_properties__asp_net_users_owner_id");
 
                     b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("Core.Models.PropertyTenant", b =>
+                {
+                    b.HasOne("Core.Models.Property", "Property")
+                        .WithMany("Tenants")
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("f_k_property_tenants_properties_property_id");
+
+                    b.HasOne("Core.Models.User", "Tenant")
+                        .WithMany("TenantProperties")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("f_k_property_tenants__asp_net_users_tenant_id");
+
+                    b.Navigation("Property");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("Core.Models.RefreshToken", b =>
@@ -557,16 +801,39 @@ namespace zarzadzanieMieszkaniami.Migrations
                         .HasConstraintName("f_k_asp_net_user_tokens_asp_net_users_user_id");
                 });
 
+            modelBuilder.Entity("Core.Models.Issue", b =>
+                {
+                    b.Navigation("AssignedServicemen");
+
+                    b.Navigation("Comments");
+                });
+
             modelBuilder.Entity("Core.Models.Property", b =>
                 {
                     b.Navigation("Issues");
+
+                    b.Navigation("Tenants");
                 });
 
             modelBuilder.Entity("Core.Models.User", b =>
                 {
+                    b.Navigation("AssignedIssues");
+
+                    b.Navigation("Comments");
+
+                    b.Navigation("LandlordServicemen");
+
                     b.Navigation("OwnedProperties");
 
+                    b.Navigation("ReceivedMessages");
+
                     b.Navigation("ReportedIssues");
+
+                    b.Navigation("SentMessages");
+
+                    b.Navigation("ServicemanLandlords");
+
+                    b.Navigation("TenantProperties");
                 });
 #pragma warning restore 612, 618
         }

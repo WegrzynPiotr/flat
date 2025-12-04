@@ -1,5 +1,20 @@
 import client from './client';
-import { User, Issue, Property, Repair } from '../types/api';
+import { 
+  User, 
+  Issue, 
+  Property, 
+  Repair, 
+  CommentResponse, 
+  MessageResponse, 
+  ConversationUser, 
+  TenantInfo,
+  PropertyResponse,
+  IssueResponse,
+  UserManagementResponse,
+  CreateUserRequest,
+  AssignTenantRequest,
+  AssignServicemanRequest
+} from '../types/api';
 import { API_BASE_URL } from '@env';
 import { storage } from '../utils/storage';
 
@@ -31,8 +46,8 @@ export const usersAPI = {
 // Issues
 export const issuesAPI = {
   getAll: (filters?: any) =>
-    client.get<Issue[]>('/issues', { params: filters }),
-  getById: (id: string) => client.get<Issue>(`/issues/${id}`),
+    client.get<IssueResponse[]>('/issues', { params: filters }),
+  getById: (id: string) => client.get<IssueResponse>(`/issues/${id}`),
   create: async (data: FormData | Record<string, unknown>) => {
     // Use native fetch for FormData uploads in React Native
     if (data instanceof FormData) {
@@ -73,10 +88,44 @@ export const issuesAPI = {
 
 // Properties
 export const propertiesAPI = {
-  getAll: () => client.get<Property[]>('/properties'),
-  getById: (id: string) => client.get<Property>(`/properties/${id}`),
+  getAll: () => client.get<PropertyResponse[]>('/properties'),
+  getById: (id: string) => client.get<PropertyResponse>(`/properties/${id}`),
   create: (data: Partial<Property>) =>
-    client.post<Property>('/properties', data),
+    client.post<PropertyResponse>('/properties', data),
+};
+
+// Comments
+export const commentsAPI = {
+  create: (issueId: string, content: string) =>
+    client.post<CommentResponse>('/comments', { issueId, content }),
+  getByIssue: (issueId: string) =>
+    client.get<CommentResponse[]>(`/comments/issue/${issueId}`),
+};
+
+// Messages
+export const messagesAPI = {
+  send: (receiverId: string, content: string) =>
+    client.post<MessageResponse>('/messages', { receiverId, content }),
+  getConversation: (userId: string) =>
+    client.get<MessageResponse[]>(`/messages/conversation/${userId}`),
+  getContacts: () =>
+    client.get<ConversationUser[]>('/messages/contacts'),
+  markAsRead: (messageId: string) =>
+    client.put(`/messages/${messageId}/mark-read`),
+};
+
+// User Management (dla Wynajmujących)
+export const userManagementAPI = {
+  createUser: (data: CreateUserRequest) =>
+    client.post<UserManagementResponse>('/usermanagement/create-user', data),
+  assignTenant: (data: AssignTenantRequest) =>
+    client.post('/usermanagement/assign-tenant', data),
+  assignServiceman: (data: AssignServicemanRequest) =>
+    client.post('/usermanagement/assign-serviceman', data),
+  getMyTenants: () =>
+    client.get<UserManagementResponse[]>('/usermanagement/my-tenants'),
+  getMyServicemen: () =>
+    client.get<UserManagementResponse[]>('/usermanagement/my-servicemen'),
 };
 
 // Repairs

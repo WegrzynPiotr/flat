@@ -21,7 +21,8 @@ namespace Infrastructure.Repositories
         {
             return await _context.Properties
                 .Include(p => p.Owner)
-                .Include(p => p.CurrentTenant)
+                .Include(p => p.Tenants)
+                    .ThenInclude(pt => pt.Tenant)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 

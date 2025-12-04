@@ -1,5 +1,12 @@
 namespace Application.DTOs
 {
+    public class ServicemanInfo
+    {
+        public Guid ServicemanId { get; set; }
+        public string ServicemanName { get; set; }
+        public DateTime AssignedAt { get; set; }
+    }
+
     public class IssueResponse
     {
         public Guid Id { get; set; }
@@ -15,5 +22,7 @@ namespace Application.DTOs
         public DateTime ReportedAt { get; set; }
         public DateTime? ResolvedAt { get; set; }
         public List<string> Photos { get; set; } = new();
+        public List<ServicemanInfo> AssignedServicemen { get; set; } = new();
+        public List<CommentResponse> Comments { get; set; } = new();
     }
 }

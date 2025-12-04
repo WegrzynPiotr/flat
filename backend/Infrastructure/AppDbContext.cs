@@ -14,6 +14,11 @@ namespace Infrastructure
         public DbSet<Property> Properties { get; set; }
         public DbSet<Issue> Issues { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<IssueComment> IssueComments { get; set; }
+        public DbSet<Message> Messages { get; set; }
+        public DbSet<PropertyTenant> PropertyTenants { get; set; }
+        public DbSet<LandlordServiceman> LandlordServicemen { get; set; }
+        public DbSet<IssueServiceman> IssueServicemen { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -67,6 +72,22 @@ namespace Infrastructure
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
+            // Konfiguracja PropertyTenant (many-to-many)
+            modelBuilder.Entity<PropertyTenant>(entity =>
+            {
+                entity.HasKey(pt => new { pt.PropertyId, pt.TenantId });
+
+                entity.HasOne(pt => pt.Property)
+                    .WithMany(p => p.Tenants)
+                    .HasForeignKey(pt => pt.PropertyId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(pt => pt.Tenant)
+                    .WithMany(u => u.TenantProperties)
+                    .HasForeignKey(pt => pt.TenantId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
             // Konfiguracja Issue
             modelBuilder.Entity<Issue>(entity =>
             {
@@ -91,6 +112,72 @@ namespace Infrastructure
                 entity.HasOne(e => e.ReportedBy)
                     .WithMany(u => u.ReportedIssues)
                     .HasForeignKey(e => e.ReportedById)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Konfiguracja IssueComment
+            modelBuilder.Entity<IssueComment>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Content).IsRequired().HasMaxLength(2000);
+
+                entity.HasOne(e => e.Issue)
+                    .WithMany(i => i.Comments)
+                    .HasForeignKey(e => e.IssueId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Author)
+                    .WithMany(u => u.Comments)
+                    .HasForeignKey(e => e.AuthorId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Konfiguracja IssueServiceman (many-to-many)
+            modelBuilder.Entity<IssueServiceman>(entity =>
+            {
+                entity.HasKey(iss => new { iss.IssueId, iss.ServicemanId });
+
+                entity.HasOne(iss => iss.Issue)
+                    .WithMany(i => i.AssignedServicemen)
+                    .HasForeignKey(iss => iss.IssueId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(iss => iss.Serviceman)
+                    .WithMany(u => u.AssignedIssues)
+                    .HasForeignKey(iss => iss.ServicemanId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Konfiguracja Message
+            modelBuilder.Entity<Message>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Content).IsRequired().HasMaxLength(2000);
+
+                entity.HasOne(e => e.Sender)
+                    .WithMany(u => u.SentMessages)
+                    .HasForeignKey(e => e.SenderId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Receiver)
+                    .WithMany(u => u.ReceivedMessages)
+                    .HasForeignKey(e => e.ReceiverId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Konfiguracja LandlordServiceman (many-to-many)
+            modelBuilder.Entity<LandlordServiceman>(entity =>
+            {
+                entity.HasKey(ls => new { ls.LandlordId, ls.ServicemanId });
+
+                entity.HasOne(ls => ls.Landlord)
+                    .WithMany(u => u.LandlordServicemen)
+                    .HasForeignKey(ls => ls.LandlordId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(ls => ls.Serviceman)
+                    .WithMany(u => u.ServicemanLandlords)
+                    .HasForeignKey(ls => ls.ServicemanId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
 

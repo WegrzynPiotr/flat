@@ -13,12 +13,16 @@ namespace Core.Models
         public int RoomsCount { get; set; }
         public decimal Area { get; set; }
         public Guid OwnerId { get; set; }
-        public Guid? CurrentTenantId { get; set; }
+        
+        // Usunięte: CurrentTenantId - teraz many-to-many przez PropertyTenant
         public DateTime CreatedAt { get; set; }
 
         // Relacje
         public User Owner { get; set; }
-        public User CurrentTenant { get; set; }
+        
+        // Najemcy - many-to-many przez PropertyTenant
+        public ICollection<PropertyTenant> Tenants { get; set; }
+        
         public ICollection<Issue> Issues { get; set; }
     }
 }
