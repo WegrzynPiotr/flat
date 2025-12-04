@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "WAXdYE+smMPM3tql4FjlYz7C0R0z2aWoiDBq0tx6tXE=",
+  "Hash": "mp1uvzZ+PXExXqPySBSM/JW1S4ANOp5wiSH+5y9g4uw=",
   "Source": "zarzadzanieMieszkaniami",
   "BasePath": "_content/zarzadzanieMieszkaniami",
   "Mode": "Default",
@@ -57,6 +57,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\uploads\\05cc5294-a940-4473-8ac2-a767c7b44d02.png"
+    },
+    {
+      "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\0ca21f48-4c2e-4a46-aaaf-6d85b15b6f66.PNG",
+      "SourceId": "zarzadzanieMieszkaniami",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\",
+      "BasePath": "_content/zarzadzanieMieszkaniami",
+      "RelativePath": "uploads/0ca21f48-4c2e-4a46-aaaf-6d85b15b6f66#[.{fingerprint}]?.PNG",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "grigw7g0sy",
+      "Integrity": "BKGwPdeLsQyZxTCZVHqqm0cueMzq+Gri9rIgtz2Uhug=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\0ca21f48-4c2e-4a46-aaaf-6d85b15b6f66.PNG"
     },
     {
       "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\205add6b-112d-4ac5-984b-7b76d86782f6.png",
@@ -536,6 +557,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-HjLGRe95Rzj+cHR0vYBPXYLaJYjtD5grkeBY60LIqUY="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/0ca21f48-4c2e-4a46-aaaf-6d85b15b6f66.grigw7g0sy.PNG",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\0ca21f48-4c2e-4a46-aaaf-6d85b15b6f66.PNG",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "13093"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"BKGwPdeLsQyZxTCZVHqqm0cueMzq+Gri9rIgtz2Uhug=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 04 Dec 2025 22:00:47 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "grigw7g0sy"
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/0ca21f48-4c2e-4a46-aaaf-6d85b15b6f66.PNG"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-BKGwPdeLsQyZxTCZVHqqm0cueMzq+Gri9rIgtz2Uhug="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/0ca21f48-4c2e-4a46-aaaf-6d85b15b6f66.PNG",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\0ca21f48-4c2e-4a46-aaaf-6d85b15b6f66.PNG",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "13093"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"BKGwPdeLsQyZxTCZVHqqm0cueMzq+Gri9rIgtz2Uhug=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 04 Dec 2025 22:00:47 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-BKGwPdeLsQyZxTCZVHqqm0cueMzq+Gri9rIgtz2Uhug="
         }
       ]
     },

@@ -3,8 +3,10 @@ using Core.Models;
 using Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using zarzadzanieMieszkaniami.Hubs;
 
 namespace zarzadzanieMieszkaniami.Controllers
 {
@@ -13,10 +15,12 @@ namespace zarzadzanieMieszkaniami.Controllers
     public class MessagesController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IHubContext<ChatHub> _hubContext;
 
-        public MessagesController(AppDbContext context)
+        public MessagesController(AppDbContext context, IHubContext<ChatHub> hubContext)
         {
             _context = context;
+            _hubContext = hubContext;
         }
 
         [HttpPost]
@@ -41,7 +45,7 @@ namespace zarzadzanieMieszkaniami.Controllers
             var sender = await _context.Users.FindAsync(senderId);
             var receiver = await _context.Users.FindAsync(request.ReceiverId);
 
-            return Ok(new MessageResponse
+            var response = new MessageResponse
             {
                 Id = message.Id,
                 SenderId = senderId,
@@ -51,7 +55,17 @@ namespace zarzadzanieMieszkaniami.Controllers
                 Content = message.Content,
                 IsRead = message.IsRead,
                 SentAt = message.SentAt
-            });
+            };
+
+            // Wyślij powiadomienie przez SignalR jeśli odbiorca jest online
+            var connectionId = ChatHub.GetConnectionId(request.ReceiverId.ToString());
+            if (connectionId != null)
+            {
+                await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveMessage", response);
+                Console.WriteLine($"📨 Real-time message sent to {receiver.FirstName} {receiver.LastName}");
+            }
+
+            return Ok(response);
         }
 
         [HttpGet("conversation/{userId}")]

@@ -56,7 +56,7 @@ export default function IssueDetailsScreen({ route }: any) {
             <Text style={[Typography.label, styles.marginTop]}>Przypisani serwisanci</Text>
             {selectedIssue.assignedServicemen.map((serviceman) => (
               <Text key={serviceman.servicemanId} style={Typography.body}>
-                {serviceman.name} - {new Date(serviceman.assignedAt).toLocaleDateString('pl-PL')}
+                {serviceman.servicemanName} - {new Date(serviceman.assignedAt).toLocaleDateString('pl-PL')}
               </Text>
             ))}
           </>

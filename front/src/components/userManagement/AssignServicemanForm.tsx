@@ -88,9 +88,9 @@ export default function AssignServicemanForm({ issueId, onAssigned }: AssignServ
             <Picker.Item label="Wybierz serwisanta..." value="" />
             {servicemen.map((serviceman) => (
               <Picker.Item
-                key={serviceman.userId}
-                label={`${serviceman.firstName} ${serviceman.lastName}${serviceman.phoneNumber ? ` (${serviceman.phoneNumber})` : ''}`}
-                value={serviceman.userId}
+                key={serviceman.id}
+                label={`${serviceman.firstName} ${serviceman.lastName}`}
+                value={serviceman.id}
               />
             ))}
           </Picker>

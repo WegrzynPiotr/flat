@@ -22,6 +22,8 @@ namespace Infrastructure.Repositories
             return await _context.Issues
                 .Include(i => i.Property)
                 .Include(i => i.ReportedBy)
+                .Include(i => i.AssignedServicemen)
+                    .ThenInclude(ais => ais.Serviceman)
                 .FirstOrDefaultAsync(i => i.Id == id);
         }
 

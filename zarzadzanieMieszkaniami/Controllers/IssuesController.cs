@@ -93,6 +93,12 @@ namespace zarzadzanieMieszkaniami.Controllers
                 PropertyAddress = issue.Property?.Address ?? "Unknown",
                 ReportedById = issue.ReportedById,
                 ReportedByName = issue.ReportedBy != null ? $"{issue.ReportedBy.FirstName} {issue.ReportedBy.LastName}" : "Unknown",
+                AssignedServicemen = issue.AssignedServicemen?.Select(ais => new ServicemanInfo
+                {
+                    ServicemanId = ais.ServicemanId,
+                    ServicemanName = $"{ais.Serviceman.FirstName} {ais.Serviceman.LastName}",
+                    AssignedAt = ais.AssignedAt
+                }).ToList() ?? new List<ServicemanInfo>(),
                 ReportedAt = issue.ReportedAt,
                 ResolvedAt = issue.ResolvedAt,
                 Photos = issue.Photos ?? new List<string>()
