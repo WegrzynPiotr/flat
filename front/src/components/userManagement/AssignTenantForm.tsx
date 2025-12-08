@@ -190,7 +190,7 @@ export default function AssignTenantForm({ onTenantAssigned }: AssignTenantFormP
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={true}>
       <Text style={Typography.h2}>Przypisz najemców</Text>
 
       <View style={styles.form}>
@@ -357,7 +357,7 @@ export default function AssignTenantForm({ onTenantAssigned }: AssignTenantFormP
           </View>
         </View>
       </Modal>
-    </View>
+    </ScrollView>
   );
 }
 
