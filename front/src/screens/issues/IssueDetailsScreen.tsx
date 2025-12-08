@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Modal, Dimensions, Alert, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Modal, Dimensions, Alert, Platform, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { fetchIssueById, fetchIssues } from '../../store/slices/issuesSlice';
 import { AppDispatch, RootState } from '../../store/store';
 import Loading from '../../components/common/Loading';
@@ -20,6 +21,7 @@ export default function IssueDetailsScreen({ route, navigation }: any) {
   const userRole = useSelector((state: RootState) => state.auth.user?.role);
   const userId = useSelector((state: RootState) => state.auth.user?.id);
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   const isOwner = userRole === 'Wlasciciel' && selectedIssue?.property?.ownerId === userId;
 
@@ -63,6 +65,52 @@ export default function IssueDetailsScreen({ route, navigation }: any) {
     } catch (error: any) {
       console.error('Error deleting issue:', error);
       Alert.alert('Błąd', error.response?.data?.message || 'Nie udało się usunąć usterki');
+    }
+  };
+
+  const handleAddPhoto = async () => {
+    try {
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (permissionResult.granted === false) {
+        Alert.alert('Błąd', 'Brak uprawnień do dostępu do galerii');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        setUploadingPhoto(true);
+        
+        const uri = result.assets[0].uri;
+        const filename = uri.split('/').pop() || 'photo.jpg';
+        const match = /\.(\w+)$/.exec(filename);
+        const type = match ? `image/${match[1]}` : 'image/jpeg';
+
+        // Fetch the image and convert to blob for web compatibility
+        const response = await fetch(uri);
+        const blob = await response.blob();
+        
+        // Create a File object from Blob with proper type and filename
+        const file = new File([blob], filename, { type });
+        
+        const formData = new FormData();
+        formData.append('photo', file);
+
+        await issuesAPI.addPhoto(id, formData);
+        await dispatch(fetchIssueById(id));
+        Alert.alert('Sukces', 'Zdjęcie zostało dodane');
+      }
+    } catch (error: any) {
+      console.error('Error adding photo:', error);
+      Alert.alert('Błąd', 'Nie udało się dodać zdjęcia');
+    } finally {
+      setUploadingPhoto(false);
     }
   };
 
@@ -121,22 +169,32 @@ export default function IssueDetailsScreen({ route, navigation }: any) {
           </>
         )}
 
-        {selectedIssue.photos && selectedIssue.photos.length > 0 && (
-          <>
-            <Text style={[Typography.label, styles.marginTop]}>Zdjęcia</Text>
-            <View style={styles.photosGrid}>
-              {selectedIssue.photos.map((photo, index) => (
-                <TouchableOpacity 
-                  key={index} 
-                  onPress={() => setSelectedPhoto(photo)}
-                  activeOpacity={0.8}
-                >
-                  <Image source={{ uri: photo }} style={styles.photo} />
-                </TouchableOpacity>
-              ))}
-            </View>
-          </>
-        )}
+        <Text style={[Typography.label, styles.marginTop]}>Zdjęcia</Text>
+        <View style={styles.photosGrid}>
+          {selectedIssue.photos && selectedIssue.photos.map((photo, index) => (
+            <TouchableOpacity 
+              key={index} 
+              onPress={() => setSelectedPhoto(photo)}
+              activeOpacity={0.8}
+            >
+              <Image source={{ uri: photo }} style={styles.photo} />
+            </TouchableOpacity>
+          ))}
+          
+          {/* Add Photo Button */}
+          <TouchableOpacity 
+            style={styles.addPhotoCard}
+            onPress={handleAddPhoto}
+            disabled={uploadingPhoto}
+            activeOpacity={0.7}
+          >
+            {uploadingPhoto ? (
+              <ActivityIndicator size="small" color={Colors.primary} />
+            ) : (
+              <Ionicons name="camera" size={32} color={Colors.primary} />
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Lightbox Modal */}
@@ -190,7 +248,12 @@ export default function IssueDetailsScreen({ route, navigation }: any) {
       )}
 
       <View style={styles.card}>
-        <CommentsList issueId={id} />
+        <CommentsList 
+          issueId={id} 
+          issue={selectedIssue}
+          onPhotoAdded={handleAddPhoto}
+          uploadingPhoto={uploadingPhoto}
+        />
       </View>
     </ScrollView>
   );
@@ -287,4 +350,16 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
   },
+  addPhotoCard: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: Colors.primary,
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.background,
+  },
 });
+

@@ -15,7 +15,7 @@ namespace Core.Models
         public Guid ReportedById { get; set; }
         public DateTime ReportedAt { get; set; }
         public DateTime? ResolvedAt { get; set; }
-        public List<string> Photos { get; set; } = new List<string>();
+        public List<string> Photos { get; set; } = new List<string>(); // Legacy - zachowane dla kompatybilności
 
         // Relacje
         public Property Property { get; set; }
@@ -26,5 +26,8 @@ namespace Core.Models
         
         // Przypisani serwisanci (many-to-many)
         public ICollection<IssueServiceman> AssignedServicemen { get; set; }
+        
+        // Zdjęcia z metadanymi
+        public ICollection<IssuePhoto> PhotosWithMetadata { get; set; }
     }
 }

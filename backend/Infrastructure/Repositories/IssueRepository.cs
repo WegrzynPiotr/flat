@@ -24,6 +24,8 @@ namespace Infrastructure.Repositories
                 .Include(i => i.ReportedBy)
                 .Include(i => i.AssignedServicemen)
                     .ThenInclude(ais => ais.Serviceman)
+                .Include(i => i.PhotosWithMetadata)
+                    .ThenInclude(p => p.UploadedBy)
                 .FirstOrDefaultAsync(i => i.Id == id);
         }
 

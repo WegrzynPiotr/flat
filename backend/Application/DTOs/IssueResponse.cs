@@ -7,6 +7,15 @@ namespace Application.DTOs
         public DateTime AssignedAt { get; set; }
     }
 
+    public class PhotoInfo
+    {
+        public Guid Id { get; set; }
+        public string Url { get; set; }
+        public Guid UploadedById { get; set; }
+        public string UploadedByName { get; set; }
+        public DateTime UploadedAt { get; set; }
+    }
+
     public class PropertyInfo
     {
         public Guid Id { get; set; }
@@ -29,7 +38,8 @@ namespace Application.DTOs
         public string ReportedByName { get; set; }
         public DateTime ReportedAt { get; set; }
         public DateTime? ResolvedAt { get; set; }
-        public List<string> Photos { get; set; } = new();
+        public List<string> Photos { get; set; } = new(); // Legacy - zachowane dla kompatybilności
+        public List<PhotoInfo> PhotosWithMetadata { get; set; } = new();
         public List<ServicemanInfo> AssignedServicemen { get; set; } = new();
         public List<CommentResponse> Comments { get; set; } = new();
     }

@@ -15,6 +15,7 @@ namespace Infrastructure
         public DbSet<Issue> Issues { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<IssueComment> IssueComments { get; set; }
+        public DbSet<IssuePhoto> IssuePhotos { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<PropertyTenant> PropertyTenants { get; set; }
         public DbSet<LandlordServiceman> LandlordServicemen { get; set; }
@@ -139,6 +140,24 @@ namespace Infrastructure
                 entity.HasOne(e => e.Author)
                     .WithMany(u => u.Comments)
                     .HasForeignKey(e => e.AuthorId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Konfiguracja IssuePhoto
+            modelBuilder.Entity<IssuePhoto>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Url).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.UploadedAt).IsRequired();
+
+                entity.HasOne(e => e.Issue)
+                    .WithMany(i => i.PhotosWithMetadata)
+                    .HasForeignKey(e => e.IssueId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.UploadedBy)
+                    .WithMany()
+                    .HasForeignKey(e => e.UploadedById)
                     .OnDelete(DeleteBehavior.Restrict);
             });
 

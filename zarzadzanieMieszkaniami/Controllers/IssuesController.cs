@@ -125,7 +125,15 @@ namespace zarzadzanieMieszkaniami.Controllers
                 }).ToList() ?? new List<ServicemanInfo>(),
                 ReportedAt = issue.ReportedAt,
                 ResolvedAt = issue.ResolvedAt,
-                Photos = issue.Photos ?? new List<string>()
+                Photos = issue.Photos ?? new List<string>(),
+                PhotosWithMetadata = issue.PhotosWithMetadata?.Select(p => new PhotoInfo
+                {
+                    Id = p.Id,
+                    Url = p.Url,
+                    UploadedById = p.UploadedById,
+                    UploadedByName = p.UploadedBy != null ? $"{p.UploadedBy.FirstName} {p.UploadedBy.LastName}" : "Unknown",
+                    UploadedAt = p.UploadedAt
+                }).ToList() ?? new List<PhotoInfo>()
             };
 
             return Ok(dto);
@@ -233,6 +241,112 @@ namespace zarzadzanieMieszkaniami.Controllers
             await _issueService.DeleteIssueAsync(id);
             Console.WriteLine($"🟢 Issue deleted successfully");
             return NoContent();
+        }
+
+        [HttpPost("{id}/photos")]
+        [Authorize]
+        public async Task<IActionResult> AddPhoto(Guid id, [FromForm] IFormFile photo)
+        {
+            if (photo == null || photo.Length == 0)
+            {
+                return BadRequest(new { message = "Nie przesłano zdjęcia" });
+            }
+
+            Console.WriteLine($"📸 Received photo: FileName={photo.FileName}, ContentType={photo.ContentType}, Length={photo.Length}");
+
+            var issue = await _context.Issues
+                .Include(i => i.Property)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (issue == null)
+                return NotFound(new { message = "Usterka nie istnieje" });
+
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            // Sprawdź uprawnienia - właściciel nieruchomości, zgłaszający lub przypisany serwisant
+            bool hasAccess = false;
+            
+            if (userRole == "Wlasciciel" && issue.Property?.OwnerId == userId)
+            {
+                hasAccess = true;
+            }
+            else if (issue.ReportedById == userId)
+            {
+                hasAccess = true;
+            }
+            else if (userRole == "Serwisant" && issue.AssignedServicemen?.Any(a => a.ServicemanId == userId) == true)
+            {
+                hasAccess = true;
+            }
+
+            if (!hasAccess)
+            {
+                return StatusCode(403, new { message = "Brak uprawnień do dodania zdjęcia" });
+            }
+
+            // Zapisz zdjęcie
+            var webRootPath = _environment.WebRootPath;
+            if (string.IsNullOrWhiteSpace(webRootPath))
+            {
+                webRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            }
+
+            var uploadsPath = Path.Combine(webRootPath, "uploads", "issues");
+            Directory.CreateDirectory(uploadsPath);
+
+            var extension = Path.GetExtension(photo.FileName);
+            if (string.IsNullOrEmpty(extension))
+            {
+                // Jeśli brak rozszerzenia, spróbuj określić z ContentType
+                extension = photo.ContentType switch
+                {
+                    "image/jpeg" => ".jpg",
+                    "image/png" => ".png",
+                    "image/gif" => ".gif",
+                    "image/webp" => ".webp",
+                    _ => ".jpg"
+                };
+            }
+            
+            var fileName = $"{Guid.NewGuid()}{extension}";
+            var filePath = Path.Combine(uploadsPath, fileName);
+            
+            Console.WriteLine($"📸 Saving as: {fileName} in {uploadsPath}");
+
+            await using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await photo.CopyToAsync(stream);
+            }
+
+            var relativePath = Path.Combine("uploads", "issues", fileName).Replace("\\", "/");
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+            var photoUrl = $"{baseUrl}/{relativePath}";
+
+            // Dodaj URL do listy zdjęć (legacy - dla kompatybilności)
+            if (issue.Photos == null)
+            {
+                issue.Photos = new List<string>();
+            }
+            issue.Photos.Add(photoUrl);
+
+            // Dodaj zdjęcie z metadanymi do nowej tabeli
+            var issuePhoto = new IssuePhoto
+            {
+                Id = Guid.NewGuid(),
+                IssueId = id,
+                Url = photoUrl,
+                UploadedById = userId,
+                UploadedAt = DateTime.UtcNow
+            };
+            
+            _context.IssuePhotos.Add(issuePhoto);
+            await _context.SaveChangesAsync();
+
+            await _issueService.UpdateIssueAsync(issue);
+
+            Console.WriteLine($"📸 Added photo to issue {id}: {fileName}");
+            return Ok(new { photoUrl, message = "Zdjęcie zostało dodane" });
         }
 
         private async Task<List<string>> SavePhotosAsync(List<IFormFile>? files)

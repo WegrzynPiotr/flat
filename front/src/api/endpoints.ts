@@ -86,6 +86,21 @@ export const issuesAPI = {
   updateStatus: (id: string, status: string) =>
     client.put(`/issues/${id}/status`, { status }),
   delete: (id: string) => client.delete(`/issues/${id}`),
+  addPhoto: async (id: string, formData: FormData) => {
+    const token = await storage.getItemAsync('authToken');
+    const response = await fetch(`${API_URL}/issues/${id}/photos`, {
+      method: 'POST',
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+      },
+      body: formData,
+    });
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(error || 'Failed to add photo');
+    }
+    return await response.json();
+  },
 };
 
 // Properties

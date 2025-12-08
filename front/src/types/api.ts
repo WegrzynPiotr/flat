@@ -44,6 +44,14 @@ export interface ServicemanInfo {
   assignedAt: string;
 }
 
+export interface PhotoInfo {
+  id: string;
+  url: string;
+  uploadedById: string;
+  uploadedByName: string;
+  uploadedAt: string;
+}
+
 export interface CommentResponse {
   id: string;
   issueId: string;
@@ -141,7 +149,8 @@ export interface IssueResponse {
   comments?: CommentResponse[];
   reportedAt: string;
   resolvedAt?: string;
-  photos?: string[];
+  photos?: string[]; // Legacy
+  photosWithMetadata?: PhotoInfo[];
 }
 
 export interface UserManagementResponse {
