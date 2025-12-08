@@ -1,10 +1,10 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
-import Constants from 'expo-constants';
+import { API_BASE_URL } from '@env';
 import { storage } from '../utils/storage';
 import { getStoreDispatch } from '../utils/storeHelpers';
 import { logout } from '../store/slices/authSlice';
 
-const API_URL = Constants.expoConfig?.extra?.apiBaseUrl || 'http://193.106.130.55:5162/api';
+const API_URL = API_BASE_URL || 'http://localhost:5000/api';
 
 const client: AxiosInstance = axios.create({
   baseURL: API_URL,
@@ -21,9 +21,6 @@ client.interceptors.request.use(
       const token = await storage.getItemAsync('authToken');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
-        console.log('🔑 Token being sent:', token.substring(0, 50) + '...');
-      } else {
-        console.log('❌ No token found in storage');
       }
       
       // Allow FormData to set its own Content-Type with boundary

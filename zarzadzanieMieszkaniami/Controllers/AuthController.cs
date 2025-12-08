@@ -28,13 +28,12 @@ namespace zarzadzanieMieszkaniami.Controllers
         {
             try
             {
-                // Tylko właściciele mogą się rejestrować
                 var user = await _authService.RegisterAsync(
                     request.Email,
                     request.Password,
                     request.FirstName,
                     request.LastName,
-                    "Wlasciciel" // Wymuszamy rolę Wlasciciel dla rejestracji
+                    request.Role ?? "Najemca"
                 );
 
                 // Automatyczne logowanie po rejestracji

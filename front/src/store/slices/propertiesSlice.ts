@@ -1,9 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { propertiesAPI } from '../../api/endpoints';
-import { PropertyResponse } from '../../types/api';
+import { Property } from '../../types/api';
 
 export interface PropertiesState {
-  properties: PropertyResponse[];
+  properties: Property[];
   loading: boolean;
   error: string | null;
 }

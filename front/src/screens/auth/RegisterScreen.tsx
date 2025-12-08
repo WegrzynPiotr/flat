@@ -68,11 +68,11 @@ export default function RegisterScreen({ navigation }: any) {
         password: formData.password,
         firstName: formData.firstName,
         lastName: formData.lastName,
-        role: 'Wlasciciel', // Rejestracja tylko dla właścicieli
+        role: 'Najemca',
       })).unwrap();
       
-      Alert.alert('Sukces', 'Konto właściciela zostało utworzone');
-      // Nie przekierowuj - użytkownik zostanie automatycznie zalogowany
+      Alert.alert('Sukces', 'Konto zostało utworzone');
+      navigation.navigate('Login');
     } catch (err) {
       Alert.alert('Błąd', 'Nie udało się utworzyć konta');
     }
@@ -84,11 +84,7 @@ export default function RegisterScreen({ navigation }: any) {
       style={styles.container}
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.title}>Rejestracja właściciela</Text>
-        <Text style={styles.subtitle}>
-          Rejestracja jest przeznaczona wyłącznie dla właścicieli nieruchomości.
-          {'\n'}Najemców i serwisantów dodajesz z poziomu zakładki "Zarządzanie".
-        </Text>
+        <Text style={styles.title}>Rejestracja</Text>
 
         <View style={styles.form}>
           <TextInput
@@ -167,15 +163,8 @@ const styles = StyleSheet.create({
   title: {
     ...Typography.h1,
     textAlign: 'center',
-    marginBottom: Spacing.m,
-    color: Colors.primary,
-  },
-  subtitle: {
-    fontSize: 14,
-    textAlign: 'center',
-    color: Colors.textSecondary,
     marginBottom: Spacing.xl,
-    lineHeight: 20,
+    color: Colors.primary,
   },
   form: {
     gap: Spacing.m,

@@ -6,7 +6,6 @@ import { RootState, AppDispatch } from '../../store/store';
 import { Colors } from '../../styles/colors';
 import { Typography } from '../../styles/typography';
 import { Spacing } from '../../styles/spacing';
-import { capitalizeFullName } from '../../utils/textFormatters';
 
 export default function ProfileScreen() {
   const dispatch = useDispatch<AppDispatch>();

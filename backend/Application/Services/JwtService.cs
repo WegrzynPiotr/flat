@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Core.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -16,13 +14,11 @@ namespace Application.Services
     {
         private readonly IConfiguration _configuration;
         private readonly EncryptionService _encryptionService;
-        private readonly UserManager<User> _userManager;
 
-        public JwtService(IConfiguration configuration, EncryptionService encryptionService, UserManager<User> userManager)
+        public JwtService(IConfiguration configuration, EncryptionService encryptionService)
         {
             _configuration = configuration;
             _encryptionService = encryptionService;
-            _userManager = userManager;
         }
 
         public string GenerateAccessToken(User user)
@@ -43,14 +39,6 @@ namespace Application.Services
                 new Claim(ClaimTypes.GivenName, user.FirstName),
                 new Claim(ClaimTypes.Surname, user.LastName)
             };
-
-            // Dodaj role użytkownika do claims
-            var roles = _userManager.GetRolesAsync(user).Result;
-            foreach (var role in roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-                Console.WriteLine($"✅ Added role to JWT: {role}");
-            }
 
             var token = new JwtSecurityToken(
                 issuer: issuer,
