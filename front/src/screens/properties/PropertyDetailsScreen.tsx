@@ -58,9 +58,7 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
 
   useEffect(() => {
     loadProperty();
-    if (isOwner) {
-      loadLatestDocuments();
-    }
+    loadLatestDocuments();
   }, [propertyId]);
 
   const loadLatestDocuments = async () => {
@@ -665,124 +663,64 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
         </View>
       </View>
 
-      {/* Dokumenty */}
+      {/* Dokumenty z wersjonowaniem */}
       <View style={styles.card}>
-        <View style={styles.photosHeader}>
-          <Text style={Typography.h3}>Dokumenty</Text>
-          {isOwner && (
-            <TouchableOpacity
-              style={styles.addPhotoButton}
-              onPress={pickDocument}
-              disabled={uploadingDoc}
-            >
-              {uploadingDoc ? (
-                <ActivityIndicator size="small" color={Colors.primary} />
-              ) : (
-                <Ionicons name="document-attach" size={24} color={Colors.primary} />
-              )}
-            </TouchableOpacity>
-          )}
+        <View style={styles.sectionHeader}>
+          <Text style={Typography.h3}>Dokumenty mieszkania</Text>
+          <Text style={styles.sectionSubtitle}>
+            Najnowsze wersje dokumentów z pełną historią zmian
+          </Text>
         </View>
 
-        <View style={styles.documentsContainer}>
-          {property.documents && property.documents.length > 0 ? (
-            property.documents.map((doc, index) => (
-              <TouchableOpacity
-                key={index}
+        {loadingDocuments ? (
+          <ActivityIndicator size="small" color={Colors.primary} style={{ marginVertical: Spacing.m }} />
+        ) : latestDocuments.length > 0 ? (
+          <View style={styles.documentsGrid}>
+            {latestDocuments.map((doc) => (
+              <TouchableOpacity 
+                key={doc.id} 
                 style={styles.documentItem}
-                onPress={() => openDocument(doc)}
+                onPress={() => handlePreviewDocument(doc)}
               >
-                <View style={styles.documentInfo}>
+                <View style={styles.documentItemHeader}>
                   <Ionicons 
-                    name={getFileIcon(doc.filename) as any} 
-                    size={32} 
+                    name={getDocumentIcon(doc.documentType)} 
+                    size={20} 
                     color={Colors.primary} 
                   />
-                  <View style={styles.documentText}>
-                    <Text style={styles.documentName} numberOfLines={1}>
-                      {doc.originalName}
-                    </Text>
-                    <Text style={styles.documentDate}>
-                      {new Date(doc.uploadedAt).toLocaleDateString('pl-PL')}
-                    </Text>
-                  </View>
+                  <Text style={styles.documentItemType}>{doc.documentType}</Text>
                 </View>
-                {isOwner && (
-                  <TouchableOpacity
-                    onPress={() => deleteDocument(doc.filename)}
-                    style={styles.documentDeleteButton}
-                  >
-                    <Ionicons name="trash-outline" size={20} color={Colors.error} />
-                  </TouchableOpacity>
-                )}
-              </TouchableOpacity>
-            ))
-          ) : (
-            <Text style={styles.emptyText}>Brak dokumentów</Text>
-          )}
-        </View>
-      </View>
-
-      {/* Dokumenty z wersjonowaniem - Nowa sekcja */}
-      {isOwner && (
-        <View style={styles.card}>
-          <View style={styles.sectionHeader}>
-            <Text style={Typography.h3}>Dokumenty mieszkania</Text>
-            <Text style={styles.sectionSubtitle}>
-              Najnowsze wersje dokumentów z pełną historią zmian
-            </Text>
-          </View>
-
-          {loadingDocuments ? (
-            <ActivityIndicator size="small" color={Colors.primary} style={{ marginVertical: Spacing.m }} />
-          ) : latestDocuments.length > 0 ? (
-            <View style={styles.documentsGrid}>
-              {latestDocuments.map((doc) => (
-                <TouchableOpacity 
-                  key={doc.id} 
-                  style={styles.documentItem}
-                  onPress={() => handlePreviewDocument(doc)}
-                >
-                  <View style={styles.documentItemHeader}>
-                    <Ionicons 
-                      name={getDocumentIcon(doc.documentType)} 
-                      size={20} 
-                      color={Colors.primary} 
-                    />
-                    <Text style={styles.documentItemType}>{doc.documentType}</Text>
-                  </View>
-                  <Text style={styles.documentItemName} numberOfLines={1}>
-                    {doc.fileName}
-                  </Text>
-                  <Text style={styles.documentItemMeta}>
-                    v{doc.version} • {new Date(doc.uploadedAt).toLocaleDateString('pl-PL')}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          ) : (
-            <Text style={styles.emptyDocumentsText}>
-              Brak dokumentów. Dodaj pierwsze dokumenty w menadżerze.
-            </Text>
-          )}
-
-          <TouchableOpacity
-            style={styles.documentsButton}
-            onPress={() => setShowDocumentsManager(true)}
-          >
-            <View style={styles.documentsButtonContent}>
-              <Ionicons name="folder-open" size={24} color={Colors.primary} />
-              <View style={styles.documentsButtonText}>
-                <Text style={styles.documentsButtonTitle}>Otwórz menadżer dokumentów</Text>
-                <Text style={styles.documentsButtonSubtitle}>
-                  Zarządzaj wszystkimi typami dokumentów
+                <Text style={styles.documentItemName} numberOfLines={1}>
+                  {doc.fileName}
                 </Text>
-              </View>
+                <Text style={styles.documentItemMeta}>
+                  v{doc.version} • {new Date(doc.uploadedAt).toLocaleDateString('pl-PL')}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        ) : (
+          <Text style={styles.emptyDocumentsText}>
+            Brak dokumentów. {isOwner ? 'Dodaj pierwsze dokumenty w menadżerze.' : ''}
+          </Text>
+        )}
+
+        <TouchableOpacity
+          style={styles.documentsButton}
+          onPress={() => setShowDocumentsManager(true)}
+        >
+          <View style={styles.documentsButtonContent}>
+            <Ionicons name="folder-open" size={24} color={Colors.primary} />
+            <View style={styles.documentsButtonText}>
+              <Text style={styles.documentsButtonTitle}>Otwórz menadżer dokumentów</Text>
+              <Text style={styles.documentsButtonSubtitle}>
+                {isOwner ? 'Zarządzaj wszystkimi typami dokumentów' : 'Przeglądaj i dodawaj dokumenty'}
+              </Text>
             </View>
-            <Ionicons name="chevron-forward" size={24} color={Colors.textSecondary} />
-          </TouchableOpacity>
-        </View>
-      )}
+          </View>
+          <Ionicons name="chevron-forward" size={24} color={Colors.textSecondary} />
+        </TouchableOpacity>
+      </View>
 
       {/* Najemcy */}
       {property.tenants && property.tenants.length > 0 && (
@@ -1341,6 +1279,7 @@ const styles = StyleSheet.create({
   },
   previewCloseButton: {
     padding: Spacing.s,
+    zIndex: 1000,
   },
   previewContent: {
     flex: 1,

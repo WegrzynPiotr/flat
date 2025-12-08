@@ -28,6 +28,7 @@ interface DocumentVersionCalendarProps {
   documentType: string;
   onClose: () => void;
   onVersionDeleted: () => void;
+  isOwner: boolean;
 }
 
 export default function DocumentVersionCalendar({
@@ -35,6 +36,7 @@ export default function DocumentVersionCalendar({
   documentType,
   onClose,
   onVersionDeleted,
+  isOwner,
 }: DocumentVersionCalendarProps) {
   const [versions, setVersions] = useState<PropertyDocumentVersion[]>([]);
   const [loading, setLoading] = useState(true);
@@ -260,7 +262,7 @@ export default function DocumentVersionCalendar({
                     <Text style={styles.actionBtnText}>Otwórz</Text>
                   </TouchableOpacity>
                   
-                  {!selectedVersion.isLatest && (
+                  {isOwner && !selectedVersion.isLatest && (
                     <TouchableOpacity
                       style={[styles.actionBtn, styles.deleteBtn]}
                       onPress={() => handleDeleteVersion(selectedVersion.id)}
@@ -649,6 +651,7 @@ const styles = StyleSheet.create({
   },
   previewCloseButton: {
     padding: Spacing.s,
+    zIndex: 1000,
   },
   previewContent: {
     flex: 1,

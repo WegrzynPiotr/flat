@@ -20,6 +20,8 @@ import { Spacing } from '../../styles/spacing';
 import { Typography } from '../../styles/typography';
 import DocumentVersionCalendar from './DocumentVersionCalendar';
 import Constants from 'expo-constants';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store/store';
 
 const API_URL = Constants.expoConfig?.extra?.apiBaseUrl || 'http://193.106.130.55:5162';
 
@@ -41,6 +43,9 @@ interface PropertyDocumentsManagerProps {
 }
 
 export default function PropertyDocumentsManager({ propertyId, onClose }: PropertyDocumentsManagerProps) {
+  const user = useSelector((state: RootState) => state.auth.user);
+  const isOwner = user?.role === 'Wlasciciel';
+  
   const [documents, setDocuments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -272,6 +277,7 @@ export default function PropertyDocumentsManager({ propertyId, onClose }: Proper
             documentType={calendarDocType}
             onClose={() => setShowCalendar(false)}
             onVersionDeleted={loadDocuments}
+            isOwner={isOwner}
           />
         )}
       </Modal>
@@ -535,6 +541,7 @@ const styles = StyleSheet.create({
   },
   previewCloseButton: {
     padding: Spacing.s,
+    zIndex: 1000,
   },
   previewContent: {
     flex: 1,
