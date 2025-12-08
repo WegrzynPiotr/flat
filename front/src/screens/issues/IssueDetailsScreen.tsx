@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Modal, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Modal, Dimensions, Alert, Platform } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchIssueById, fetchIssues } from '../../store/slices/issuesSlice';
@@ -8,16 +8,20 @@ import Loading from '../../components/common/Loading';
 import CommentsList from '../../components/issues/CommentsList';
 import AssignServicemanForm from '../../components/userManagement/AssignServicemanForm';
 import UpdateStatusForm from '../../components/issues/UpdateStatusForm';
+import { issuesAPI } from '../../api/endpoints';
 import { Colors } from '../../styles/colors';
 import { Typography } from '../../styles/typography';
 import { Spacing } from '../../styles/spacing';
 
-export default function IssueDetailsScreen({ route }: any) {
+export default function IssueDetailsScreen({ route, navigation }: any) {
   const { id } = route.params;
   const dispatch = useDispatch<AppDispatch>();
   const { selectedIssue, loading } = useSelector((state: RootState) => state.issues);
   const userRole = useSelector((state: RootState) => state.auth.user?.role);
+  const userId = useSelector((state: RootState) => state.auth.user?.id);
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+
+  const isOwner = userRole === 'Wlasciciel' && selectedIssue?.property?.ownerId === userId;
 
   useEffect(() => {
     dispatch(fetchIssueById(id));
@@ -35,6 +39,33 @@ export default function IssueDetailsScreen({ route }: any) {
     dispatch(fetchIssues({}));
   };
 
+  const handleDeleteIssue = async () => {
+    const confirmDelete = Platform.OS === 'web'
+      ? window.confirm('Czy na pewno chcesz usunąć tę usterkę? Tej operacji nie można cofnąć.')
+      : await new Promise<boolean>((resolve) => {
+          Alert.alert(
+            'Usuń usterkę',
+            'Czy na pewno chcesz usunąć tę usterkę? Tej operacji nie można cofnąć.',
+            [
+              { text: 'Anuluj', style: 'cancel', onPress: () => resolve(false) },
+              { text: 'Usuń', style: 'destructive', onPress: () => resolve(true) },
+            ]
+          );
+        });
+
+    if (!confirmDelete) return;
+
+    try {
+      await issuesAPI.delete(id);
+      dispatch(fetchIssues({}));
+      navigation.goBack();
+      Alert.alert('Sukces', 'Usterka została usunięta');
+    } catch (error: any) {
+      console.error('Error deleting issue:', error);
+      Alert.alert('Błąd', error.response?.data?.message || 'Nie udało się usunąć usterki');
+    }
+  };
+
   if (loading || !selectedIssue) {
     return <Loading />;
   }
@@ -42,7 +73,21 @@ export default function IssueDetailsScreen({ route }: any) {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.card}>
-        <Text style={Typography.h2}>{selectedIssue.title}</Text>
+        <View style={styles.headerRow}>
+          <Text style={[Typography.h2, styles.flexTitle]}>{selectedIssue.title}</Text>
+          {isOwner && (
+            <TouchableOpacity onPress={handleDeleteIssue} style={styles.deleteButton}>
+              <Ionicons name="trash" size={24} color={Colors.error} />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {selectedIssue.property?.address && (
+          <View style={styles.propertyRow}>
+            <Ionicons name="home" size={16} color={Colors.primary} />
+            <Text style={styles.propertyText}>{selectedIssue.property.address}</Text>
+          </View>
+        )}
         
         <View style={styles.row}>
           <View style={styles.badge}>
@@ -58,6 +103,9 @@ export default function IssueDetailsScreen({ route }: any) {
 
         <Text style={[Typography.label, styles.marginTop]}>Kategoria</Text>
         <Text style={Typography.body}>{selectedIssue.category}</Text>
+
+        <Text style={[Typography.label, styles.marginTop]}>Zgłoszone przez</Text>
+        <Text style={Typography.body}>{selectedIssue.reportedByName || 'Nieznany użytkownik'}</Text>
 
         <Text style={[Typography.label, styles.marginTop]}>Data zgłoszenia</Text>
         <Text style={Typography.body}>{new Date(selectedIssue.reportedAt).toLocaleDateString('pl-PL')}</Text>
@@ -158,6 +206,33 @@ const styles = StyleSheet.create({
     padding: Spacing.l,
     margin: Spacing.m,
     borderRadius: 12,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.m,
+  },
+  flexTitle: {
+    flex: 1,
+    marginBottom: 0,
+  },
+  deleteButton: {
+    padding: Spacing.s,
+  },
+  propertyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.background,
+    padding: Spacing.s,
+    borderRadius: 8,
+    marginBottom: Spacing.m,
+    gap: Spacing.xs,
+  },
+  propertyText: {
+    fontSize: 14,
+    color: Colors.text,
+    fontWeight: '500',
   },
   row: {
     flexDirection: 'row',

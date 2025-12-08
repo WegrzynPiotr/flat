@@ -111,6 +111,30 @@ namespace zarzadzanieMieszkaniami.Controllers
             return Ok();
         }
 
+        // Usuń najemcę z mieszkania
+        [HttpDelete("remove-tenant")]
+        [Authorize(Roles = "Wlasciciel")]
+        public async Task<IActionResult> RemoveTenant([FromQuery] Guid propertyId, [FromQuery] Guid tenantId)
+        {
+            var landlordId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+            // Sprawdź czy mieszkanie należy do wynajmującego
+            var property = await _context.Properties.FindAsync(propertyId);
+            if (property == null || property.OwnerId != landlordId)
+                return Forbid();
+
+            var propertyTenant = await _context.PropertyTenants
+                .FirstOrDefaultAsync(pt => pt.PropertyId == propertyId && pt.TenantId == tenantId);
+
+            if (propertyTenant == null)
+                return NotFound("Najemca nie jest przypisany do tego mieszkania");
+
+            _context.PropertyTenants.Remove(propertyTenant);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
         // Przypisz serwisanta do zgłoszenia
         [HttpPost("assign-serviceman")]
         [Authorize(Roles = "Wlasciciel")]

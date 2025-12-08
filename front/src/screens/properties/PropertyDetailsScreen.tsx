@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { propertiesAPI } from '../../api/endpoints';
+import { propertiesAPI, userManagementAPI } from '../../api/endpoints';
 import { PropertyResponse } from '../../types/api';
 import { Colors } from '../../styles/colors';
 import { Typography } from '../../styles/typography';
@@ -340,6 +340,68 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
     }
   };
 
+  const deleteProperty = async () => {
+    const confirmDelete = Platform.OS === 'web'
+      ? window.confirm('Czy na pewno chcesz usunąć to mieszkanie? Ta operacja jest nieodwracalna.')
+      : await new Promise<boolean>((resolve) => {
+          Alert.alert(
+            'Usuń mieszkanie',
+            'Czy na pewno chcesz usunąć to mieszkanie? Ta operacja jest nieodwracalna.',
+            [
+              { text: 'Anuluj', style: 'cancel', onPress: () => resolve(false) },
+              { text: 'Usuń', style: 'destructive', onPress: () => resolve(true) },
+            ]
+          );
+        });
+
+    if (!confirmDelete) return;
+
+    try {
+      await propertiesAPI.delete(propertyId);
+      
+      if (Platform.OS === 'web') {
+        window.alert('Mieszkanie zostało usunięte');
+      } else {
+        Alert.alert('Sukces', 'Mieszkanie zostało usunięte');
+      }
+      navigation.goBack();
+    } catch (error) {
+      console.error('Failed to delete property:', error);
+      Alert.alert('Błąd', 'Nie udało się usunąć mieszkania');
+    }
+  };
+
+  const removeTenant = async (tenantId: string) => {
+    const confirmDelete = Platform.OS === 'web'
+      ? window.confirm('Czy na pewno chcesz usunąć tego najemcę z mieszkania?')
+      : await new Promise<boolean>((resolve) => {
+          Alert.alert(
+            'Usuń najemcę',
+            'Czy na pewno chcesz usunąć tego najemcę z mieszkania?',
+            [
+              { text: 'Anuluj', style: 'cancel', onPress: () => resolve(false) },
+              { text: 'Usuń', style: 'destructive', onPress: () => resolve(true) },
+            ]
+          );
+        });
+
+    if (!confirmDelete) return;
+
+    try {
+      await userManagementAPI.removeTenant(propertyId, tenantId);
+      
+      if (Platform.OS === 'web') {
+        window.alert('Najemca został usunięty');
+      } else {
+        Alert.alert('Sukces', 'Najemca został usunięty');
+      }
+      loadProperty();
+    } catch (error) {
+      console.error('Failed to remove tenant:', error);
+      Alert.alert('Błąd', 'Nie udało się usunąć najemcy');
+    }
+  };
+
   const getFileIcon = (filename: string) => {
     const ext = filename.toLowerCase().split('.').pop();
     switch (ext) {
@@ -396,18 +458,32 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <Text style={Typography.h2}>Szczegóły mieszkania</Text>
-        {isOwner && (
-          <TouchableOpacity
-            style={styles.editButton}
-            onPress={() => setEditMode(!editMode)}
-          >
-            <Ionicons 
-              name={editMode ? "close" : "pencil"} 
-              size={24} 
-              color={Colors.primary} 
-            />
-          </TouchableOpacity>
-        )}
+        <View style={styles.headerButtons}>
+          {isOwner && (
+            <>
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={() => setEditMode(!editMode)}
+              >
+                <Ionicons 
+                  name={editMode ? "close" : "pencil"} 
+                  size={24} 
+                  color={Colors.primary} 
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={deleteProperty}
+              >
+                <Ionicons 
+                  name="trash" 
+                  size={24} 
+                  color={Colors.error} 
+                />
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
       </View>
 
       <View style={styles.card}>
@@ -608,6 +684,14 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
                   {tenant.endDate && ` - Do: ${new Date(tenant.endDate).toLocaleDateString('pl-PL')}`}
                 </Text>
               </View>
+              {isOwner && (
+                <TouchableOpacity
+                  style={styles.tenantDeleteButton}
+                  onPress={() => removeTenant(tenant.tenantId)}
+                >
+                  <Ionicons name="trash-outline" size={20} color={Colors.error} />
+                </TouchableOpacity>
+              )}
             </View>
           ))}
         </View>
@@ -711,7 +795,14 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
     backgroundColor: Colors.surface,
   },
+  headerButtons: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
   editButton: {
+    padding: Spacing.sm,
+  },
+  deleteButton: {
     padding: Spacing.sm,
   },
   card: {
@@ -847,6 +938,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.textSecondary,
     marginTop: 2,
+  },
+  tenantDeleteButton: {
+    padding: Spacing.sm,
   },
   errorText: {
     fontSize: 16,

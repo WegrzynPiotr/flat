@@ -26,6 +26,8 @@ namespace zarzadzanieMieszkaniami.Controllers
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
+            Console.WriteLine($"🔵 CreateComment - Issue ID: {request.IssueId}, User: {userId}, Role: {userRole}");
+
             // Sprawdź czy issue istnieje
             var issue = await _context.Issues
                 .Include(i => i.Property)
@@ -34,10 +36,26 @@ namespace zarzadzanieMieszkaniami.Controllers
             if (issue == null)
                 return NotFound("Zgłoszenie nie istnieje");
 
+            Console.WriteLine($"🔵 Issue PropertyId: {issue.PropertyId}, Property is null: {issue.Property == null}");
+            if (issue.Property != null)
+            {
+                Console.WriteLine($"🔵 Property OwnerId: {issue.Property.OwnerId}");
+            }
+
             // Sprawdź uprawnienia
             var hasAccess = false;
-            if (userRole == "Wlasciciel" && issue.Property.OwnerId == userId)
-                hasAccess = true;
+            if (userRole == "Wlasciciel")
+            {
+                if (issue.Property != null && issue.Property.OwnerId == userId)
+                {
+                    hasAccess = true;
+                    Console.WriteLine($"🟢 Owner access granted");
+                }
+                else
+                {
+                    Console.WriteLine($"🔴 Owner access denied - Property: {(issue.Property == null ? "NULL" : issue.Property.OwnerId.ToString())}, User: {userId}");
+                }
+            }
             else if (userRole == "Najemca" && issue.ReportedById == userId)
                 hasAccess = true;
             else if (userRole == "Serwisant")
@@ -48,7 +66,10 @@ namespace zarzadzanieMieszkaniami.Controllers
             }
 
             if (!hasAccess)
-                return Forbid();
+            {
+                Console.WriteLine($"🔴 Access denied - hasAccess: false");
+                return StatusCode(403, new { message = "Brak uprawnień do dodania komentarza" });
+            }
 
             var comment = new IssueComment
             {

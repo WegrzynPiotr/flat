@@ -150,6 +150,7 @@ export const propertiesAPI = {
   deleteDocument: async (propertyId: string, filename: string) => {
     return client.delete(`/properties/${propertyId}/documents/${encodeURIComponent(filename)}`);
   },
+  delete: (id: string) => client.delete(`/properties/${id}`),
 };
 
 // Comments
@@ -184,6 +185,8 @@ export const userManagementAPI = {
     client.get<UserManagementResponse[]>('/usermanagement/my-tenants'),
   getMyServicemen: () =>
     client.get<UserManagementResponse[]>('/usermanagement/my-servicemen'),
+  removeTenant: (propertyId: string, tenantId: string) =>
+    client.delete(`/usermanagement/remove-tenant?propertyId=${propertyId}&tenantId=${tenantId}`),
 };
 
 // Repairs

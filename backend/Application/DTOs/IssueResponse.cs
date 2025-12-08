@@ -7,6 +7,13 @@ namespace Application.DTOs
         public DateTime AssignedAt { get; set; }
     }
 
+    public class PropertyInfo
+    {
+        public Guid Id { get; set; }
+        public string Address { get; set; }
+        public Guid OwnerId { get; set; }
+    }
+
     public class IssueResponse
     {
         public Guid Id { get; set; }
@@ -17,6 +24,7 @@ namespace Application.DTOs
         public string Status { get; set; }
         public Guid PropertyId { get; set; }
         public string PropertyAddress { get; set; }
+        public PropertyInfo? Property { get; set; }
         public Guid ReportedById { get; set; }
         public string ReportedByName { get; set; }
         public DateTime ReportedAt { get; set; }

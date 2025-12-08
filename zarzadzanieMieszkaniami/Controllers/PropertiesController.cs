@@ -223,5 +223,54 @@ namespace zarzadzanieMieszkaniami.Controllers
 
             return NoContent();
         }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Wlasciciel")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var property = await _propertyRepository.GetByIdAsync(id);
+            if (property == null)
+                return NotFound();
+
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            if (property.OwnerId != userId)
+                return Forbid();
+
+            // Usuń zdjęcia fizyczne
+            if (!string.IsNullOrEmpty(property.Photos))
+            {
+                var photos = JsonSerializer.Deserialize<List<string>>(property.Photos);
+                var uploadsFolder = Path.Combine(_env.ContentRootPath, "wwwroot", "uploads", "properties");
+                
+                foreach (var photo in photos)
+                {
+                    var filePath = Path.Combine(uploadsFolder, photo);
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+                }
+            }
+
+            // Usuń dokumenty fizyczne
+            if (!string.IsNullOrEmpty(property.Documents))
+            {
+                var documents = JsonSerializer.Deserialize<List<PropertyDocument>>(property.Documents);
+                var uploadsFolder = Path.Combine(_env.ContentRootPath, "wwwroot", "uploads", "documents");
+                
+                foreach (var doc in documents)
+                {
+                    var filePath = Path.Combine(uploadsFolder, doc.Filename);
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+                }
+            }
+
+            await _propertyRepository.DeleteAsync(id);
+
+            return NoContent();
+        }
     }
 }

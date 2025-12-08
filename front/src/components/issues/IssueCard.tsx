@@ -37,6 +37,12 @@ export default function IssueCard({ issue, onPress }: IssueCardProps) {
             <Text style={styles.priorityText}>{issue.priority}</Text>
           </View>
         </View>
+        {issue.propertyAddress && (
+          <View style={styles.locationRow}>
+            <Text style={styles.locationIcon}>📍</Text>
+            <Text style={styles.location}>{issue.propertyAddress}</Text>
+          </View>
+        )}
         <Text style={styles.description} numberOfLines={2}>
           {issue.description}
         </Text>
@@ -78,6 +84,24 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: Spacing.s,
+  },
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.s,
+    backgroundColor: Colors.background,
+    padding: Spacing.xs,
+    borderRadius: 8,
+  },
+  locationIcon: {
+    fontSize: 14,
+    marginRight: 4,
+  },
+  location: {
+    fontSize: 13,
+    color: Colors.text,
+    fontWeight: '500',
+    flex: 1,
   },
   title: {
     fontSize: 18,

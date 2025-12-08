@@ -1,15 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Application.DTOs;
 using Application.Services;
 using Core.Models;
+using Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace zarzadzanieMieszkaniami.Controllers
 {
@@ -20,11 +24,13 @@ namespace zarzadzanieMieszkaniami.Controllers
     {
         private readonly IssueService _issueService;
         private readonly IWebHostEnvironment _environment;
+        private readonly AppDbContext _context;
 
-        public IssuesController(IssueService issueService, IWebHostEnvironment environment)
+        public IssuesController(IssueService issueService, IWebHostEnvironment environment, AppDbContext context)
         {
             _issueService = issueService;
             _environment = environment;
+            _context = context;
         }
 
         [HttpGet]
@@ -60,6 +66,12 @@ namespace zarzadzanieMieszkaniami.Controllers
                 Status = issue.Status,
                 PropertyId = issue.PropertyId,
                 PropertyAddress = issue.Property?.Address ?? "Unknown",
+                Property = issue.Property != null ? new PropertyInfo
+                {
+                    Id = issue.Property.Id,
+                    Address = issue.Property.Address,
+                    OwnerId = issue.Property.OwnerId
+                } : null,
                 ReportedById = issue.ReportedById,
                 ReportedByName = issue.ReportedBy != null ? $"{issue.ReportedBy.FirstName} {issue.ReportedBy.LastName}" : "Unknown",
                 AssignedServicemen = issue.AssignedServicemen?.Select(ais => new ServicemanInfo
@@ -97,6 +109,12 @@ namespace zarzadzanieMieszkaniami.Controllers
                 Status = issue.Status,
                 PropertyId = issue.PropertyId,
                 PropertyAddress = issue.Property?.Address ?? "Unknown",
+                Property = issue.Property != null ? new PropertyInfo
+                {
+                    Id = issue.Property.Id,
+                    Address = issue.Property.Address,
+                    OwnerId = issue.Property.OwnerId
+                } : null,
                 ReportedById = issue.ReportedById,
                 ReportedByName = issue.ReportedBy != null ? $"{issue.ReportedBy.FirstName} {issue.ReportedBy.LastName}" : "Unknown",
                 AssignedServicemen = issue.AssignedServicemen?.Select(ais => new ServicemanInfo
@@ -164,9 +182,56 @@ namespace zarzadzanieMieszkaniami.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Wlasciciel")]
         public async Task<IActionResult> Delete(Guid id)
         {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+            Console.WriteLine($"🔵 DELETE Issue - Issue ID: {id}, User: {userId}");
+
+            // Pobierz usterkę z relacją do nieruchomości
+            var issue = await _context.Issues
+                .Include(i => i.Property)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (issue == null)
+            {
+                Console.WriteLine($"🔴 Issue not found");
+                return NotFound(new { message = "Usterka nie istnieje" });
+            }
+
+            Console.WriteLine($"🔵 Issue PropertyId: {issue.PropertyId}, Property is null: {issue.Property == null}");
+            if (issue.Property != null)
+            {
+                Console.WriteLine($"🔵 Property OwnerId: {issue.Property.OwnerId}");
+            }
+
+            // Sprawdź czy użytkownik jest właścicielem nieruchomości
+            if (issue.Property?.OwnerId != userId)
+            {
+                Console.WriteLine($"🔴 Access denied - Property owner: {issue.Property?.OwnerId}, User: {userId}");
+                return StatusCode(403, new { message = "Tylko właściciel nieruchomości może usunąć tę usterkę" });
+            }
+
+            // Usuń pliki zdjęć
+            if (issue.Photos != null && issue.Photos.Count > 0)
+            {
+                foreach (var photoUrl in issue.Photos)
+                {
+                    var fileName = photoUrl.Split('/').Last();
+                    var uploadsPath = Path.Combine(_environment.WebRootPath, "uploads", "issues");
+                    var filePath = Path.Combine(uploadsPath, fileName);
+                    
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                        Console.WriteLine($"🗑️ Deleted photo: {fileName}");
+                    }
+                }
+            }
+
             await _issueService.DeleteIssueAsync(id);
+            Console.WriteLine($"🟢 Issue deleted successfully");
             return NoContent();
         }
 
@@ -220,18 +285,28 @@ namespace zarzadzanieMieszkaniami.Controllers
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
+            Console.WriteLine($"🔵 UpdateStatus - Issue ID: {id}, User: {userId}, Role: {userRole}");
+            Console.WriteLine($"🔵 Issue PropertyId: {issue.PropertyId}, Property is null: {issue.Property == null}");
+            if (issue.Property != null)
+            {
+                Console.WriteLine($"🔵 Property OwnerId: {issue.Property.OwnerId}");
+            }
+
             // Serwisant może aktualizować tylko swoje zgłoszenia
             if (userRole == "Serwisant")
             {
                 var isAssigned = issue.AssignedServicemen?.Any(ais => ais.ServicemanId == userId) ?? false;
                 if (!isAssigned)
-                    return Forbid("Nie jesteś przypisany do tego zgłoszenia");
+                    return StatusCode(403, new { message = "Nie jesteś przypisany do tego zgłoszenia" });
             }
             // Właściciel może aktualizować zgłoszenia ze swoich nieruchomości
             else if (userRole == "Wlasciciel")
             {
                 if (issue.Property?.OwnerId != userId)
-                    return Forbid("Nie jesteś właścicielem tej nieruchomości");
+                {
+                    Console.WriteLine($"🔴 Access denied - Property owner: {issue.Property?.OwnerId}, User: {userId}");
+                    return StatusCode(403, new { message = "Nie jesteś właścicielem tej nieruchomości" });
+                }
             }
 
             issue.Status = request.Status;

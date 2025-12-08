@@ -130,6 +130,11 @@ export interface IssueResponse {
   status: string;
   propertyId: string;
   propertyAddress?: string;
+  property?: {
+    id: string;
+    address: string;
+    ownerId: string;
+  };
   reportedById: string;
   reportedByName?: string;
   assignedServicemen?: ServicemanInfo[];
