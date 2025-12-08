@@ -41,6 +41,8 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
   const [uploading, setUploading] = useState(false);
   const [uploadingDoc, setUploadingDoc] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<{ url: string; name: string; type: string } | null>(null);
+  const [mainPhoto, setMainPhoto] = useState<string | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showDocumentsManager, setShowDocumentsManager] = useState(false);
   const [latestDocuments, setLatestDocuments] = useState<any[]>([]);
   const [loadingDocuments, setLoadingDocuments] = useState(false);
@@ -108,6 +110,9 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
     try {
       const response = await propertiesAPI.getById(propertyId);
       setProperty(response.data);
+      if (response.data.photos && response.data.photos.length > 0) {
+        setMainPhoto(response.data.photos[0]);
+      }
       setFormData({
         address: response.data.address || '',
         city: response.data.city || '',
@@ -638,29 +643,61 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
           )}
         </View>
 
-        <View style={styles.photosGrid}>
-          {property.photos && property.photos.length > 0 ? (
-            property.photos.map((photo, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.photoContainer}
-                onPress={() => setSelectedPhoto(photo)}
-              >
-                <Image source={{ uri: photo }} style={styles.photo} />
-                {isOwner && (
-                  <TouchableOpacity
-                    style={styles.deletePhotoButton}
-                    onPress={() => deletePhoto(photo)}
-                  >
-                    <Ionicons name="trash" size={18} color="#fff" />
-                  </TouchableOpacity>
-                )}
-              </TouchableOpacity>
-            ))
-          ) : (
-            <Text style={styles.emptyText}>Brak zdjęć</Text>
-          )}
-        </View>
+        {property.photos && property.photos.length > 0 ? (
+          <>
+            {/* Główne zdjęcie */}
+            <TouchableOpacity
+              style={styles.mainPhotoContainer}
+              onPress={() => {
+                const index = property.photos?.indexOf(mainPhoto || '') || 0;
+                setLightboxIndex(index);
+                setSelectedPhoto(mainPhoto);
+              }}
+            >
+              <Image source={{ uri: mainPhoto || property.photos[0] }} style={styles.mainPhoto} />
+              {isOwner && mainPhoto && (
+                <TouchableOpacity
+                  style={styles.mainPhotoDeleteButton}
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    deletePhoto(mainPhoto);
+                  }}
+                >
+                  <Ionicons name="trash" size={20} color="#fff" />
+                </TouchableOpacity>
+              )}
+            </TouchableOpacity>
+
+            {/* Miniatury */}
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.thumbnailsContainer}>
+              {property.photos.map((photo, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={[
+                    styles.thumbnailContainer,
+                    mainPhoto === photo && styles.thumbnailSelected
+                  ]}
+                  onPress={() => setMainPhoto(photo)}
+                >
+                  <Image source={{ uri: photo }} style={styles.thumbnail} />
+                  {isOwner && (
+                    <TouchableOpacity
+                      style={styles.thumbnailDeleteButton}
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        deletePhoto(photo);
+                      }}
+                    >
+                      <Ionicons name="close-circle" size={20} color="#fff" />
+                    </TouchableOpacity>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </>
+        ) : (
+          <Text style={styles.emptyText}>Brak zdjęć</Text>
+        )}
       </View>
 
       {/* Dokumenty z wersjonowaniem */}
@@ -723,31 +760,50 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
       </View>
 
       {/* Najemcy */}
-      {property.tenants && property.tenants.length > 0 && (
-        <View style={styles.card}>
-          <Text style={Typography.h3}>Najemcy</Text>
-          {property.tenants.map((tenant, index) => (
-            <View key={index} style={styles.tenantItem}>
-              <Ionicons name="person" size={20} color={Colors.primary} />
-              <View style={styles.tenantInfo}>
-                <Text style={styles.tenantName}>{tenant.tenantName}</Text>
-                <Text style={styles.tenantDate}>
-                  Od: {new Date(tenant.startDate).toLocaleDateString('pl-PL')}
-                  {tenant.endDate && ` - Do: ${new Date(tenant.endDate).toLocaleDateString('pl-PL')}`}
+      {property.tenants && property.tenants.length > 0 && (() => {
+        const dates = property.tenants
+          .map(t => ({ start: new Date(t.startDate), end: t.endDate ? new Date(t.endDate) : null }))
+          .filter(d => !isNaN(d.start.getTime()));
+        
+        const earliestDate = dates.length > 0 ? new Date(Math.min(...dates.map(d => d.start.getTime()))) : null;
+        const latestDate = dates.length > 0 && dates.some(d => d.end)
+          ? new Date(Math.max(...dates.filter(d => d.end).map(d => d.end!.getTime())))
+          : null;
+        
+        return (
+          <View style={styles.card}>
+            <Text style={Typography.h3}>Najemcy ({property.tenants.length})</Text>
+            <View style={styles.tenantsSummary}>
+              <Ionicons name="people" size={24} color={Colors.primary} />
+              <View style={styles.tenantsInfo}>
+                <Text style={styles.tenantsNames}>
+                  {property.tenants.map(t => t.tenantName).join(', ')}
                 </Text>
+                {earliestDate && (
+                  <Text style={styles.tenantsDate}>
+                    Okres wynajmu: {earliestDate.toLocaleDateString('pl-PL')}
+                    {latestDate ? ` - ${latestDate.toLocaleDateString('pl-PL')}` : ' - obecnie'}
+                  </Text>
+                )}
               </View>
-              {isOwner && (
-                <TouchableOpacity
-                  style={styles.tenantDeleteButton}
-                  onPress={() => removeTenant(tenant.tenantId)}
-                >
-                  <Ionicons name="trash-outline" size={20} color={Colors.error} />
-                </TouchableOpacity>
-              )}
             </View>
-          ))}
-        </View>
-      )}
+            {property.tenants.map((tenant, index) => (
+              <View key={index} style={styles.tenantItem}>
+                <Ionicons name="person" size={18} color={Colors.textSecondary} />
+                <Text style={styles.tenantName}>{tenant.tenantName}</Text>
+                {isOwner && (
+                  <TouchableOpacity
+                    style={styles.tenantDeleteButton}
+                    onPress={() => removeTenant(tenant.tenantId)}
+                  >
+                    <Ionicons name="trash-outline" size={18} color={Colors.error} />
+                  </TouchableOpacity>
+                )}
+              </View>
+            ))}
+          </View>
+        );
+      })()}
 
       {/* Lightbox Modal */}
       <Modal
@@ -763,12 +819,48 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
           >
             <Ionicons name="close" size={32} color="#fff" />
           </TouchableOpacity>
+          
+          {property.photos && property.photos.length > 1 && (
+            <>
+              <TouchableOpacity
+                style={styles.lightboxNavLeft}
+                onPress={() => {
+                  const newIndex = (lightboxIndex - 1 + property.photos!.length) % property.photos!.length;
+                  setLightboxIndex(newIndex);
+                  setSelectedPhoto(property.photos![newIndex]);
+                }}
+              >
+                <Ionicons name="chevron-back" size={40} color="#fff" />
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.lightboxNavRight}
+                onPress={() => {
+                  const newIndex = (lightboxIndex + 1) % property.photos!.length;
+                  setLightboxIndex(newIndex);
+                  setSelectedPhoto(property.photos![newIndex]);
+                }}
+              >
+                <Ionicons name="chevron-forward" size={40} color="#fff" />
+              </TouchableOpacity>
+            </>
+          )}
+          
           {selectedPhoto && (
-            <Image
-              source={{ uri: selectedPhoto }}
-              style={styles.lightboxImage}
-              resizeMode="contain"
-            />
+            <>
+              <Image
+                source={{ uri: selectedPhoto }}
+                style={styles.lightboxImage}
+                resizeMode="contain"
+              />
+              {property.photos && property.photos.length > 1 && (
+                <View style={styles.lightboxCounter}>
+                  <Text style={styles.lightboxCounterText}>
+                    {lightboxIndex + 1} / {property.photos.length}
+                  </Text>
+                </View>
+              )}
+            </>
           )}
         </View>
       </Modal>
@@ -859,7 +951,7 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
               style={styles.previewCloseButton}
               onPress={() => setShowDocPreview(false)}
             >
-              <Ionicons name="close" size={28} color={Colors.white} />
+              <Ionicons name="close" size={28} color={'#FFFFFF'} />
             </TouchableOpacity>
           </View>
 
@@ -883,7 +975,7 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
                 />
               ) : (
                 <View style={styles.previewPdfContainer}>
-                  <Ionicons name="document-text" size={80} color={Colors.white} />
+                  <Ionicons name="document-text" size={80} color={'#FFFFFF'} />
                   <Text style={styles.previewPdfText}>
                     Podgląd PDF dostępny po otwarciu
                   </Text>
@@ -894,14 +986,14 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
                       Linking.openURL(url);
                     }}
                   >
-                    <Ionicons name="open" size={20} color={Colors.white} />
+                    <Ionicons name="open" size={20} color={'#FFFFFF'} />
                     <Text style={styles.downloadButtonText}>Otwórz dokument</Text>
                   </TouchableOpacity>
                 </View>
               )
             ) : (
               <View style={styles.previewPdfContainer}>
-                <Ionicons name="document-text" size={80} color={Colors.white} />
+                <Ionicons name="document-text" size={80} color={'#FFFFFF'} />
                 <Text style={styles.previewPdfText}>
                   Podgląd niedostępny dla tego typu pliku
                 </Text>
@@ -916,7 +1008,7 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
                     }
                   }}
                 >
-                  <Ionicons name="download" size={20} color={Colors.white} />
+                  <Ionicons name="download" size={20} color={'#FFFFFF'} />
                   <Text style={styles.downloadButtonText}>Pobierz dokument</Text>
                 </TouchableOpacity>
               </View>
@@ -949,13 +1041,13 @@ const styles = StyleSheet.create({
   },
   headerButtons: {
     flexDirection: 'row',
-    gap: Spacing.sm,
+    gap: Spacing.s,
   },
   editButton: {
-    padding: Spacing.sm,
+    padding: Spacing.s,
   },
   deleteButton: {
-    padding: Spacing.sm,
+    padding: Spacing.s,
   },
   card: {
     backgroundColor: '#FFFFFF',
@@ -975,8 +1067,8 @@ const styles = StyleSheet.create({
   },
   detailsGrid: {
     flexDirection: 'row',
-    gap: Spacing.lg,
-    marginTop: Spacing.lg,
+    gap: Spacing.l,
+    marginTop: Spacing.l,
   },
   detailItem: {
     flex: 1,
@@ -999,7 +1091,7 @@ const styles = StyleSheet.create({
     marginTop: Spacing.xs,
   },
   marginTop: {
-    marginTop: Spacing.lg,
+    marginTop: Spacing.l,
   },
   description: {
     fontSize: 14,
@@ -1008,15 +1100,16 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   label: {
-    ...Typography.bodyBold,
-    marginTop: Spacing.md,
+    ...Typography.body,
+    fontWeight: '600',
+    marginTop: Spacing.m,
     marginBottom: Spacing.xs,
   },
   input: {
     borderWidth: 1,
     borderColor: Colors.border,
     borderRadius: 8,
-    padding: Spacing.md,
+    padding: Spacing.m,
     backgroundColor: Colors.background,
     fontSize: 15,
   },
@@ -1040,15 +1133,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.m,
   },
   addPhotoButton: {
-    padding: Spacing.sm,
+    padding: Spacing.s,
   },
   photosGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: Spacing.sm,
+    gap: Spacing.s,
   },
   photoContainer: {
     position: 'relative',
@@ -1059,6 +1152,58 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: 8,
+  },
+  mainPhotoContainer: {
+    width: '100%',
+    height: 400,
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginBottom: 12,
+    backgroundColor: '#F0F0F0',
+  },
+  mainPhoto: {
+    width: '100%',
+    height: '100%',
+  },
+  mainPhotoDeleteButton: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    backgroundColor: 'rgba(255, 59, 48, 0.9)',
+    borderRadius: 20,
+    padding: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  thumbnailsContainer: {
+    flexDirection: 'row',
+  },
+  thumbnailContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginRight: 8,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    backgroundColor: '#F0F0F0',
+  },
+  thumbnailSelected: {
+    borderColor: Colors.primary,
+  },
+  thumbnail: {
+    width: '100%',
+    height: '100%',
+  },
+  thumbnailDeleteButton: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    borderRadius: 10,
   },
   deletePhotoButton: {
     position: 'absolute',
@@ -1075,18 +1220,41 @@ const styles = StyleSheet.create({
   tenantItem: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
+    padding: 8,
+    marginTop: 6,
+    backgroundColor: 'transparent',
+  },
+  tenantsSummary: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     gap: 12,
-    padding: 12,
-    marginBottom: 8,
-    backgroundColor: '#FAFAFA',
+    padding: 14,
+    backgroundColor: '#F8F9FA',
     borderRadius: 8,
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  tenantsInfo: {
+    flex: 1,
+  },
+  tenantsNames: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.text,
+    marginBottom: 4,
+  },
+  tenantsDate: {
+    fontSize: 14,
+    color: Colors.primary,
+    fontWeight: '500',
   },
   tenantInfo: {
     flex: 1,
   },
   tenantName: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontSize: 14,
+    fontWeight: '500',
     color: Colors.text,
   },
   tenantDate: {
@@ -1095,7 +1263,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   tenantDeleteButton: {
-    padding: Spacing.sm,
+    padding: Spacing.s,
   },
   errorText: {
     fontSize: 16,
@@ -1113,19 +1281,53 @@ const styles = StyleSheet.create({
     right: 20,
     zIndex: 10,
     padding: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 20,
+  },
+  lightboxNavLeft: {
+    position: 'absolute',
+    left: 20,
+    top: '50%',
+    zIndex: 10,
+    padding: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 20,
+  },
+  lightboxNavRight: {
+    position: 'absolute',
+    right: 20,
+    top: '50%',
+    zIndex: 10,
+    padding: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 20,
+  },
+  lightboxCounter: {
+    position: 'absolute',
+    bottom: 40,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  lightboxCounterText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
   },
   lightboxImage: {
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
   },
   documentsContainer: {
-    gap: Spacing.sm,
+    gap: Spacing.s,
   },
-  documentItem: {
+  documentListItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: Spacing.md,
+    padding: Spacing.m,
     backgroundColor: Colors.background,
     borderRadius: 8,
     borderWidth: 1,
@@ -1135,7 +1337,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    gap: Spacing.md,
+    gap: Spacing.m,
   },
   documentText: {
     flex: 1,
@@ -1151,25 +1353,25 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   documentDeleteButton: {
-    padding: Spacing.sm,
+    padding: Spacing.s,
   },
   documentPreviewPlaceholder: {
     alignItems: 'center',
     justifyContent: 'center',
-    gap: Spacing.lg,
+    gap: Spacing.l,
   },
   documentPreviewText: {
     fontSize: 18,
     color: '#fff',
     textAlign: 'center',
-    marginTop: Spacing.md,
+    marginTop: Spacing.m,
   },
   downloadButton: {
     backgroundColor: Colors.primary,
     paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.md,
+    paddingVertical: Spacing.m,
     borderRadius: 8,
-    marginTop: Spacing.lg,
+    marginTop: Spacing.l,
   },
   downloadButtonText: {
     color: '#fff',
@@ -1177,7 +1379,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   sectionHeader: {
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.m,
   },
   sectionSubtitle: {
     fontSize: 13,
@@ -1198,7 +1400,7 @@ const styles = StyleSheet.create({
   documentsButtonContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.md,
+    gap: Spacing.m,
     flex: 1,
   },
   documentsButtonText: {
@@ -1254,7 +1456,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.textSecondary,
     textAlign: 'center',
-    paddingVertical: Spacing.lg,
+    paddingVertical: Spacing.l,
     fontStyle: 'italic',
   },
   previewContainer: {
@@ -1275,7 +1477,7 @@ const styles = StyleSheet.create({
   previewTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: Colors.white,
+    color: '#FFFFFF',
     marginBottom: 4,
   },
   previewMeta: {
@@ -1301,21 +1503,22 @@ const styles = StyleSheet.create({
   },
   previewPdfText: {
     fontSize: 16,
-    color: Colors.white,
+    color: '#FFFFFF',
   },
   closeManagerButton: {
     position: 'absolute',
     bottom: 40,
-    left: Spacing.lg,
-    right: Spacing.lg,
+    left: Spacing.l,
+    right: Spacing.l,
     backgroundColor: Colors.primary,
-    padding: Spacing.lg,
+    padding: Spacing.l,
     borderRadius: 12,
     alignItems: 'center',
   },
   closeManagerButtonText: {
-    color: Colors.white,
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },
 });
+
