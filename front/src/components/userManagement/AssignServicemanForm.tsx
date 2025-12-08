@@ -6,6 +6,7 @@ import { IssueResponse, UserManagementResponse } from '../../types/api';
 import { Colors } from '../../styles/colors';
 import { Spacing } from '../../styles/spacing';
 import { Typography } from '../../styles/typography';
+import { capitalizeFullName } from '../../utils/textFormatters';
 
 interface AssignServicemanFormProps {
   issueId: string;
@@ -89,7 +90,7 @@ export default function AssignServicemanForm({ issueId, onAssigned }: AssignServ
             {servicemen.map((serviceman) => (
               <Picker.Item
                 key={serviceman.id}
-                label={`${serviceman.firstName} ${serviceman.lastName}`}
+                label={capitalizeFullName(serviceman.firstName, serviceman.lastName)}
                 value={serviceman.id}
               />
             ))}

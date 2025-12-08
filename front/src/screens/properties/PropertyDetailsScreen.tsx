@@ -26,6 +26,7 @@ import Constants from 'expo-constants';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import PropertyDocumentsManager from '../../components/properties/PropertyDocumentsManager';
+import { capitalize } from '../../utils/textFormatters';
 
 const API_URL = Constants.expoConfig?.extra?.apiBaseUrl || 'http://193.106.130.55:5162/api';
 
@@ -600,20 +601,6 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
             <Text style={Typography.h3}>{property.address}</Text>
             <Text style={styles.subtitle}>{property.city}, {property.postalCode}</Text>
             
-            <View style={styles.detailsGrid}>
-              <View style={styles.detailItem}>
-                <Ionicons name="bed-outline" size={24} color={Colors.primary} />
-                <Text style={styles.detailLabel}>Pokoje</Text>
-                <Text style={styles.detailValue}>{property.roomsCount || 0}</Text>
-              </View>
-              
-              <View style={styles.detailItem}>
-                <Ionicons name="resize-outline" size={24} color={Colors.primary} />
-                <Text style={styles.detailLabel}>Powierzchnia</Text>
-                <Text style={styles.detailValue}>{property.area || 0} m²</Text>
-              </View>
-            </View>
-
             {property.description && (
               <>
                 <Text style={[Typography.label, styles.marginTop]}>Opis</Text>
@@ -700,6 +687,23 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
         )}
       </View>
 
+      {/* Informacje o nieruchomości */}
+      <View style={styles.card}>
+        <View style={styles.detailsGrid}>
+          <View style={styles.detailItem}>
+            <Ionicons name="bed-outline" size={24} color={Colors.primary} />
+            <Text style={styles.detailLabel}>Pokoje</Text>
+            <Text style={styles.detailValue}>{property.roomsCount || 0}</Text>
+          </View>
+          
+          <View style={styles.detailItem}>
+            <Ionicons name="resize-outline" size={24} color={Colors.primary} />
+            <Text style={styles.detailLabel}>Powierzchnia</Text>
+            <Text style={styles.detailValue}>{property.area || 0} m²</Text>
+          </View>
+        </View>
+      </View>
+
       {/* Dokumenty z wersjonowaniem */}
       <View style={styles.card}>
         <View style={styles.sectionHeader}>
@@ -777,7 +781,7 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
               <Ionicons name="people" size={24} color={Colors.primary} />
               <View style={styles.tenantsInfo}>
                 <Text style={styles.tenantsNames}>
-                  {property.tenants.map(t => t.tenantName).join(', ')}
+                  {property.tenants.map(t => capitalize(t.tenantName)).join(', ')}
                 </Text>
                 {earliestDate && (
                   <Text style={styles.tenantsDate}>
@@ -790,7 +794,7 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
             {property.tenants.map((tenant, index) => (
               <View key={index} style={styles.tenantItem}>
                 <Ionicons name="person" size={18} color={Colors.textSecondary} />
-                <Text style={styles.tenantName}>{tenant.tenantName}</Text>
+                <Text style={styles.tenantName}>{capitalize(tenant.tenantName)}</Text>
                 {isOwner && (
                   <TouchableOpacity
                     style={styles.tenantDeleteButton}

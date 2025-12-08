@@ -10,6 +10,7 @@ import Loading from '../../components/common/Loading';
 import { Colors } from '../../styles/colors';
 import { Typography } from '../../styles/typography';
 import { Spacing } from '../../styles/spacing';
+import { capitalize } from '../../utils/textFormatters';
 
 export default function PropertiesScreen({ navigation }: any) {
   const dispatch = useDispatch<AppDispatch>();
@@ -157,6 +158,25 @@ export default function PropertiesScreen({ navigation }: any) {
   const renderProperty = ({ item }: any) => {
     const firstPhoto = item.photos && item.photos.length > 0 ? item.photos[0] : null;
     
+    // Aktualni najemcy (data zakończenia w przyszłości lub nie ustawiona)
+    const currentTenants = item.tenants?.filter((t: any) => {
+      if (!t.endDate) return true;
+      return new Date(t.endDate) >= new Date();
+    }) || [];
+
+    // Oblicz okres umowy (od najwcześniejszej do najpóźniejszej daty)
+    let rentalPeriod = '';
+    if (currentTenants.length > 0) {
+      const dates = currentTenants.map((t: any) => ({
+        start: new Date(t.startDate),
+        end: t.endDate ? new Date(t.endDate) : null
+      }));
+      const earliestStart = new Date(Math.min(...dates.map(d => d.start.getTime())));
+      const latestEnd = dates.some(d => !d.end) ? null : new Date(Math.max(...dates.filter(d => d.end).map(d => d.end!.getTime())));
+      
+      rentalPeriod = `${earliestStart.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' })} - ${latestEnd ? latestEnd.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'obecnie'}`;
+    }
+    
     return (
       <TouchableOpacity 
         style={styles.card}
@@ -176,15 +196,37 @@ export default function PropertiesScreen({ navigation }: any) {
             <Ionicons name="chevron-forward" size={24} color={Colors.textSecondary} />
           </View>
           <Text style={styles.city}>{item.city}, {item.postalCode}</Text>
-          <View style={styles.details}>
-            <View style={styles.detailBadge}>
-              <Ionicons name="bed-outline" size={16} color={Colors.primary} />
-              <Text style={styles.detailText}>{item.roomsCount} pokoi</Text>
+          
+          <View style={styles.detailsRow}>
+            <View style={styles.details}>
+              <View style={styles.detailBadge}>
+                <Ionicons name="bed-outline" size={16} color={Colors.primary} />
+                <Text style={styles.detailText}>{item.roomsCount} pokoi</Text>
+              </View>
+              <View style={styles.detailBadge}>
+                <Ionicons name="resize-outline" size={16} color={Colors.primary} />
+                <Text style={styles.detailText}>{item.area} m²</Text>
+              </View>
             </View>
-            <View style={styles.detailBadge}>
-              <Ionicons name="resize-outline" size={16} color={Colors.primary} />
-              <Text style={styles.detailText}>{item.area} m²</Text>
-            </View>
+            
+            {currentTenants.length > 0 && (
+              <View style={styles.tenantInfo}>
+                <View style={styles.tenantHeader}>
+                  <Ionicons name="people" size={14} color={Colors.primary} />
+                  <Text style={styles.tenantLabel}>Najemcy:</Text>
+                </View>
+                {currentTenants.map((tenant: any, index: number) => (
+                  <Text key={tenant.tenantId} style={styles.tenantName}>
+                    {capitalize(tenant.tenantName)}
+                  </Text>
+                ))}
+                {rentalPeriod && (
+                  <Text style={styles.rentalPeriod}>
+                    <Ionicons name="calendar-outline" size={11} color={Colors.textSecondary} /> {rentalPeriod}
+                  </Text>
+                )}
+              </View>
+            )}
           </View>
         </View>
       </TouchableOpacity>
@@ -407,7 +449,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: Colors.surface,
     borderRadius: 12,
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.m,
     overflow: 'hidden',
     elevation: 2,
     shadowColor: '#000',
@@ -421,7 +463,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.disabled,
   },
   cardContent: {
-    padding: Spacing.lg,
+    padding: Spacing.m,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -432,18 +474,26 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.textSecondary,
     marginTop: Spacing.xs,
+    marginBottom: Spacing.s,
+  },
+  detailsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginTop: Spacing.s,
+    gap: Spacing.m,
   },
   details: {
     flexDirection: 'row',
-    gap: Spacing.md,
-    marginTop: Spacing.md,
+    gap: Spacing.s,
+    flex: 1,
   },
   detailBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
     backgroundColor: Colors.background,
-    paddingHorizontal: Spacing.sm,
+    paddingHorizontal: Spacing.s,
     paddingVertical: 6,
     borderRadius: 8,
   },
@@ -451,6 +501,33 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.text,
     fontWeight: '500',
+  },
+  tenantInfo: {
+    alignItems: 'flex-end',
+    flex: 1,
+  },
+  tenantHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 2,
+  },
+  tenantLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: Colors.text,
+  },
+  tenantName: {
+    fontSize: 12,
+    color: Colors.text,
+    textAlign: 'right',
+    marginBottom: 1,
+  },
+  rentalPeriod: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    marginTop: 2,
+    textAlign: 'right',
   },
   emptyText: {
     textAlign: 'center',

@@ -8,6 +8,7 @@ import { PropertyResponse, UserManagementResponse } from '../../types/api';
 import { Colors } from '../../styles/colors';
 import { Spacing } from '../../styles/spacing';
 import { Typography } from '../../styles/typography';
+import { capitalizeFullName } from '../../utils/textFormatters';
 
 interface AssignTenantFormProps {
   onTenantAssigned?: () => void;
@@ -31,15 +32,6 @@ export default function AssignTenantForm({ onTenantAssigned }: AssignTenantFormP
     `${tenant.firstName} ${tenant.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
     tenant.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  // Sortuj: zaznaczeni na górze
-  const sortedTenants = [...filteredTenants].sort((a, b) => {
-    const aSelected = selectedTenants.includes(a.id);
-    const bSelected = selectedTenants.includes(b.id);
-    if (aSelected && !bSelected) return -1;
-    if (!aSelected && bSelected) return 1;
-    return 0;
-  });
 
   useEffect(() => {
     loadData();
@@ -65,7 +57,12 @@ export default function AssignTenantForm({ onTenantAssigned }: AssignTenantFormP
       console.log('🔵 Properties:', propsResponse.data);
       console.log('🔵 Tenants:', tenantsResponse.data);
       setProperties(propsResponse.data);
-      setTenants(tenantsResponse.data);
+      
+      // Sortuj alfabetycznie po nazwisku
+      const sortedTenants = [...tenantsResponse.data].sort((a, b) => 
+        `${a.lastName} ${a.firstName}`.localeCompare(`${b.lastName} ${b.firstName}`, 'pl')
+      );
+      setTenants(sortedTenants);
     } catch (error) {
       console.error('Failed to load data:', error);
       Alert.alert('Błąd', 'Nie udało się załadować danych');
@@ -82,6 +79,16 @@ export default function AssignTenantForm({ onTenantAssigned }: AssignTenantFormP
       console.log('🔵 Current tenants for property:', currentTenantIds);
       setSelectedTenants(currentTenantIds);
       setInitialTenants(currentTenantIds);
+      
+      // Sortuj listę: zaznaczeni na górze, reszta alfabetycznie
+      const sortedTenants = [...tenants].sort((a, b) => {
+        const aSelected = currentTenantIds.includes(a.id);
+        const bSelected = currentTenantIds.includes(b.id);
+        if (aSelected && !bSelected) return -1;
+        if (!aSelected && bSelected) return 1;
+        return `${a.lastName} ${a.firstName}`.localeCompare(`${b.lastName} ${b.firstName}`, 'pl');
+      });
+      setTenants(sortedTenants);
       
       // Ustaw daty z pierwszego najemcy (jeśli istnieje)
       if (property.tenants && property.tenants.length > 0) {
@@ -229,7 +236,7 @@ export default function AssignTenantForm({ onTenantAssigned }: AssignTenantFormP
           Wybrani najemcy ({selectedTenants.length})
         </Text>
         <ScrollView style={styles.tenantsScrollView}>
-          {sortedTenants.map((tenant) => {
+          {filteredTenants.map((tenant) => {
             const isSelected = selectedTenants.includes(tenant.id);
             return (
               <TouchableOpacity
@@ -239,7 +246,7 @@ export default function AssignTenantForm({ onTenantAssigned }: AssignTenantFormP
               >
                 <View style={styles.tenantSelectInfo}>
                   <Text style={[styles.tenantSelectName, isSelected && styles.tenantSelectNameSelected]}>
-                    {tenant.firstName} {tenant.lastName}
+                    {capitalizeFullName(tenant.firstName, tenant.lastName)}
                   </Text>
                   <Text style={styles.tenantSelectEmail}>{tenant.email}</Text>
                 </View>

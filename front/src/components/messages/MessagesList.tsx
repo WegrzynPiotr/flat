@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { messagesAPI } from '../../api/endpoints';
+import { messagesAPI, userManagementAPI } from '../../api/endpoints';
 import { ConversationUser, MessageResponse } from '../../types/api';
 import { Colors } from '../../styles/colors';
 import { Spacing } from '../../styles/spacing';
@@ -8,6 +8,7 @@ import { Typography } from '../../styles/typography';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import { startSignalRConnection, onReceiveMessage, offReceiveMessage } from '../../services/signalrService';
+import { capitalize } from '../../utils/textFormatters';
 
 interface MessagesListProps {
   onSelectContact: (userId: string, name: string) => void;
@@ -17,6 +18,7 @@ export default function MessagesList({ onSelectContact }: MessagesListProps) {
   const [contacts, setContacts] = useState<ConversationUser[]>([]);
   const [loading, setLoading] = useState(true);
   const currentUserId = useSelector((state: RootState) => state.auth.user?.id);
+  const userRole = useSelector((state: RootState) => state.auth.user?.role);
   const token = useSelector((state: RootState) => state.auth.accessToken);
 
   useEffect(() => {
@@ -61,12 +63,41 @@ export default function MessagesList({ onSelectContact }: MessagesListProps) {
       console.log('🔌 Cleaning up SignalR listeners in MessagesList');
       if (cleanup) cleanup();
     };
-  }, [token, currentUserId]);
+  }, [token, currentUserId, userRole]);
 
   const loadContacts = async () => {
     try {
-      const response = await messagesAPI.getContacts();
-      setContacts(response.data);
+      // Jeśli użytkownik jest właścicielem, pobierz wszystkich najemców i serwisantów
+      if (userRole === 'Wynajmujący') {
+        const [tenantsRes, servicemenRes] = await Promise.all([
+          userManagementAPI.getMyTenants(),
+          userManagementAPI.getMyServicemen(),
+        ]);
+
+        // Przekształć dane z UserManagementResponse na ConversationUser
+        const allUsers: ConversationUser[] = [
+          ...tenantsRes.data.map(tenant => ({
+            userId: tenant.id,
+            name: capitalize(`${tenant.firstName} ${tenant.lastName}`),
+            role: 'Najemca',
+            unreadCount: 0,
+            propertyAddress: tenant.properties.length > 0 ? tenant.properties.join(', ') : undefined,
+          })),
+          ...servicemenRes.data.map(serviceman => ({
+            userId: serviceman.id,
+            name: capitalize(`${serviceman.firstName} ${serviceman.lastName}`),
+            role: 'Serwisant',
+            unreadCount: 0,
+            propertyAddress: serviceman.properties.length > 0 ? serviceman.properties.join(', ') : undefined,
+          })),
+        ];
+
+        setContacts(allUsers);
+      } else {
+        // Dla najemców i serwisantów użyj standardowego endpointu
+        const response = await messagesAPI.getContacts();
+        setContacts(response.data);
+      }
     } catch (error) {
       console.error('Failed to load contacts:', error);
     } finally {

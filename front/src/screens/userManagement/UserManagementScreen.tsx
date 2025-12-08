@@ -8,6 +8,7 @@ import { Colors } from '../../styles/colors';
 import { Spacing } from '../../styles/spacing';
 import { Typography } from '../../styles/typography';
 import { useFocusEffect } from '@react-navigation/native';
+import { capitalizeFullName } from '../../utils/textFormatters';
 
 export default function UserManagementScreen() {
   const [activeTab, setActiveTab] = useState<'create' | 'assign' | 'list'>('create');
@@ -51,7 +52,7 @@ export default function UserManagementScreen() {
             data={tenants}
             renderItem={({ item }) => (
               <View style={styles.tenantCard}>
-                <Text style={Typography.bodyBold}>{item.firstName} {item.lastName}</Text>
+                <Text style={Typography.bodyBold}>{capitalizeFullName(item.firstName, item.lastName)}</Text>
                 <Text style={styles.tenantEmail}>{item.email}</Text>
                 <Text style={styles.tenantRole}>Rola: {item.role}</Text>
               </View>

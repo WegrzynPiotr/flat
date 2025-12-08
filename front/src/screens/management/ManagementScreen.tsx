@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator }
 import { Ionicons } from '@expo/vector-icons';
 import { userManagementAPI } from '../../api/endpoints';
 import { UserManagementResponse } from '../../types/api';
+import { capitalizeFullName } from '../../utils/textFormatters';
 import CreateUserForm from '../../components/userManagement/CreateUserForm';
 import AssignTenantForm from '../../components/userManagement/AssignTenantForm';
 import { Colors } from '../../styles/colors';
@@ -97,19 +98,20 @@ export default function ManagementScreen({ navigation }: any) {
           />
         </View>
         <View style={styles.userDetails}>
-          <Text style={styles.userName}>{item.firstName} {item.lastName}</Text>
+          <Text style={styles.userName}>{capitalizeFullName(item.firstName, item.lastName)}</Text>
           <Text style={styles.userEmail}>{item.email}</Text>
-          <Text style={styles.userRole}>{item.role}</Text>
           {activeTab === 'tenants' && item.properties && item.properties.length > 0 && (
             <View style={styles.propertiesContainer}>
-              <Text style={styles.propertiesLabel}>Nieruchomości:</Text>
               {item.properties.map((address, index) => (
-                <Text key={index} style={styles.propertyAddress}>• {address}</Text>
+                <View key={index} style={styles.propertyItem}>
+                  <Ionicons name="home" size={14} color={Colors.primary} />
+                  <Text style={styles.propertyAddress}>{address}</Text>
+                </View>
               ))}
             </View>
           )}
           {activeTab === 'tenants' && (!item.properties || item.properties.length === 0) && (
-            <Text style={styles.noProperties}>Brak przypisanych nieruchomości</Text>
+            <Text style={styles.noProperties}>Nie przypisano do żadnej nieruchomości</Text>
           )}
         </View>
       </View>
@@ -353,13 +355,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   listContent: {
-    padding: Spacing.md,
-    gap: Spacing.md,
+    padding: Spacing.m,
   },
   userCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
-    padding: Spacing.md,
+    padding: Spacing.m,
+    marginBottom: Spacing.m,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -381,38 +383,31 @@ const styles = StyleSheet.create({
   },
   userDetails: {
     flex: 1,
-    gap: 4,
+    gap: 6,
   },
   userName: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '600',
     color: Colors.text,
+    marginBottom: 2,
   },
   userEmail: {
-    fontSize: 14,
+    fontSize: 13,
     color: Colors.textSecondary,
-  },
-  userRole: {
-    fontSize: 12,
-    color: Colors.primary,
-    fontWeight: '600',
   },
   propertiesContainer: {
-    marginTop: Spacing.xs,
-    paddingTop: Spacing.xs,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
+    gap: 6,
+    marginTop: 4,
   },
-  propertiesLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: Colors.text,
-    marginBottom: 4,
+  propertyItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   propertyAddress: {
-    fontSize: 12,
-    color: Colors.textSecondary,
-    marginLeft: Spacing.xs,
+    fontSize: 13,
+    color: Colors.text,
+    flex: 1,
   },
   noProperties: {
     fontSize: 12,
