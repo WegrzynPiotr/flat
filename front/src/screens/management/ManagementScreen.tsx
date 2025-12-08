@@ -100,6 +100,17 @@ export default function ManagementScreen({ navigation }: any) {
           <Text style={styles.userName}>{item.firstName} {item.lastName}</Text>
           <Text style={styles.userEmail}>{item.email}</Text>
           <Text style={styles.userRole}>{item.role}</Text>
+          {activeTab === 'tenants' && item.properties && item.properties.length > 0 && (
+            <View style={styles.propertiesContainer}>
+              <Text style={styles.propertiesLabel}>Nieruchomości:</Text>
+              {item.properties.map((address, index) => (
+                <Text key={index} style={styles.propertyAddress}>• {address}</Text>
+              ))}
+            </View>
+          )}
+          {activeTab === 'tenants' && (!item.properties || item.properties.length === 0) && (
+            <Text style={styles.noProperties}>Brak przypisanych nieruchomości</Text>
+          )}
         </View>
       </View>
     </View>
@@ -385,6 +396,29 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Colors.primary,
     fontWeight: '600',
+  },
+  propertiesContainer: {
+    marginTop: Spacing.xs,
+    paddingTop: Spacing.xs,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+  },
+  propertiesLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: Colors.text,
+    marginBottom: 4,
+  },
+  propertyAddress: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginLeft: Spacing.xs,
+  },
+  noProperties: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    fontStyle: 'italic',
+    marginTop: 4,
   },
   emptyContainer: {
     flex: 1,

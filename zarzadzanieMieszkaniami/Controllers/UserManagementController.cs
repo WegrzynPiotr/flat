@@ -97,15 +97,30 @@ namespace zarzadzanieMieszkaniami.Controllers
             if (!roles.Contains("Najemca"))
                 return BadRequest("Użytkownik nie jest najemcą");
 
-            var propertyTenant = new PropertyTenant
-            {
-                PropertyId = request.PropertyId,
-                TenantId = request.TenantId,
-                StartDate = request.StartDate,
-                EndDate = request.EndDate
-            };
+            // Sprawdź czy najemca już jest przypisany do nieruchomości
+            var existingTenant = await _context.PropertyTenants
+                .FirstOrDefaultAsync(pt => pt.PropertyId == request.PropertyId && pt.TenantId == request.TenantId);
 
-            _context.PropertyTenants.Add(propertyTenant);
+            if (existingTenant != null)
+            {
+                // Zaktualizuj daty
+                existingTenant.StartDate = request.StartDate;
+                existingTenant.EndDate = request.EndDate;
+                _context.PropertyTenants.Update(existingTenant);
+            }
+            else
+            {
+                // Dodaj nowego najemcę
+                var propertyTenant = new PropertyTenant
+                {
+                    PropertyId = request.PropertyId,
+                    TenantId = request.TenantId,
+                    StartDate = request.StartDate,
+                    EndDate = request.EndDate
+                };
+                _context.PropertyTenants.Add(propertyTenant);
+            }
+
             await _context.SaveChangesAsync();
 
             return Ok();
@@ -225,15 +240,27 @@ namespace zarzadzanieMieszkaniami.Controllers
 
             Console.WriteLine($"🔵 Total tenants: {tenants.Count}");
 
-            var responses = tenants.Select(t => new UserResponse
+            // Pobierz informacje o nieruchomościach dla każdego najemcy
+            var responses = new List<UserResponse>();
+            foreach (var tenant in tenants)
             {
-                Id = t.Id,
-                Email = t.Email,
-                FirstName = t.FirstName,
-                LastName = t.LastName,
-                Role = "Najemca",
-                CreatedAt = t.CreatedAt
-            }).ToList();
+                var properties = await _context.PropertyTenants
+                    .Where(pt => pt.TenantId == tenant.Id)
+                    .Include(pt => pt.Property)
+                    .Select(pt => pt.Property.Address)
+                    .ToListAsync();
+
+                responses.Add(new UserResponse
+                {
+                    Id = tenant.Id,
+                    Email = tenant.Email,
+                    FirstName = tenant.FirstName,
+                    LastName = tenant.LastName,
+                    Role = "Najemca",
+                    CreatedAt = tenant.CreatedAt,
+                    Properties = properties
+                });
+            }
 
             return Ok(responses);
         }

@@ -153,6 +153,30 @@
       "PackagePath": "staticwebassets\\uploads\\properties\\f57f0c9d-2294-4e86-a992-188edc382aba_gta.png"
     },
     {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\99b68909-20c7-4778-9015-f5c5f2d6b082_Umowa_1_639008281626006869.pdf",
+      "PackagePath": "staticwebassets\\uploads\\property-documents\\99b68909-20c7-4778-9015-f5c5f2d6b082_Umowa_1_639008281626006869.pdf"
+    },
+    {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\99b68909-20c7-4778-9015-f5c5f2d6b082_Umowa_2_639008281651016945.pdf",
+      "PackagePath": "staticwebassets\\uploads\\property-documents\\99b68909-20c7-4778-9015-f5c5f2d6b082_Umowa_2_639008281651016945.pdf"
+    },
+    {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\e8ffc118-f600-40f3-ad87-e23b247f38c2_Prąd_1_639008269325206034.png",
+      "PackagePath": "staticwebassets\\uploads\\property-documents\\e8ffc118-f600-40f3-ad87-e23b247f38c2_Prąd_1_639008269325206034.png"
+    },
+    {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\e8ffc118-f600-40f3-ad87-e23b247f38c2_Umowa_1_639008266942654570.jpg",
+      "PackagePath": "staticwebassets\\uploads\\property-documents\\e8ffc118-f600-40f3-ad87-e23b247f38c2_Umowa_1_639008266942654570.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\e8ffc118-f600-40f3-ad87-e23b247f38c2_Wodomierz_1_639008267070779591.png",
+      "PackagePath": "staticwebassets\\uploads\\property-documents\\e8ffc118-f600-40f3-ad87-e23b247f38c2_Wodomierz_1_639008267070779591.png"
+    },
+    {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\e8ffc118-f600-40f3-ad87-e23b247f38c2_Wodomierz_2_639008271049512897.jpg",
+      "PackagePath": "staticwebassets\\uploads\\property-documents\\e8ffc118-f600-40f3-ad87-e23b247f38c2_Wodomierz_2_639008271049512897.jpg"
+    },
+    {
       "Id": "obj\\Debug\\net9.0\\staticwebassets\\msbuild.build.zarzadzanieMieszkaniami.props",
       "PackagePath": "build\\zarzadzanieMieszkaniami.props"
     },

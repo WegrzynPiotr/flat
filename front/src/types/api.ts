@@ -186,6 +186,7 @@ export interface UserManagementResponse {
   lastName: string;
   role: string;
   createdAt: string;
+  properties: string[]; // Adresy nieruchomości
 }
 
 export interface CreateUserRequest {
@@ -201,6 +202,7 @@ export interface AssignTenantRequest {
   propertyId: string;
   tenantId: string;
   startDate: string;
+  endDate?: string | null;
 }
 
 export interface AssignServicemanRequest {

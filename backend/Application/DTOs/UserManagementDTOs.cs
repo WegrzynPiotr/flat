@@ -31,5 +31,6 @@ namespace Application.DTOs
         public string LastName { get; set; }
         public string Role { get; set; }
         public DateTime CreatedAt { get; set; }
+        public List<string> Properties { get; set; } = new List<string>(); // Adresy nieruchomości
     }
 }
