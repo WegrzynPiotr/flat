@@ -315,6 +315,68 @@ namespace zarzadzanieMieszkaniami.Migrations
                     b.ToTable("properties");
                 });
 
+            modelBuilder.Entity("Core.Models.PropertyDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("DocumentType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("document_type");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("file_name");
+
+                    b.Property<string>("FileUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("file_url");
+
+                    b.Property<bool>("IsLatest")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_latest");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("notes");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("property_id");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("uploaded_at");
+
+                    b.Property<Guid>("UploadedById")
+                        .HasColumnType("uuid")
+                        .HasColumnName("uploaded_by_id");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("integer")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id")
+                        .HasName("p_k_property_documents");
+
+                    b.HasIndex("UploadedById")
+                        .HasDatabaseName("i_x_property_documents_uploaded_by_id");
+
+                    b.HasIndex("PropertyId", "DocumentType", "IsLatest");
+
+                    b.ToTable("property_documents");
+                });
+
             modelBuilder.Entity("Core.Models.PropertyTenant", b =>
                 {
                     b.Property<Guid>("PropertyId")
@@ -782,6 +844,27 @@ namespace zarzadzanieMieszkaniami.Migrations
                     b.Navigation("Owner");
                 });
 
+            modelBuilder.Entity("Core.Models.PropertyDocument", b =>
+                {
+                    b.HasOne("Core.Models.Property", "Property")
+                        .WithMany("PropertyDocuments")
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("f_k_property_documents_properties_property_id");
+
+                    b.HasOne("Core.Models.User", "UploadedBy")
+                        .WithMany()
+                        .HasForeignKey("UploadedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("f_k_property_documents__asp_net_users_uploaded_by_id");
+
+                    b.Navigation("Property");
+
+                    b.Navigation("UploadedBy");
+                });
+
             modelBuilder.Entity("Core.Models.PropertyTenant", b =>
                 {
                     b.HasOne("Core.Models.Property", "Property")
@@ -884,6 +967,8 @@ namespace zarzadzanieMieszkaniami.Migrations
             modelBuilder.Entity("Core.Models.Property", b =>
                 {
                     b.Navigation("Issues");
+
+                    b.Navigation("PropertyDocuments");
 
                     b.Navigation("Tenants");
                 });

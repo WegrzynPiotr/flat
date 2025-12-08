@@ -12,10 +12,11 @@ import {
   Dimensions,
   ActivityIndicator,
   Platform,
+  Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { propertiesAPI, userManagementAPI } from '../../api/endpoints';
+import { propertiesAPI, userManagementAPI, propertyDocumentsAPI } from '../../api/endpoints';
 import { PropertyResponse } from '../../types/api';
 import { Colors } from '../../styles/colors';
 import { Typography } from '../../styles/typography';
@@ -24,6 +25,7 @@ import { storage } from '../../utils/storage';
 import Constants from 'expo-constants';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
+import PropertyDocumentsManager from '../../components/properties/PropertyDocumentsManager';
 
 const API_URL = Constants.expoConfig?.extra?.apiBaseUrl || 'http://193.106.130.55:5162/api';
 
@@ -39,6 +41,11 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
   const [uploading, setUploading] = useState(false);
   const [uploadingDoc, setUploadingDoc] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<{ url: string; name: string; type: string } | null>(null);
+  const [showDocumentsManager, setShowDocumentsManager] = useState(false);
+  const [latestDocuments, setLatestDocuments] = useState<any[]>([]);
+  const [loadingDocuments, setLoadingDocuments] = useState(false);
+  const [previewDocument, setPreviewDocument] = useState<any>(null);
+  const [showDocPreview, setShowDocPreview] = useState(false);
   
   const [formData, setFormData] = useState({
     address: '',
@@ -51,7 +58,53 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
 
   useEffect(() => {
     loadProperty();
+    if (isOwner) {
+      loadLatestDocuments();
+    }
   }, [propertyId]);
+
+  const loadLatestDocuments = async () => {
+    try {
+      setLoadingDocuments(true);
+      const response = await propertyDocumentsAPI.getLatest(propertyId);
+      setLatestDocuments(response.data);
+    } catch (error) {
+      console.error('Failed to load documents:', error);
+    } finally {
+      setLoadingDocuments(false);
+    }
+  };
+
+  const getDocumentIcon = (documentType: string): any => {
+    const iconMap: { [key: string]: any } = {
+      'Umowa': 'document-text',
+      'Wodomierz': 'water',
+      'Prąd': 'flash',
+      'Gaz': 'flame',
+      'Ogrzewanie': 'thermometer',
+      'Ubezpieczenie': 'shield-checkmark',
+      'Remont': 'construct',
+      'Inne': 'folder',
+    };
+    return iconMap[documentType] || 'document';
+  };
+
+  const getDocumentUrl = (fileUrl: string) => {
+    if (fileUrl.startsWith('http')) {
+      return fileUrl;
+    }
+    return `${API_URL}/${fileUrl.replace(/\\/g, '/')}`;
+  };
+
+  const isImageFile = (fileName: string) => {
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
+    return imageExtensions.some(ext => fileName.toLowerCase().endsWith(ext));
+  };
+
+  const handlePreviewDocument = (doc: any) => {
+    setPreviewDocument(doc);
+    setShowDocPreview(true);
+  };
 
   const loadProperty = async () => {
     try {
@@ -670,6 +723,67 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
         </View>
       </View>
 
+      {/* Dokumenty z wersjonowaniem - Nowa sekcja */}
+      {isOwner && (
+        <View style={styles.card}>
+          <View style={styles.sectionHeader}>
+            <Text style={Typography.h3}>Dokumenty mieszkania</Text>
+            <Text style={styles.sectionSubtitle}>
+              Najnowsze wersje dokumentów z pełną historią zmian
+            </Text>
+          </View>
+
+          {loadingDocuments ? (
+            <ActivityIndicator size="small" color={Colors.primary} style={{ marginVertical: Spacing.m }} />
+          ) : latestDocuments.length > 0 ? (
+            <View style={styles.documentsGrid}>
+              {latestDocuments.map((doc) => (
+                <TouchableOpacity 
+                  key={doc.id} 
+                  style={styles.documentItem}
+                  onPress={() => handlePreviewDocument(doc)}
+                >
+                  <View style={styles.documentItemHeader}>
+                    <Ionicons 
+                      name={getDocumentIcon(doc.documentType)} 
+                      size={20} 
+                      color={Colors.primary} 
+                    />
+                    <Text style={styles.documentItemType}>{doc.documentType}</Text>
+                  </View>
+                  <Text style={styles.documentItemName} numberOfLines={1}>
+                    {doc.fileName}
+                  </Text>
+                  <Text style={styles.documentItemMeta}>
+                    v{doc.version} • {new Date(doc.uploadedAt).toLocaleDateString('pl-PL')}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          ) : (
+            <Text style={styles.emptyDocumentsText}>
+              Brak dokumentów. Dodaj pierwsze dokumenty w menadżerze.
+            </Text>
+          )}
+
+          <TouchableOpacity
+            style={styles.documentsButton}
+            onPress={() => setShowDocumentsManager(true)}
+          >
+            <View style={styles.documentsButtonContent}>
+              <Ionicons name="folder-open" size={24} color={Colors.primary} />
+              <View style={styles.documentsButtonText}>
+                <Text style={styles.documentsButtonTitle}>Otwórz menadżer dokumentów</Text>
+                <Text style={styles.documentsButtonSubtitle}>
+                  Zarządzaj wszystkimi typami dokumentów
+                </Text>
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color={Colors.textSecondary} />
+          </TouchableOpacity>
+        </View>
+      )}
+
       {/* Najemcy */}
       {property.tenants && property.tenants.length > 0 && (
         <View style={styles.card}>
@@ -772,6 +886,104 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
               )}
             </>
           )}
+        </View>
+      </Modal>
+
+      {/* Documents Manager Modal */}
+      <Modal
+        visible={showDocumentsManager}
+        animationType="slide"
+        presentationStyle="fullScreen"
+        onRequestClose={() => setShowDocumentsManager(false)}
+      >
+        <PropertyDocumentsManager 
+          propertyId={propertyId}
+          onClose={() => setShowDocumentsManager(false)}
+        />
+      </Modal>
+
+      {/* Document Preview Modal */}
+      <Modal
+        visible={showDocPreview}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={() => setShowDocPreview(false)}
+      >
+        <View style={styles.previewContainer}>
+          <View style={styles.previewHeader}>
+            <View style={styles.previewHeaderInfo}>
+              <Text style={styles.previewTitle}>{previewDocument?.fileName}</Text>
+              <Text style={styles.previewMeta}>
+                {previewDocument?.documentType} • Wersja {previewDocument?.version}
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={styles.previewCloseButton}
+              onPress={() => setShowDocPreview(false)}
+            >
+              <Ionicons name="close" size={28} color={Colors.white} />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.previewContent}>
+            {previewDocument && isImageFile(previewDocument.fileName) ? (
+              <Image
+                source={{ uri: getDocumentUrl(previewDocument.fileUrl) }}
+                style={styles.previewImage}
+                resizeMode="contain"
+              />
+            ) : previewDocument?.fileName.toLowerCase().endsWith('.pdf') ? (
+              Platform.OS === 'web' ? (
+                <iframe
+                  src={getDocumentUrl(previewDocument.fileUrl)}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    border: 'none',
+                  }}
+                  title="PDF Preview"
+                />
+              ) : (
+                <View style={styles.previewPdfContainer}>
+                  <Ionicons name="document-text" size={80} color={Colors.white} />
+                  <Text style={styles.previewPdfText}>
+                    Podgląd PDF dostępny po otwarciu
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.downloadButton}
+                    onPress={() => {
+                      const url = getDocumentUrl(previewDocument?.fileUrl);
+                      Linking.openURL(url);
+                    }}
+                  >
+                    <Ionicons name="open" size={20} color={Colors.white} />
+                    <Text style={styles.downloadButtonText}>Otwórz dokument</Text>
+                  </TouchableOpacity>
+                </View>
+              )
+            ) : (
+              <View style={styles.previewPdfContainer}>
+                <Ionicons name="document-text" size={80} color={Colors.white} />
+                <Text style={styles.previewPdfText}>
+                  Podgląd niedostępny dla tego typu pliku
+                </Text>
+                <TouchableOpacity
+                  style={styles.downloadButton}
+                  onPress={() => {
+                    const url = getDocumentUrl(previewDocument?.fileUrl);
+                    if (Platform.OS === 'web') {
+                      window.open(url, '_blank');
+                    } else {
+                      Linking.openURL(url);
+                    }
+                  }}
+                >
+                  <Ionicons name="download" size={20} color={Colors.white} />
+                  <Text style={styles.downloadButtonText}>Pobierz dokument</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
         </View>
       </Modal>
     </ScrollView>
@@ -1018,6 +1230,147 @@ const styles = StyleSheet.create({
   },
   downloadButtonText: {
     color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  sectionHeader: {
+    marginBottom: Spacing.md,
+  },
+  sectionSubtitle: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    marginTop: Spacing.xs,
+  },
+  documentsButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: Colors.background,
+    padding: Spacing.lg,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginTop: Spacing.md,
+  },
+  documentsButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    flex: 1,
+  },
+  documentsButtonText: {
+    flex: 1,
+  },
+  documentsButtonTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: Colors.text,
+    marginBottom: 4,
+  },
+  documentsButtonSubtitle: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+  },
+  documentsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.m,
+    marginBottom: Spacing.m,
+  },
+  documentItem: {
+    flex: 1,
+    minWidth: 140,
+    backgroundColor: Colors.surface,
+    padding: Spacing.m,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  documentItemHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    marginBottom: Spacing.xs,
+  },
+  documentItemType: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: Colors.primary,
+  },
+  documentItemName: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: Colors.text,
+    marginBottom: 4,
+  },
+  documentItemMeta: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+  },
+  emptyDocumentsText: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    paddingVertical: Spacing.lg,
+    fontStyle: 'italic',
+  },
+  previewContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.95)',
+  },
+  previewHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: Spacing.l,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+  },
+  previewHeaderInfo: {
+    flex: 1,
+    marginRight: Spacing.m,
+  },
+  previewTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.white,
+    marginBottom: 4,
+  },
+  previewMeta: {
+    fontSize: 13,
+    color: 'rgba(255, 255, 255, 0.7)',
+  },
+  previewCloseButton: {
+    padding: Spacing.s,
+  },
+  previewContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  previewImage: {
+    width: '100%',
+    height: '100%',
+  },
+  previewPdfContainer: {
+    alignItems: 'center',
+    gap: Spacing.l,
+  },
+  previewPdfText: {
+    fontSize: 16,
+    color: Colors.white,
+  },
+  closeManagerButton: {
+    position: 'absolute',
+    bottom: 40,
+    left: Spacing.lg,
+    right: Spacing.lg,
+    backgroundColor: Colors.primary,
+    padding: Spacing.lg,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  closeManagerButtonText: {
+    color: Colors.white,
     fontSize: 16,
     fontWeight: '600',
   },

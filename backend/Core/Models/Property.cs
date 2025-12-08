@@ -31,5 +31,6 @@ namespace Core.Models
         public ICollection<PropertyTenant> Tenants { get; set; }
         
         public ICollection<Issue> Issues { get; set; }
+        public ICollection<PropertyDocument> PropertyDocuments { get; set; }
     }
 }

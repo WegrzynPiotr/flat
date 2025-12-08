@@ -22,6 +22,32 @@ export interface PropertyDocumentInfo {
   url: string;
 }
 
+// Nowy system wersjonowania dokumentów
+export interface PropertyDocument {
+  id: string;
+  propertyId: string;
+  documentType: string; // Umowa, Wodomierz, Prąd, Gaz, Ogrzewanie, Ubezpieczenie, Remont, Inne
+  fileName: string;
+  fileUrl: string;
+  uploadedAt: string;
+  uploadedById: string;
+  uploadedByName: string;
+  notes: string;
+  version: number;
+}
+
+export interface PropertyDocumentVersion {
+  id: string;
+  version: number;
+  fileName: string;
+  fileUrl: string;
+  uploadedAt: string;
+  uploadedById: string;
+  uploadedByName: string;
+  notes: string;
+  isLatest: boolean;
+}
+
 export interface Property {
   id: string;
   name?: string;

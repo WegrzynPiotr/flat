@@ -81,6 +81,10 @@
       "PackagePath": "staticwebassets\\uploads\\dc6c9b94-30f3-493b-8d01-822e318bc053.png"
     },
     {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\documents\\a0436389-4c8c-4afd-bba8-f975caad284d.png",
+      "PackagePath": "staticwebassets\\uploads\\documents\\a0436389-4c8c-4afd-bba8-f975caad284d.png"
+    },
+    {
       "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\documents\\e71c4301-f9d5-45e5-9db6-485ede185db5.pdf",
       "PackagePath": "staticwebassets\\uploads\\documents\\e71c4301-f9d5-45e5-9db6-485ede185db5.pdf"
     },
@@ -101,6 +105,10 @@
       "PackagePath": "staticwebassets\\uploads\\fcbdf928-0f46-40a5-84db-f9b2c9ab73af.png"
     },
     {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\issues\\0d823b24-0908-4130-998d-ce3801bc0eec.jpg",
+      "PackagePath": "staticwebassets\\uploads\\issues\\0d823b24-0908-4130-998d-ce3801bc0eec.jpg"
+    },
+    {
       "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\issues\\14fc952d-7715-46e0-ba25-c7a7dd10fd71",
       "PackagePath": "staticwebassets\\uploads\\issues"
     },
@@ -109,8 +117,16 @@
       "PackagePath": "staticwebassets\\uploads\\issues"
     },
     {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\issues\\4f206acb-d5d5-4349-92c1-aa087e347028.jpg",
+      "PackagePath": "staticwebassets\\uploads\\issues\\4f206acb-d5d5-4349-92c1-aa087e347028.jpg"
+    },
+    {
       "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\issues\\5a116a09-0c70-4ce1-bd42-1fc6235e9618.jpg",
       "PackagePath": "staticwebassets\\uploads\\issues\\5a116a09-0c70-4ce1-bd42-1fc6235e9618.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\issues\\df4f5065-3e22-42b9-8a66-70772f38444b.jpg",
+      "PackagePath": "staticwebassets\\uploads\\issues\\df4f5065-3e22-42b9-8a66-70772f38444b.jpg"
     },
     {
       "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\issues\\f120b50a-5917-4618-a724-b7ada0e7a531",
@@ -131,6 +147,10 @@
     {
       "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\d0ebd1ec-b560-4296-af82-9e809f2fc57b_images.jpg",
       "PackagePath": "staticwebassets\\uploads\\properties\\d0ebd1ec-b560-4296-af82-9e809f2fc57b_images.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\f57f0c9d-2294-4e86-a992-188edc382aba_gta.png",
+      "PackagePath": "staticwebassets\\uploads\\properties\\f57f0c9d-2294-4e86-a992-188edc382aba_gta.png"
     },
     {
       "Id": "obj\\Debug\\net9.0\\staticwebassets\\msbuild.build.zarzadzanieMieszkaniami.props",

@@ -20,6 +20,7 @@ namespace Infrastructure
         public DbSet<PropertyTenant> PropertyTenants { get; set; }
         public DbSet<LandlordServiceman> LandlordServicemen { get; set; }
         public DbSet<IssueServiceman> IssueServicemen { get; set; }
+        public DbSet<PropertyDocument> PropertyDocuments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -225,6 +226,31 @@ namespace Infrastructure
                     .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasIndex(e => e.Token);
+            });
+
+            // Konfiguracja PropertyDocument
+            modelBuilder.Entity<PropertyDocument>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.DocumentType).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.FileName).IsRequired().HasMaxLength(255);
+                entity.Property(e => e.FileUrl).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.UploadedAt).IsRequired();
+                entity.Property(e => e.Notes).HasMaxLength(1000);
+                entity.Property(e => e.Version).IsRequired();
+                entity.Property(e => e.IsLatest).IsRequired();
+
+                entity.HasOne(e => e.Property)
+                    .WithMany(p => p.PropertyDocuments)
+                    .HasForeignKey(e => e.PropertyId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.UploadedBy)
+                    .WithMany()
+                    .HasForeignKey(e => e.UploadedById)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(e => new { e.PropertyId, e.DocumentType, e.IsLatest });
             });
         }
     }

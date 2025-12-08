@@ -212,3 +212,20 @@ export const repairsAPI = {
   updateStatus: (id: string, status: string) =>
     client.put(`/repairs/${id}/status`, { status }),
 };
+
+// Property Documents (wersjonowanie)
+export const propertyDocumentsAPI = {
+  getLatest: (propertyId: string) =>
+    client.get<any[]>(`/properties/${propertyId}/documents-versioned/latest`),
+  getHistory: (propertyId: string, documentType: string) =>
+    client.get<any[]>(`/properties/${propertyId}/documents-versioned/history/${documentType}`),
+  upload: (propertyId: string, documentType: string, formData: FormData) => {
+    return client.post(`/properties/${propertyId}/documents-versioned/${documentType}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+  delete: (propertyId: string, documentId: string) =>
+    client.delete(`/properties/${propertyId}/documents-versioned/${documentId}`),
+};

@@ -255,7 +255,7 @@ namespace zarzadzanieMieszkaniami.Controllers
             // Usuń dokumenty fizyczne
             if (!string.IsNullOrEmpty(property.Documents))
             {
-                var documents = JsonSerializer.Deserialize<List<PropertyDocument>>(property.Documents);
+                var documents = JsonSerializer.Deserialize<List<PropertyDocumentDto>>(property.Documents);
                 var uploadsFolder = Path.Combine(_env.ContentRootPath, "wwwroot", "uploads", "documents");
                 
                 foreach (var doc in documents)

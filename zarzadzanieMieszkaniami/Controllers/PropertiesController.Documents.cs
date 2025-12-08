@@ -49,10 +49,10 @@ namespace zarzadzanieMieszkaniami.Controllers
 
             // Dodaj do listy w bazie
             var documents = string.IsNullOrEmpty(property.Documents) 
-                ? new List<PropertyDocument>() 
-                : JsonSerializer.Deserialize<List<PropertyDocument>>(property.Documents);
+                ? new List<PropertyDocumentDto>() 
+                : JsonSerializer.Deserialize<List<PropertyDocumentDto>>(property.Documents);
 
-            documents.Add(new PropertyDocument
+            documents.Add(new PropertyDocumentDto
             {
                 Filename = uniqueFileName,
                 OriginalName = document.FileName,
@@ -86,8 +86,8 @@ namespace zarzadzanieMieszkaniami.Controllers
 
             // Usuń z listy w bazie
             var documents = string.IsNullOrEmpty(property.Documents) 
-                ? new List<PropertyDocument>() 
-                : JsonSerializer.Deserialize<List<PropertyDocument>>(property.Documents);
+                ? new List<PropertyDocumentDto>() 
+                : JsonSerializer.Deserialize<List<PropertyDocumentDto>>(property.Documents);
             
             var document = documents.FirstOrDefault(d => d.Filename == filename);
             if (document == null)
@@ -111,8 +111,8 @@ namespace zarzadzanieMieszkaniami.Controllers
         }
     }
 
-    // Helper class dla dokumentów
-    public class PropertyDocument
+    // Helper class dla dokumentów (legacy)
+    public class PropertyDocumentDto
     {
         public string Filename { get; set; }
         public string OriginalName { get; set; }

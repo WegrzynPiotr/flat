@@ -15,8 +15,8 @@ namespace zarzadzanieMieszkaniami.Helpers
         {
             // Parse documents
             var documents = string.IsNullOrEmpty(property.Documents)
-                ? new List<PropertyDocument>()
-                : JsonSerializer.Deserialize<List<PropertyDocument>>(property.Documents);
+                ? new List<PropertyDocumentDto>()
+                : JsonSerializer.Deserialize<List<PropertyDocumentDto>>(property.Documents);
 
             return new PropertyResponse
             {
