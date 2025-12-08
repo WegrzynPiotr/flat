@@ -219,6 +219,15 @@ namespace zarzadzanieMieszkaniami.Controllers
 
             Console.WriteLine($"🔵 Getting tenants for landlord: {landlordId}");
 
+            // DEBUG: Pokaż wszystkich użytkowników w systemie
+            var allSystemUsers = await _context.Users.ToListAsync();
+            Console.WriteLine($"🔍 Total users in system: {allSystemUsers.Count}");
+            foreach (var u in allSystemUsers)
+            {
+                var userRoles = await _userManager.GetRolesAsync(u);
+                Console.WriteLine($"🔍 User: {u.Email}, CreatedBy: {u.CreatedByLandlordId}, Roles: {string.Join(",", userRoles)}");
+            }
+
             // Pobierz wszystkich użytkowników utworzonych przez tego właściciela z rolą Najemca
             var allUsers = await _context.Users
                 .Where(u => u.CreatedByLandlordId == landlordId)

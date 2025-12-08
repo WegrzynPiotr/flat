@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "62PGRDUwj3JuQusXLiCV9QWXF+FqNokb7gtMT6nJPbA=",
+  "Hash": "/BlTNI2l+NXXlsDFfnfNXGrPTVvvNHAHAAGqZdUEtC4=",
   "Source": "zarzadzanieMieszkaniami",
   "BasePath": "_content/zarzadzanieMieszkaniami",
   "Mode": "Default",
@@ -731,6 +731,48 @@
       "OriginalItemSpec": "wwwroot\\uploads\\properties\\1f136fe4-03d1-4ee3-817c-29c7468e375c_gta.png"
     },
     {
+      "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\7c95073f-cfc2-4864-8ea1-832d2c48b9d8_45609980c94e72b25f1970aed7d49832.jpg",
+      "SourceId": "zarzadzanieMieszkaniami",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\",
+      "BasePath": "_content/zarzadzanieMieszkaniami",
+      "RelativePath": "uploads/properties/7c95073f-cfc2-4864-8ea1-832d2c48b9d8_45609980c94e72b25f1970aed7d49832#[.{fingerprint}]?.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "ezr9t84cj0",
+      "Integrity": "Fm1CcJNGVV2TBKzAGpxDlGh8zzlCQpVmu0NHW/JEVxI=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\properties\\7c95073f-cfc2-4864-8ea1-832d2c48b9d8_45609980c94e72b25f1970aed7d49832.jpg"
+    },
+    {
+      "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\bc647661-483c-4bbd-a15f-fe8872d8bba1_noose.png",
+      "SourceId": "zarzadzanieMieszkaniami",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\",
+      "BasePath": "_content/zarzadzanieMieszkaniami",
+      "RelativePath": "uploads/properties/bc647661-483c-4bbd-a15f-fe8872d8bba1_noose#[.{fingerprint}]?.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "vmicpa8f4o",
+      "Integrity": "qbUZKRHF+82WF6EQhxK5BHCxjQo+TjYbSuOTu7OXdoY=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\properties\\bc647661-483c-4bbd-a15f-fe8872d8bba1_noose.png"
+    },
+    {
       "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\bff9801f-cbc1-4b3a-92d5-0efee8471112_pexels-apasaric-1555199.jpg",
       "SourceId": "zarzadzanieMieszkaniami",
       "SourceType": "Discovered",
@@ -750,27 +792,6 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\uploads\\properties\\bff9801f-cbc1-4b3a-92d5-0efee8471112_pexels-apasaric-1555199.jpg"
-    },
-    {
-      "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\d0ebd1ec-b560-4296-af82-9e809f2fc57b_images.jpg",
-      "SourceId": "zarzadzanieMieszkaniami",
-      "SourceType": "Discovered",
-      "ContentRoot": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\",
-      "BasePath": "_content/zarzadzanieMieszkaniami",
-      "RelativePath": "uploads/properties/d0ebd1ec-b560-4296-af82-9e809f2fc57b_images#[.{fingerprint}]?.jpg",
-      "AssetKind": "All",
-      "AssetMode": "All",
-      "AssetRole": "Primary",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "",
-      "AssetTraitName": "",
-      "AssetTraitValue": "",
-      "Fingerprint": "dilx2tr0g4",
-      "Integrity": "JXGmIE8dB0Yp4YfIPCBVsqfBxh2B9vuAFCKHi+KOP+4=",
-      "CopyToOutputDirectory": "Never",
-      "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\uploads\\properties\\d0ebd1ec-b560-4296-af82-9e809f2fc57b_images.jpg"
     },
     {
       "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\d96107a3-da09-4c2d-a612-5cfd62e6c8f7_images.jpg",
@@ -813,6 +834,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\uploads\\properties\\f57f0c9d-2294-4e86-a992-188edc382aba_gta.png"
+    },
+    {
+      "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\fd88c87b-b471-417f-910c-6541bc68d11e_IMG_9699.jpeg",
+      "SourceId": "zarzadzanieMieszkaniami",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\",
+      "BasePath": "_content/zarzadzanieMieszkaniami",
+      "RelativePath": "uploads/properties/fd88c87b-b471-417f-910c-6541bc68d11e_IMG_9699#[.{fingerprint}]?.jpeg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "nch79gz8vb",
+      "Integrity": "aZMN0nrwLrLzrDjSSv0HTw9WMtvCzVcE00UaFeWn1aY=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\properties\\fd88c87b-b471-417f-910c-6541bc68d11e_IMG_9699.jpeg"
     },
     {
       "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\99b68909-20c7-4778-9015-f5c5f2d6b082_Umowa_1_639008281626006869.pdf",
@@ -3731,6 +3773,170 @@
       ]
     },
     {
+      "Route": "uploads/properties/7c95073f-cfc2-4864-8ea1-832d2c48b9d8_45609980c94e72b25f1970aed7d49832.ezr9t84cj0.jpg",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\7c95073f-cfc2-4864-8ea1-832d2c48b9d8_45609980c94e72b25f1970aed7d49832.jpg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "146166"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Fm1CcJNGVV2TBKzAGpxDlGh8zzlCQpVmu0NHW/JEVxI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 08 Dec 2025 23:17:34 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "ezr9t84cj0"
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/properties/7c95073f-cfc2-4864-8ea1-832d2c48b9d8_45609980c94e72b25f1970aed7d49832.jpg"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-Fm1CcJNGVV2TBKzAGpxDlGh8zzlCQpVmu0NHW/JEVxI="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/properties/7c95073f-cfc2-4864-8ea1-832d2c48b9d8_45609980c94e72b25f1970aed7d49832.jpg",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\7c95073f-cfc2-4864-8ea1-832d2c48b9d8_45609980c94e72b25f1970aed7d49832.jpg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "146166"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Fm1CcJNGVV2TBKzAGpxDlGh8zzlCQpVmu0NHW/JEVxI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 08 Dec 2025 23:17:34 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-Fm1CcJNGVV2TBKzAGpxDlGh8zzlCQpVmu0NHW/JEVxI="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/properties/bc647661-483c-4bbd-a15f-fe8872d8bba1_noose.png",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\bc647661-483c-4bbd-a15f-fe8872d8bba1_noose.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "3470"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"qbUZKRHF+82WF6EQhxK5BHCxjQo+TjYbSuOTu7OXdoY=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 08 Dec 2025 23:16:54 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-qbUZKRHF+82WF6EQhxK5BHCxjQo+TjYbSuOTu7OXdoY="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/properties/bc647661-483c-4bbd-a15f-fe8872d8bba1_noose.vmicpa8f4o.png",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\bc647661-483c-4bbd-a15f-fe8872d8bba1_noose.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "3470"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"qbUZKRHF+82WF6EQhxK5BHCxjQo+TjYbSuOTu7OXdoY=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 08 Dec 2025 23:16:54 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "vmicpa8f4o"
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/properties/bc647661-483c-4bbd-a15f-fe8872d8bba1_noose.png"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-qbUZKRHF+82WF6EQhxK5BHCxjQo+TjYbSuOTu7OXdoY="
+        }
+      ]
+    },
+    {
       "Route": "uploads/properties/bff9801f-cbc1-4b3a-92d5-0efee8471112_pexels-apasaric-1555199.5cbkx9qdq1.jpg",
       "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\bff9801f-cbc1-4b3a-92d5-0efee8471112_pexels-apasaric-1555199.jpg",
       "Selectors": [],
@@ -3809,88 +4015,6 @@
         {
           "Name": "integrity",
           "Value": "sha256-mySlUaVn35KVnBL65RXodbkPVO4W7ByrerJppGBWSRg="
-        }
-      ]
-    },
-    {
-      "Route": "uploads/properties/d0ebd1ec-b560-4296-af82-9e809f2fc57b_images.dilx2tr0g4.jpg",
-      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\d0ebd1ec-b560-4296-af82-9e809f2fc57b_images.jpg",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "7189"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "image/jpeg"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"JXGmIE8dB0Yp4YfIPCBVsqfBxh2B9vuAFCKHi+KOP+4=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Mon, 08 Dec 2025 19:12:54 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "dilx2tr0g4"
-        },
-        {
-          "Name": "label",
-          "Value": "uploads/properties/d0ebd1ec-b560-4296-af82-9e809f2fc57b_images.jpg"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-JXGmIE8dB0Yp4YfIPCBVsqfBxh2B9vuAFCKHi+KOP+4="
-        }
-      ]
-    },
-    {
-      "Route": "uploads/properties/d0ebd1ec-b560-4296-af82-9e809f2fc57b_images.jpg",
-      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\d0ebd1ec-b560-4296-af82-9e809f2fc57b_images.jpg",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "7189"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "image/jpeg"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"JXGmIE8dB0Yp4YfIPCBVsqfBxh2B9vuAFCKHi+KOP+4=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Mon, 08 Dec 2025 19:12:54 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=3600, must-revalidate"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-JXGmIE8dB0Yp4YfIPCBVsqfBxh2B9vuAFCKHi+KOP+4="
         }
       ]
     },
@@ -4055,6 +4179,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-0HZaq5X1DNtv6wJw5dR5HclyVe2fqhd1a8a/c4JOYEI="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/properties/fd88c87b-b471-417f-910c-6541bc68d11e_IMG_9699.jpeg",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\fd88c87b-b471-417f-910c-6541bc68d11e_IMG_9699.jpeg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2609567"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"aZMN0nrwLrLzrDjSSv0HTw9WMtvCzVcE00UaFeWn1aY=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 08 Dec 2025 23:17:00 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-aZMN0nrwLrLzrDjSSv0HTw9WMtvCzVcE00UaFeWn1aY="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/properties/fd88c87b-b471-417f-910c-6541bc68d11e_IMG_9699.nch79gz8vb.jpeg",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\fd88c87b-b471-417f-910c-6541bc68d11e_IMG_9699.jpeg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "2609567"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"aZMN0nrwLrLzrDjSSv0HTw9WMtvCzVcE00UaFeWn1aY=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 08 Dec 2025 23:17:00 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "nch79gz8vb"
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/properties/fd88c87b-b471-417f-910c-6541bc68d11e_IMG_9699.jpeg"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-aZMN0nrwLrLzrDjSSv0HTw9WMtvCzVcE00UaFeWn1aY="
         }
       ]
     },

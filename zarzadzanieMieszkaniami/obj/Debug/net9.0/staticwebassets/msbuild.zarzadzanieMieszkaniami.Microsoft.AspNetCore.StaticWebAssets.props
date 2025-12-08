@@ -612,6 +612,42 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\properties\1f136fe4-03d1-4ee3-817c-29c7468e375c_gta.png'))</OriginalItemSpec>
     </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\properties\7c95073f-cfc2-4864-8ea1-832d2c48b9d8_45609980c94e72b25f1970aed7d49832.jpg'))">
+      <SourceType>Package</SourceType>
+      <SourceId>zarzadzanieMieszkaniami</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/zarzadzanieMieszkaniami</BasePath>
+      <RelativePath>uploads/properties/7c95073f-cfc2-4864-8ea1-832d2c48b9d8_45609980c94e72b25f1970aed7d49832.jpg</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>ezr9t84cj0</Fingerprint>
+      <Integrity>Fm1CcJNGVV2TBKzAGpxDlGh8zzlCQpVmu0NHW/JEVxI=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\properties\7c95073f-cfc2-4864-8ea1-832d2c48b9d8_45609980c94e72b25f1970aed7d49832.jpg'))</OriginalItemSpec>
+    </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\properties\bc647661-483c-4bbd-a15f-fe8872d8bba1_noose.png'))">
+      <SourceType>Package</SourceType>
+      <SourceId>zarzadzanieMieszkaniami</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/zarzadzanieMieszkaniami</BasePath>
+      <RelativePath>uploads/properties/bc647661-483c-4bbd-a15f-fe8872d8bba1_noose.png</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>vmicpa8f4o</Fingerprint>
+      <Integrity>qbUZKRHF+82WF6EQhxK5BHCxjQo+TjYbSuOTu7OXdoY=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\properties\bc647661-483c-4bbd-a15f-fe8872d8bba1_noose.png'))</OriginalItemSpec>
+    </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\properties\bff9801f-cbc1-4b3a-92d5-0efee8471112_pexels-apasaric-1555199.jpg'))">
       <SourceType>Package</SourceType>
       <SourceId>zarzadzanieMieszkaniami</SourceId>
@@ -629,24 +665,6 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\properties\bff9801f-cbc1-4b3a-92d5-0efee8471112_pexels-apasaric-1555199.jpg'))</OriginalItemSpec>
-    </StaticWebAsset>
-    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\properties\d0ebd1ec-b560-4296-af82-9e809f2fc57b_images.jpg'))">
-      <SourceType>Package</SourceType>
-      <SourceId>zarzadzanieMieszkaniami</SourceId>
-      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
-      <BasePath>_content/zarzadzanieMieszkaniami</BasePath>
-      <RelativePath>uploads/properties/d0ebd1ec-b560-4296-af82-9e809f2fc57b_images.jpg</RelativePath>
-      <AssetKind>All</AssetKind>
-      <AssetMode>All</AssetMode>
-      <AssetRole>Primary</AssetRole>
-      <RelatedAsset></RelatedAsset>
-      <AssetTraitName></AssetTraitName>
-      <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>dilx2tr0g4</Fingerprint>
-      <Integrity>JXGmIE8dB0Yp4YfIPCBVsqfBxh2B9vuAFCKHi+KOP+4=</Integrity>
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\properties\d0ebd1ec-b560-4296-af82-9e809f2fc57b_images.jpg'))</OriginalItemSpec>
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\properties\d96107a3-da09-4c2d-a612-5cfd62e6c8f7_images.jpg'))">
       <SourceType>Package</SourceType>
@@ -683,6 +701,24 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\properties\f57f0c9d-2294-4e86-a992-188edc382aba_gta.png'))</OriginalItemSpec>
+    </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\properties\fd88c87b-b471-417f-910c-6541bc68d11e_IMG_9699.jpeg'))">
+      <SourceType>Package</SourceType>
+      <SourceId>zarzadzanieMieszkaniami</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/zarzadzanieMieszkaniami</BasePath>
+      <RelativePath>uploads/properties/fd88c87b-b471-417f-910c-6541bc68d11e_IMG_9699.jpeg</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>nch79gz8vb</Fingerprint>
+      <Integrity>aZMN0nrwLrLzrDjSSv0HTw9WMtvCzVcE00UaFeWn1aY=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\properties\fd88c87b-b471-417f-910c-6541bc68d11e_IMG_9699.jpeg'))</OriginalItemSpec>
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\property-documents\99b68909-20c7-4778-9015-f5c5f2d6b082_Umowa_1_639008281626006869.pdf'))">
       <SourceType>Package</SourceType>

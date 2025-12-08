@@ -68,7 +68,7 @@ export default function MessagesList({ onSelectContact }: MessagesListProps) {
   const loadContacts = async () => {
     try {
       // Jeśli użytkownik jest właścicielem, pobierz wszystkich najemców i serwisantów
-      if (userRole === 'Wynajmujący') {
+      if (userRole === 'Wlasciciel') {
         const [tenantsRes, servicemenRes] = await Promise.all([
           userManagementAPI.getMyTenants(),
           userManagementAPI.getMyServicemen(),
