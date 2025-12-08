@@ -11,6 +11,7 @@ import {
   Modal,
   Dimensions,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -20,17 +21,24 @@ import { Colors } from '../../styles/colors';
 import { Typography } from '../../styles/typography';
 import { Spacing } from '../../styles/spacing';
 import { storage } from '../../utils/storage';
-import { API_BASE_URL } from '@env';
+import Constants from 'expo-constants';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store/store';
 
-const API_URL = API_BASE_URL || 'http://localhost:5162/api';
+const API_URL = Constants.expoConfig?.extra?.apiBaseUrl || 'http://193.106.130.55:5162/api';
 
 export default function PropertyDetailsScreen({ route, navigation }: any) {
   const { propertyId } = route.params;
+  const user = useSelector((state: RootState) => state.auth.user);
+  const isOwner = user?.role === 'Wlasciciel';
+  
   const [property, setProperty] = useState<PropertyResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadingDoc, setUploadingDoc] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<{ url: string; name: string; type: string } | null>(null);
   
   const [formData, setFormData] = useState({
     address: '',
@@ -86,6 +94,28 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
   };
 
   const pickImage = async () => {
+    // Web fallback - użyj standardowego input file
+    if (Platform.OS === 'web') {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = async (e: any) => {
+        const file = e.target.files[0];
+        if (file) {
+          // Konwertuj File na base64 URI dla web
+          const reader = new FileReader();
+          reader.onloadend = async () => {
+            const base64 = reader.result as string;
+            await uploadPhoto(base64, file);
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+      input.click();
+      return;
+    }
+
+    // Native - użyj expo-image-picker
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert('Brak uprawnień', 'Potrzebujemy uprawnień do galerii');
@@ -104,23 +134,44 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
     }
   };
 
-  const uploadPhoto = async (uri: string) => {
+  const uploadPhoto = async (uri: string, file?: File) => {
     setUploading(true);
     try {
+      console.log('🔵 Starting photo upload...');
+      console.log('🔵 URI:', uri);
+      console.log('🔵 File:', file);
+      console.log('🔵 Property ID:', propertyId);
+      console.log('🔵 Platform:', Platform.OS);
+      
       const token = await storage.getItemAsync('authToken');
+      console.log('🔵 Token exists:', !!token);
       
       const formData = new FormData();
-      const filename = uri.split('/').pop() || 'photo.jpg';
-      const match = /\.(\w+)$/.exec(filename);
-      const type = match ? `image/${match[1]}` : 'image/jpeg';
 
-      formData.append('photo', {
-        uri,
-        name: filename,
-        type,
-      } as any);
+      if (Platform.OS === 'web' && file) {
+        // Web: użyj File object
+        console.log('🔵 Using File object for web');
+        formData.append('photo', file);
+      } else {
+        // Mobile: użyj URI
+        const filename = uri.split('/').pop() || 'photo.jpg';
+        const match = /\.(\w+)$/.exec(filename);
+        const type = match ? `image/${match[1]}` : 'image/jpeg';
 
-      const response = await fetch(`${API_URL}/properties/${propertyId}/photos`, {
+        console.log('🔵 Filename:', filename);
+        console.log('🔵 Type:', type);
+
+        formData.append('photo', {
+          uri,
+          name: filename,
+          type,
+        } as any);
+      }
+
+      const uploadUrl = `${API_URL}/properties/${propertyId}/photos`;
+      console.log('🔵 Upload URL:', uploadUrl);
+
+      const response = await fetch(uploadUrl, {
         method: 'POST',
         headers: {
           'Authorization': token ? `Bearer ${token}` : '',
@@ -128,55 +179,201 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
         body: formData,
       });
 
+      console.log('🔵 Response status:', response.status);
+      console.log('🔵 Response ok:', response.ok);
+      
+      const responseText = await response.text();
+      console.log('🔵 Response body:', responseText);
+
       if (!response.ok) {
-        throw new Error('Failed to upload photo');
+        console.error('🔴 Upload failed with status:', response.status);
+        console.error('🔴 Response:', responseText);
+        throw new Error(`Failed to upload photo: ${response.status} - ${responseText}`);
       }
 
       Alert.alert('Sukces', 'Zdjęcie zostało dodane');
       loadProperty();
     } catch (error) {
-      console.error('Failed to upload photo:', error);
-      Alert.alert('Błąd', 'Nie udało się dodać zdjęcia');
+      console.error('🔴 Failed to upload photo:', error);
+      if (error instanceof Error) {
+        console.error('🔴 Error message:', error.message);
+        console.error('🔴 Error stack:', error.stack);
+      }
+      Alert.alert('Błąd', `Nie udało się dodać zdjęcia: ${error}`);
     } finally {
       setUploading(false);
     }
   };
 
   const deletePhoto = async (photoUrl: string) => {
-    Alert.alert(
-      'Usuń zdjęcie',
-      'Czy na pewno chcesz usunąć to zdjęcie?',
-      [
-        { text: 'Anuluj', style: 'cancel' },
-        {
-          text: 'Usuń',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const token = await storage.getItemAsync('authToken');
-              const photoPath = photoUrl.split('/').pop();
-              
-              const response = await fetch(`${API_URL}/properties/${propertyId}/photos/${photoPath}`, {
-                method: 'DELETE',
-                headers: {
-                  'Authorization': token ? `Bearer ${token}` : '',
-                },
-              });
+    console.log('🔵 deletePhoto called with:', photoUrl);
+    
+    const confirmDelete = Platform.OS === 'web' 
+      ? window.confirm('Czy na pewno chcesz usunąć to zdjęcie?')
+      : await new Promise<boolean>((resolve) => {
+          Alert.alert(
+            'Usuń zdjęcie',
+            'Czy na pewno chcesz usunąć to zdjęcie?',
+            [
+              { 
+                text: 'Anuluj', 
+                style: 'cancel',
+                onPress: () => {
+                  console.log('🔵 Delete cancelled');
+                  resolve(false);
+                }
+              },
+              {
+                text: 'Usuń',
+                style: 'destructive',
+                onPress: () => {
+                  console.log('🔵 Delete confirmed');
+                  resolve(true);
+                }
+              },
+            ]
+          );
+        });
+    
+    if (!confirmDelete) {
+      console.log('🔵 Delete cancelled by user');
+      return;
+    }
+    
+    console.log('🔵 Delete confirmed, starting deletion...');
+    try {
+      // Extract filename from full URL
+      const filename = photoUrl.split('/').pop();
+      if (!filename) {
+        throw new Error('Invalid photo URL');
+      }
+      
+      console.log('🔵 Deleting photo:', filename, 'from property:', propertyId);
+      
+      const result = await propertiesAPI.deletePhoto(propertyId, filename);
+      console.log('🟢 Delete successful:', result);
 
-              if (!response.ok) {
-                throw new Error('Failed to delete photo');
-              }
+      if (Platform.OS === 'web') {
+        window.alert('Zdjęcie zostało usunięte');
+      } else {
+        Alert.alert('Sukces', 'Zdjęcie zostało usunięte');
+      }
+      loadProperty();
+    } catch (error: any) {
+      console.error('🔴 Failed to delete photo:', error);
+      console.error('🔴 Error details:', error.response?.data || error.message);
+      if (Platform.OS === 'web') {
+        window.alert('Nie udało się usunąć zdjęcia');
+      } else {
+        Alert.alert('Błąd', 'Nie udało się usunąć zdjęcia');
+      }
+    }
+  };
 
-              Alert.alert('Sukces', 'Zdjęcie zostało usunięte');
-              loadProperty();
-            } catch (error) {
-              console.error('Failed to delete photo:', error);
-              Alert.alert('Błąd', 'Nie udało się usunąć zdjęcia');
-            }
-          },
-        },
-      ]
-    );
+  const pickDocument = async () => {
+    if (Platform.OS === 'web') {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.pdf,.doc,.docx,.xls,.xlsx,image/*';
+      input.onchange = async (e: any) => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+
+        setUploadingDoc(true);
+        try {
+          for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const formData = new FormData();
+            formData.append('document', file);
+
+            await propertiesAPI.uploadDocument(propertyId, formData);
+          }
+
+          if (Platform.OS === 'web') {
+            window.alert('Dokumenty zostały dodane');
+          } else {
+            Alert.alert('Sukces', 'Dokumenty zostały dodane');
+          }
+          loadProperty();
+        } catch (error) {
+          console.error('Failed to upload documents:', error);
+          Alert.alert('Błąd', 'Nie udało się dodać dokumentów');
+        } finally {
+          setUploadingDoc(false);
+        }
+      };
+      input.click();
+    } else {
+      // Mobile - użyj DocumentPicker (wymaga instalacji expo-document-picker)
+      Alert.alert('Info', 'Dodawanie dokumentów jest dostępne tylko w wersji webowej');
+    }
+  };
+
+  const deleteDocument = async (filename: string) => {
+    const confirmDelete = Platform.OS === 'web'
+      ? window.confirm('Czy na pewno chcesz usunąć ten dokument?')
+      : await new Promise<boolean>((resolve) => {
+          Alert.alert(
+            'Usuń dokument',
+            'Czy na pewno chcesz usunąć ten dokument?',
+            [
+              { text: 'Anuluj', style: 'cancel', onPress: () => resolve(false) },
+              { text: 'Usuń', style: 'destructive', onPress: () => resolve(true) },
+            ]
+          );
+        });
+
+    if (!confirmDelete) return;
+
+    try {
+      await propertiesAPI.deleteDocument(propertyId, filename);
+      
+      if (Platform.OS === 'web') {
+        window.alert('Dokument został usunięty');
+      } else {
+        Alert.alert('Sukces', 'Dokument został usunięty');
+      }
+      loadProperty();
+    } catch (error) {
+      console.error('Failed to delete document:', error);
+      Alert.alert('Błąd', 'Nie udało się usunąć dokumentu');
+    }
+  };
+
+  const getFileIcon = (filename: string) => {
+    const ext = filename.toLowerCase().split('.').pop();
+    switch (ext) {
+      case 'pdf':
+        return 'document-text';
+      case 'doc':
+      case 'docx':
+        return 'document';
+      case 'xls':
+      case 'xlsx':
+        return 'grid';
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+        return 'image';
+      default:
+        return 'document-attach';
+    }
+  };
+
+  const openDocument = (doc: any) => {
+    const ext = doc.filename.toLowerCase().split('.').pop();
+    if (['jpg', 'jpeg', 'png'].includes(ext || '')) {
+      setSelectedDocument({ url: doc.url, name: doc.originalName, type: 'image' });
+    } else if (ext === 'pdf') {
+      setSelectedDocument({ url: doc.url, name: doc.originalName, type: 'pdf' });
+    } else {
+      // Download file
+      if (Platform.OS === 'web') {
+        window.open(doc.url, '_blank');
+      } else {
+        Alert.alert('Info', 'Pobieranie pliku dostępne tylko w wersji webowej');
+      }
+    }
   };
 
   if (loading) {
@@ -199,16 +396,18 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <Text style={Typography.h2}>Szczegóły mieszkania</Text>
-        <TouchableOpacity
-          style={styles.editButton}
-          onPress={() => setEditMode(!editMode)}
-        >
-          <Ionicons 
-            name={editMode ? "close" : "pencil"} 
-            size={24} 
-            color={Colors.primary} 
-          />
-        </TouchableOpacity>
+        {isOwner && (
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={() => setEditMode(!editMode)}
+          >
+            <Ionicons 
+              name={editMode ? "close" : "pencil"} 
+              size={24} 
+              color={Colors.primary} 
+            />
+          </TouchableOpacity>
+        )}
       </View>
 
       <View style={styles.card}>
@@ -297,17 +496,19 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
       <View style={styles.card}>
         <View style={styles.photosHeader}>
           <Text style={Typography.h3}>Zdjęcia</Text>
-          <TouchableOpacity
-            style={styles.addPhotoButton}
-            onPress={pickImage}
-            disabled={uploading}
-          >
-            {uploading ? (
-              <ActivityIndicator size="small" color={Colors.primary} />
-            ) : (
-              <Ionicons name="camera" size={24} color={Colors.primary} />
-            )}
-          </TouchableOpacity>
+          {isOwner && (
+            <TouchableOpacity
+              style={styles.addPhotoButton}
+              onPress={pickImage}
+              disabled={uploading}
+            >
+              {uploading ? (
+                <ActivityIndicator size="small" color={Colors.primary} />
+              ) : (
+                <Ionicons name="camera" size={24} color={Colors.primary} />
+              )}
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.photosGrid}>
@@ -319,16 +520,76 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
                 onPress={() => setSelectedPhoto(photo)}
               >
                 <Image source={{ uri: photo }} style={styles.photo} />
-                <TouchableOpacity
-                  style={styles.deletePhotoButton}
-                  onPress={() => deletePhoto(photo)}
-                >
-                  <Ionicons name="trash" size={18} color="#fff" />
-                </TouchableOpacity>
+                {isOwner && (
+                  <TouchableOpacity
+                    style={styles.deletePhotoButton}
+                    onPress={() => deletePhoto(photo)}
+                  >
+                    <Ionicons name="trash" size={18} color="#fff" />
+                  </TouchableOpacity>
+                )}
               </TouchableOpacity>
             ))
           ) : (
             <Text style={styles.emptyText}>Brak zdjęć</Text>
+          )}
+        </View>
+      </View>
+
+      {/* Dokumenty */}
+      <View style={styles.card}>
+        <View style={styles.photosHeader}>
+          <Text style={Typography.h3}>Dokumenty</Text>
+          {isOwner && (
+            <TouchableOpacity
+              style={styles.addPhotoButton}
+              onPress={pickDocument}
+              disabled={uploadingDoc}
+            >
+              {uploadingDoc ? (
+                <ActivityIndicator size="small" color={Colors.primary} />
+              ) : (
+                <Ionicons name="document-attach" size={24} color={Colors.primary} />
+              )}
+            </TouchableOpacity>
+          )}
+        </View>
+
+        <View style={styles.documentsContainer}>
+          {property.documents && property.documents.length > 0 ? (
+            property.documents.map((doc, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.documentItem}
+                onPress={() => openDocument(doc)}
+              >
+                <View style={styles.documentInfo}>
+                  <Ionicons 
+                    name={getFileIcon(doc.filename) as any} 
+                    size={32} 
+                    color={Colors.primary} 
+                  />
+                  <View style={styles.documentText}>
+                    <Text style={styles.documentName} numberOfLines={1}>
+                      {doc.originalName}
+                    </Text>
+                    <Text style={styles.documentDate}>
+                      {new Date(doc.uploadedAt).toLocaleDateString('pl-PL')}
+                    </Text>
+                  </View>
+                </View>
+                {isOwner && (
+                  <TouchableOpacity
+                    onPress={() => deleteDocument(doc.filename)}
+                    style={styles.documentDeleteButton}
+                  >
+                    <Ionicons name="trash-outline" size={20} color={Colors.error} />
+                  </TouchableOpacity>
+                )}
+              </TouchableOpacity>
+            ))
+          ) : (
+            <Text style={styles.emptyText}>Brak dokumentów</Text>
           )}
         </View>
       </View>
@@ -372,6 +633,60 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
               style={styles.lightboxImage}
               resizeMode="contain"
             />
+          )}
+        </View>
+      </Modal>
+
+      {/* Document Viewer Modal */}
+      <Modal
+        visible={selectedDocument !== null}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setSelectedDocument(null)}
+      >
+        <View style={styles.lightboxContainer}>
+          <TouchableOpacity
+            style={styles.lightboxClose}
+            onPress={() => setSelectedDocument(null)}
+          >
+            <Ionicons name="close" size={32} color="#fff" />
+          </TouchableOpacity>
+          {selectedDocument && (
+            <>
+              {selectedDocument.type === 'image' ? (
+                <Image
+                  source={{ uri: selectedDocument.url }}
+                  style={styles.lightboxImage}
+                  resizeMode="contain"
+                />
+              ) : selectedDocument.type === 'pdf' && Platform.OS === 'web' ? (
+                <iframe
+                  src={selectedDocument.url}
+                  style={{
+                    width: '90%',
+                    height: '90%',
+                    border: 'none',
+                    backgroundColor: 'white',
+                  }}
+                  title={selectedDocument.name}
+                />
+              ) : (
+                <View style={styles.documentPreviewPlaceholder}>
+                  <Ionicons name="document-text" size={64} color="#fff" />
+                  <Text style={styles.documentPreviewText}>{selectedDocument.name}</Text>
+                  <TouchableOpacity
+                    style={styles.downloadButton}
+                    onPress={() => {
+                      if (Platform.OS === 'web') {
+                        window.open(selectedDocument.url, '_blank');
+                      }
+                    }}
+                  >
+                    <Text style={styles.downloadButtonText}>Pobierz plik</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </>
           )}
         </View>
       </Modal>
@@ -553,5 +868,63 @@ const styles = StyleSheet.create({
   lightboxImage: {
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
+  },
+  documentsContainer: {
+    gap: Spacing.sm,
+  },
+  documentItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: Spacing.md,
+    backgroundColor: Colors.background,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  documentInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: Spacing.md,
+  },
+  documentText: {
+    flex: 1,
+  },
+  documentName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.text,
+  },
+  documentDate: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+  documentDeleteButton: {
+    padding: Spacing.sm,
+  },
+  documentPreviewPlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.lg,
+  },
+  documentPreviewText: {
+    fontSize: 18,
+    color: '#fff',
+    textAlign: 'center',
+    marginTop: Spacing.md,
+  },
+  downloadButton: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.md,
+    borderRadius: 8,
+    marginTop: Spacing.lg,
+  },
+  downloadButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

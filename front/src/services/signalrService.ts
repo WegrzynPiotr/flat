@@ -1,5 +1,5 @@
 import * as SignalR from '@microsoft/signalr';
-import { API_BASE_URL } from '@env';
+import Constants from 'expo-constants';
 
 let connection: SignalR.HubConnection | null = null;
 const messageCallbacks: Set<(message: any) => void> = new Set();
@@ -10,6 +10,7 @@ export const startSignalRConnection = async (token: string) => {
     return connection;
   }
 
+  const API_BASE_URL = Constants.expoConfig?.extra?.apiBaseUrl || 'http://193.106.130.55:5162/api';
   const hubUrl = API_BASE_URL.replace('/api', '') + '/chatHub';
   console.log('🔌 Connecting to SignalR hub:', hubUrl);
   console.log('🔑 Using token:', token.substring(0, 20) + '...');

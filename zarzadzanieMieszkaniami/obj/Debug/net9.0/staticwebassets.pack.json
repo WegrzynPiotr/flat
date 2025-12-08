@@ -85,6 +85,34 @@
       "PackagePath": "staticwebassets\\uploads\\fcbdf928-0f46-40a5-84db-f9b2c9ab73af.png"
     },
     {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\1a6939de-ae29-4ca6-ad15-5f3b3c866fa8_ruchanie2.png",
+      "PackagePath": "staticwebassets\\uploads\\properties\\1a6939de-ae29-4ca6-ad15-5f3b3c866fa8_ruchanie2.png"
+    },
+    {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\1f136fe4-03d1-4ee3-817c-29c7468e375c_gta.png",
+      "PackagePath": "staticwebassets\\uploads\\properties\\1f136fe4-03d1-4ee3-817c-29c7468e375c_gta.png"
+    },
+    {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\388da6a4-a40b-498e-94ed-cca79652f6d6_os x.png",
+      "PackagePath": "staticwebassets\\uploads\\properties\\388da6a4-a40b-498e-94ed-cca79652f6d6_os x.png"
+    },
+    {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\47fcf616-72ac-4f25-96be-f2eb954e48d8_duda Hail.PNG",
+      "PackagePath": "staticwebassets\\uploads\\properties\\47fcf616-72ac-4f25-96be-f2eb954e48d8_duda Hail.PNG"
+    },
+    {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\84f2dcb9-ffbd-4885-8f50-015ffb6a9514_duda Hail.PNG",
+      "PackagePath": "staticwebassets\\uploads\\properties\\84f2dcb9-ffbd-4885-8f50-015ffb6a9514_duda Hail.PNG"
+    },
+    {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\bff9801f-cbc1-4b3a-92d5-0efee8471112_pexels-apasaric-1555199.jpg",
+      "PackagePath": "staticwebassets\\uploads\\properties\\bff9801f-cbc1-4b3a-92d5-0efee8471112_pexels-apasaric-1555199.jpg"
+    },
+    {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\f8a5a051-56a1-40fa-aa88-78da105809f4_IMG_20190723_151435.jpg",
+      "PackagePath": "staticwebassets\\uploads\\properties\\f8a5a051-56a1-40fa-aa88-78da105809f4_IMG_20190723_151435.jpg"
+    },
+    {
       "Id": "obj\\Debug\\net9.0\\staticwebassets\\msbuild.build.zarzadzanieMieszkaniami.props",
       "PackagePath": "build\\zarzadzanieMieszkaniami.props"
     },

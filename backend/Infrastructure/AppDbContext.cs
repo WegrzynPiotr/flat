@@ -66,6 +66,16 @@ namespace Infrastructure
                 entity.Property(e => e.City).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.PostalCode).HasMaxLength(10);
 
+                // Explicit mapping dla Photos i Documents (JSON columns)
+                entity.Property(e => e.Photos)
+                    .HasColumnName("photos")
+                    .HasColumnType("text")
+                    .IsRequired();
+
+                entity.Property(e => e.Documents)
+                    .HasColumnName("documents")
+                    .HasColumnType("text");
+
                 entity.HasOne(e => e.Owner)
                     .WithMany(u => u.OwnedProperties)
                     .HasForeignKey(e => e.OwnerId)

@@ -1,10 +1,10 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
-import { API_BASE_URL } from '@env';
+import Constants from 'expo-constants';
 import { storage } from '../utils/storage';
 import { getStoreDispatch } from '../utils/storeHelpers';
 import { logout } from '../store/slices/authSlice';
 
-const API_URL = API_BASE_URL || 'http://localhost:5000/api';
+const API_URL = Constants.expoConfig?.extra?.apiBaseUrl || 'http://193.106.130.55:5162/api';
 
 const client: AxiosInstance = axios.create({
   baseURL: API_URL,

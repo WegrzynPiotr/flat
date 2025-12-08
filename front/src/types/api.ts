@@ -15,6 +15,13 @@ export interface TenantInfo {
   endDate?: string;
 }
 
+export interface PropertyDocumentInfo {
+  filename: string;
+  originalName: string;
+  uploadedAt: string;
+  url: string;
+}
+
 export interface Property {
   id: string;
   name?: string;
@@ -24,6 +31,7 @@ export interface Property {
   postalCode?: string;
   ownerId?: string;
   photos?: string[];
+  documents?: PropertyDocumentInfo[];
   tenants?: TenantInfo[];
   roomsCount?: number;
   area?: number;
@@ -107,6 +115,7 @@ export interface PropertyResponse {
   roomsCount?: number;
   area?: number;
   photos?: string[];
+  documents?: PropertyDocumentInfo[];
   tenants: TenantInfo[];
   createdAt?: string;
 }

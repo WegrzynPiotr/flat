@@ -15,10 +15,10 @@ import {
   AssignTenantRequest,
   AssignServicemanRequest
 } from '../types/api';
-import { API_BASE_URL } from '@env';
 import { storage } from '../utils/storage';
+import Constants from 'expo-constants';
 
-const API_URL = API_BASE_URL || 'http://localhost:5162/api';
+const API_URL = Constants.expoConfig?.extra?.apiBaseUrl || 'http://193.106.130.55:5162/api';
 
 // Auth
 export const authAPI = {
@@ -96,6 +96,60 @@ export const propertiesAPI = {
     client.post<PropertyResponse>('/properties', data),
   update: (id: string, data: Partial<Property>) =>
     client.put<PropertyResponse>(`/properties/${id}`, data),
+  uploadPhoto: async (propertyId: string, formData: FormData) => {
+    const token = await storage.getItemAsync('authToken');
+    
+    console.log('🔵 propertiesAPI.uploadPhoto: Uploading to:', `${API_URL}/properties/${propertyId}/photos`);
+    
+    const response = await fetch(`${API_URL}/properties/${propertyId}/photos`, {
+      method: 'POST',
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+      },
+      body: formData,
+    });
+    
+    console.log('🔵 Upload response status:', response.status);
+    
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('🔴 Upload error:', error);
+      throw new Error(error || 'Failed to upload photo');
+    }
+    
+    const result = await response.json();
+    console.log('🟢 Photo uploaded successfully:', result);
+    return { data: result };
+  },
+  deletePhoto: async (propertyId: string, filename: string) => {
+    return client.delete(`/properties/${propertyId}/photos/${encodeURIComponent(filename)}`);
+  },
+  uploadDocument: async (propertyId: string, formData: FormData) => {
+    const token = await storage.getItemAsync('authToken');
+    
+    console.log('🔵 propertiesAPI.uploadDocument: Uploading to:', `${API_URL}/properties/${propertyId}/documents`);
+    
+    const response = await fetch(`${API_URL}/properties/${propertyId}/documents`, {
+      method: 'POST',
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+      },
+      body: formData,
+    });
+    
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('🔴 Upload document error:', error);
+      throw new Error(error || 'Failed to upload document');
+    }
+    
+    const result = await response.json();
+    console.log('🟢 Document uploaded successfully:', result);
+    return { data: result };
+  },
+  deleteDocument: async (propertyId: string, filename: string) => {
+    return client.delete(`/properties/${propertyId}/documents/${encodeURIComponent(filename)}`);
+  },
 };
 
 // Comments

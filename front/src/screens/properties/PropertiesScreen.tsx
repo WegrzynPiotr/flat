@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Modal, ScrollView, Image } from 'react-native';
+import { View, FlatList, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Modal, ScrollView, Image, Platform, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { fetchProperties } from '../../store/slices/propertiesSlice';
 import { AppDispatch, RootState } from '../../store/store';
 import { propertiesAPI } from '../../api/endpoints';
@@ -23,10 +24,53 @@ export default function PropertiesScreen({ navigation }: any) {
     area: '',
   });
   const [submitting, setSubmitting] = useState(false);
+  const [photos, setPhotos] = useState<(File | { uri: string, file?: File })[]>([]);
+  const [photoPreviewUrls, setPhotoPreviewUrls] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     dispatch(fetchProperties());
   }, [dispatch]);
+
+  const pickImage = async () => {
+    if (Platform.OS === 'web') {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.multiple = true;
+      input.onchange = async (e: any) => {
+        const files = Array.from(e.target.files || []) as File[];
+        const newPhotos = files.map(file => file);
+        const newPreviewUrls = files.map(file => URL.createObjectURL(file));
+        setPhotos(prev => [...prev, ...newPhotos]);
+        setPhotoPreviewUrls(prev => [...prev, ...newPreviewUrls]);
+      };
+      input.click();
+    } else {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Błąd', 'Potrzebujemy uprawnień do galerii');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        const uri = result.assets[0].uri;
+        setPhotos(prev => [...prev, { uri }]);
+        setPhotoPreviewUrls(prev => [...prev, uri]);
+      }
+    }
+  };
+
+  const removePhoto = (index: number) => {
+    setPhotos(prev => prev.filter((_, i) => i !== index));
+    setPhotoPreviewUrls(prev => prev.filter((_, i) => i !== index));
+  };
 
   const handleAddProperty = async () => {
     if (!formData.address || !formData.city || !formData.postalCode) {
@@ -46,14 +90,57 @@ export default function PropertiesScreen({ navigation }: any) {
       });
       
       console.log('🟢 Property created:', response.data);
+      const propertyId = response.data.id;
+
+      // Upload photos if any
+      if (photos.length > 0) {
+        console.log('🔵 Uploading photos...', photos.length);
+        const uploadPromises = photos.map(async (photo) => {
+          try {
+            const formData = new FormData();
+            
+            if (Platform.OS === 'web' && photo instanceof File) {
+              formData.append('photo', photo);
+              console.log('🔵 Uploading web photo:', photo.name, photo.type, photo.size);
+            } else if (typeof photo === 'object' && 'uri' in photo) {
+              const filename = photo.uri.split('/').pop() || 'photo.jpg';
+              const match = /\.([\w]+)$/.exec(filename);
+              const type = match ? `image/${match[1]}` : 'image/jpeg';
+              formData.append('photo', { uri: photo.uri, name: filename, type } as any);
+              console.log('🔵 Uploading mobile photo:', filename);
+            }
+
+            const uploadResponse = await propertiesAPI.uploadPhoto(propertyId, formData);
+            console.log('🟢 Photo uploaded:', uploadResponse.data);
+          } catch (photoError) {
+            console.error('🔴 Failed to upload photo:', photoError);
+            throw photoError;
+          }
+        });
+
+        try {
+          await Promise.all(uploadPromises);
+          console.log('🟢 All photos uploaded successfully');
+        } catch (error) {
+          console.error('🔴 Some photos failed to upload');
+          Alert.alert('Ostrzeżenie', 'Niektóre zdjęcia mogły się nie załadować');
+        }
+      }
       
       Alert.alert('Sukces', 'Mieszkanie zostało dodane');
       setModalVisible(false);
       setFormData({ address: '', city: '', postalCode: '', roomsCount: '', area: '' });
+      setPhotos([]);
+      setPhotoPreviewUrls([]);
       
       console.log('🔵 Refreshing properties list...');
       await dispatch(fetchProperties());
       console.log('🟢 Properties refreshed');
+      
+      // Navigate to the newly created property details
+      if (photos.length > 0) {
+        navigation.navigate('PropertyDetails', { propertyId });
+      }
     } catch (error: any) {
       console.error('🔴 Failed to add property:', error);
       console.error('🔴 Error response:', error.response?.data);
@@ -108,14 +195,6 @@ export default function PropertiesScreen({ navigation }: any) {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={Typography.h2}>Moje mieszkania</Text>
-        {userRole === 'Wlasciciel' && (
-          <TouchableOpacity 
-            style={styles.addButton}
-            onPress={() => setModalVisible(true)}
-          >
-            <Text style={styles.addButtonText}>+</Text>
-          </TouchableOpacity>
-        )}
       </View>
 
       <FlatList
@@ -181,6 +260,39 @@ export default function PropertiesScreen({ navigation }: any) {
                 onChangeText={(text) => setFormData({ ...formData, area: text })}
               />
 
+              <View style={styles.photosSection}>
+                <View style={styles.photosSectionHeader}>
+                  <Text style={styles.label}>Zdjęcia</Text>
+                  <TouchableOpacity
+                    style={styles.addPhotoButtonSmall}
+                    onPress={pickImage}
+                    disabled={uploading}
+                  >
+                    {uploading ? (
+                      <ActivityIndicator size="small" color={Colors.primary} />
+                    ) : (
+                      <Ionicons name="camera" size={20} color={Colors.primary} />
+                    )}
+                  </TouchableOpacity>
+                </View>
+                
+                {photoPreviewUrls.length > 0 && (
+                  <View style={styles.photosGrid}>
+                    {photoPreviewUrls.map((photoUrl, index) => (
+                      <View key={index} style={styles.photoPreviewContainer}>
+                        <Image source={{ uri: photoUrl }} style={styles.photoPreview} />
+                        <TouchableOpacity
+                          style={styles.removePhotoButton}
+                          onPress={() => removePhoto(index)}
+                        >
+                          <Ionicons name="close-circle" size={24} color={Colors.error} />
+                        </TouchableOpacity>
+                      </View>
+                    ))}
+                  </View>
+                )}
+              </View>
+
               <View style={styles.modalButtons}>
                 <TouchableOpacity
                   style={[styles.button, styles.cancelButton]}
@@ -203,6 +315,15 @@ export default function PropertiesScreen({ navigation }: any) {
           </View>
         </View>
       </Modal>
+
+      {userRole === 'Wlasciciel' && (
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={() => setModalVisible(true)}
+        >
+          <Ionicons name="add" size={24} color="#fff" />
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -221,18 +342,63 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
-  addButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+  fab: {
+    position: 'absolute',
+    bottom: Spacing.xl,
+    right: Spacing.xl,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: Colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
-  addButtonText: {
-    color: Colors.white,
-    fontSize: 28,
-    fontWeight: 'bold',
+  photosSection: {
+    marginTop: Spacing.md,
+    marginBottom: Spacing.md,
+  },
+  photosSectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+  },
+  addPhotoButtonSmall: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  photosGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+  },
+  photoPreviewContainer: {
+    position: 'relative',
+    width: 100,
+    height: 100,
+  },
+  photoPreview: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 8,
+  },
+  removePhotoButton: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: Colors.white,
+    borderRadius: 12,
   },
   listContent: {
     padding: Spacing.m,
