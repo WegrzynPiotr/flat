@@ -42,6 +42,8 @@ namespace zarzadzanieMieszkaniami.Helpers
                 PostalCode = property.PostalCode,
                 RoomsCount = property.RoomsCount,
                 Area = property.Area,
+                Latitude = property.Latitude,
+                Longitude = property.Longitude,
                 Description = property.Description,
                 OwnerId = property.OwnerId,
                 Photos = string.IsNullOrEmpty(property.Photos)

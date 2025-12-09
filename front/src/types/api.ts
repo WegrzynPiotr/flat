@@ -61,6 +61,8 @@ export interface Property {
   tenants?: TenantInfo[];
   roomsCount?: number;
   area?: number;
+  latitude?: number;
+  longitude?: number;
   createdAt?: string;
   isActiveTenant?: boolean;
 }
@@ -170,6 +172,8 @@ export interface IssueResponse {
     id: string;
     address: string;
     ownerId: string;
+    latitude?: number;
+    longitude?: number;
   };
   reportedById: string;
   reportedByName?: string;

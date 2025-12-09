@@ -13,6 +13,7 @@ import { issuesAPI } from '../../api/endpoints';
 import { Colors } from '../../styles/colors';
 import { Typography } from '../../styles/typography';
 import { Spacing } from '../../styles/spacing';
+import PropertyMap from '../../components/common/PropertyMap';
 
 export default function IssueDetailsScreen({ route, navigation }: any) {
   const { id } = route.params;
@@ -197,6 +198,22 @@ export default function IssueDetailsScreen({ route, navigation }: any) {
         </View>
       </View>
 
+      {/* Mapa lokalizacji nieruchomości */}
+      {selectedIssue.property && (
+        <View style={styles.card}>
+          <View style={styles.mapHeader}>
+            <Ionicons name="map" size={20} color={Colors.primary} />
+            <Text style={[Typography.h3, { marginLeft: 8 }]}>Lokalizacja nieruchomości</Text>
+          </View>
+          <PropertyMap
+            latitude={selectedIssue.property.latitude}
+            longitude={selectedIssue.property.longitude}
+            address={selectedIssue.property.address}
+            height={200}
+          />
+        </View>
+      )}
+
       {/* Lightbox Modal */}
       <Modal
         visible={selectedPhoto !== null}
@@ -360,6 +377,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: Colors.background,
+  },
+  mapHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.m,
   },
 });
 

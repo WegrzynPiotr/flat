@@ -24,6 +24,8 @@ namespace Application.DTOs
         public string PostalCode { get; set; }
         public int RoomsCount { get; set; }
         public decimal Area { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
         public string? Description { get; set; }
         public Guid OwnerId { get; set; }
         public List<string> Photos { get; set; } = new List<string>();

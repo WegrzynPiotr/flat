@@ -21,6 +21,8 @@ namespace Application.DTOs
         public Guid Id { get; set; }
         public string Address { get; set; }
         public Guid OwnerId { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
     }
 
     public class IssueResponse

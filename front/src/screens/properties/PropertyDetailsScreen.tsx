@@ -27,6 +27,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import PropertyDocumentsManager from '../../components/properties/PropertyDocumentsManager';
 import { capitalize } from '../../utils/textFormatters';
+import PropertyMap from '../../components/common/PropertyMap';
 
 const API_URL = Constants.expoConfig?.extra?.apiBaseUrl || 'http://193.106.130.55:5162/api';
 
@@ -722,6 +723,20 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
         </View>
       </View>
 
+      {/* Mapa lokalizacji */}
+      <View style={styles.card}>
+        <View style={styles.sectionHeader}>
+          <Ionicons name="map" size={24} color={Colors.primary} />
+          <Text style={[Typography.h3, { marginLeft: 8 }]}>Lokalizacja</Text>
+        </View>
+        <PropertyMap
+          latitude={property.latitude}
+          longitude={property.longitude}
+          address={`${property.address}, ${property.city}`}
+          height={250}
+        />
+      </View>
+
       {/* Dokumenty z wersjonowaniem */}
       <View style={styles.card}>
         <View style={styles.sectionHeader}>
@@ -1403,6 +1418,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: Spacing.m,
   },
   sectionSubtitle: {

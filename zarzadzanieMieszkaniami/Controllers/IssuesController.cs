@@ -70,7 +70,9 @@ namespace zarzadzanieMieszkaniami.Controllers
                 {
                     Id = issue.Property.Id,
                     Address = issue.Property.Address,
-                    OwnerId = issue.Property.OwnerId
+                    OwnerId = issue.Property.OwnerId,
+                    Latitude = issue.Property.Latitude,
+                    Longitude = issue.Property.Longitude
                 } : null,
                 ReportedById = issue.ReportedById,
                 ReportedByName = issue.ReportedBy != null ? $"{issue.ReportedBy.FirstName} {issue.ReportedBy.LastName}" : "Unknown",
@@ -113,7 +115,9 @@ namespace zarzadzanieMieszkaniami.Controllers
                 {
                     Id = issue.Property.Id,
                     Address = issue.Property.Address,
-                    OwnerId = issue.Property.OwnerId
+                    OwnerId = issue.Property.OwnerId,
+                    Latitude = issue.Property.Latitude,
+                    Longitude = issue.Property.Longitude
                 } : null,
                 ReportedById = issue.ReportedById,
                 ReportedByName = issue.ReportedBy != null ? $"{issue.ReportedBy.FirstName} {issue.ReportedBy.LastName}" : "Unknown",
