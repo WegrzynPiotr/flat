@@ -44,25 +44,43 @@ namespace zarzadzanieMieszkaniami.Controllers
 
             // Sprawdź uprawnienia
             var hasAccess = false;
-            if (userRole == "Wlasciciel")
+            
+            // Sprawdź czy użytkownik jest właścicielem nieruchomości
+            if (issue.Property != null && issue.Property.OwnerId == userId)
             {
-                if (issue.Property != null && issue.Property.OwnerId == userId)
+                hasAccess = true;
+                Console.WriteLine($"🟢 Owner access granted");
+            }
+            
+            // Sprawdź czy użytkownik jest najemcą nieruchomości
+            if (!hasAccess)
+            {
+                var isTenant = await _context.PropertyTenants
+                    .AnyAsync(pt => pt.PropertyId == issue.PropertyId && pt.TenantId == userId);
+                if (isTenant)
                 {
                     hasAccess = true;
-                    Console.WriteLine($"🟢 Owner access granted");
-                }
-                else
-                {
-                    Console.WriteLine($"🔴 Owner access denied - Property: {(issue.Property == null ? "NULL" : issue.Property.OwnerId.ToString())}, User: {userId}");
+                    Console.WriteLine($"🟢 Tenant access granted");
                 }
             }
-            else if (userRole == "Najemca" && issue.ReportedById == userId)
+            
+            // Sprawdź czy użytkownik jest autorem zgłoszenia
+            if (!hasAccess && issue.ReportedById == userId)
+            {
                 hasAccess = true;
-            else if (userRole == "Serwisant")
+                Console.WriteLine($"🟢 Reporter access granted");
+            }
+            
+            // Sprawdź czy serwisant jest przypisany do zgłoszenia
+            if (!hasAccess && userRole == "Serwisant")
             {
                 var isAssigned = await _context.IssueServicemen
                     .AnyAsync(iss => iss.IssueId == request.IssueId && iss.ServicemanId == userId);
-                hasAccess = isAssigned;
+                if (isAssigned)
+                {
+                    hasAccess = true;
+                    Console.WriteLine($"🟢 Serviceman access granted");
+                }
             }
 
             if (!hasAccess)

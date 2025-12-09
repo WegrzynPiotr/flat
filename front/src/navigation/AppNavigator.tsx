@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
 import { RootState } from '../store/store';
 import IssuesListScreen from '../screens/issues/IssuesListScreen';
 import IssueDetailsScreen from '../screens/issues/IssueDetailsScreen';
@@ -13,6 +14,7 @@ import ProfileScreen from '../screens/profile/ProfileScreen';
 import MessagesScreen from '../screens/messages/MessagesScreen';
 import ManagementScreen from '../screens/management/ManagementScreen';
 import { Colors } from '../styles/colors';
+import { propertiesAPI } from '../api/endpoints';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -71,7 +73,33 @@ function PropertiesStack() {
 }
 
 export default function AppNavigator() {
-  const userRole = useSelector((state: RootState) => state.auth.user?.role);
+  const userId = useSelector((state: RootState) => state.auth.user?.id);
+  const [isPropertyOwner, setIsPropertyOwner] = useState(false);
+
+  const checkOwnership = useCallback(async () => {
+    try {
+      const response = await propertiesAPI.getAll();
+      // Sprawdź czy użytkownik jest właścicielem któregoś z mieszkań
+      const ownedProperties = response.data.filter((p: any) => {
+        // PropertyResponse nie ma pola ownerId zwracanego bezpośrednio,
+        // ale możemy sprawdzić czy nie jest to wynajmowane mieszkanie
+        return !p.isActiveTenant;
+      });
+      setIsPropertyOwner(ownedProperties.length > 0);
+    } catch (error) {
+      console.error('Failed to check property ownership:', error);
+      setIsPropertyOwner(false);
+    }
+  }, []);
+
+  // Sprawdź przy każdym focus na nawigację (np. po dodaniu mieszkania)
+  useFocusEffect(
+    useCallback(() => {
+      if (userId) {
+        checkOwnership();
+      }
+    }, [userId, checkOwnership])
+  );
 
   return (
     <Tab.Navigator
@@ -96,11 +124,9 @@ export default function AppNavigator() {
       })}
     >
       <Tab.Screen name="Issues" component={IssuesStack} options={{ headerShown: false, title: 'Usterki' }} />
-      {userRole !== 'Serwisant' && (
-        <Tab.Screen name="Properties" component={PropertiesStack} options={{ headerShown: false, title: 'Mieszkania' }} />
-      )}
+      <Tab.Screen name="Properties" component={PropertiesStack} options={{ headerShown: false, title: 'Mieszkania' }} />
       <Tab.Screen name="Messages" component={MessagesScreen} options={{ title: 'Wiadomości' }} />
-      {userRole === 'Wlasciciel' && (
+      {isPropertyOwner && (
         <Tab.Screen name="Management" component={ManagementScreen} options={{ title: 'Zarządzanie' }} />
       )}
       <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profil' }} />

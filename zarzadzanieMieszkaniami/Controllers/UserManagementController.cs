@@ -86,16 +86,41 @@ namespace zarzadzanieMieszkaniami.Controllers
         {
             var landlordId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
+            Console.WriteLine($"🔵 AssignTenant: landlordId={landlordId}, propertyId={request.PropertyId}, tenantId={request.TenantId}");
+
             // Sprawdź czy mieszkanie należy do wynajmującego
             var property = await _context.Properties.FindAsync(request.PropertyId);
             if (property == null || property.OwnerId != landlordId)
+            {
+                Console.WriteLine($"🔴 AssignTenant: Property not found or not owned by landlord");
                 return Forbid();
+            }
 
-            // Sprawdź czy użytkownik jest najemcą
+            // Sprawdź czy użytkownik istnieje
             var tenant = await _userManager.FindByIdAsync(request.TenantId.ToString());
-            var roles = await _userManager.GetRolesAsync(tenant);
-            if (!roles.Contains("Najemca"))
-                return BadRequest("Użytkownik nie jest najemcą");
+            if (tenant == null)
+            {
+                Console.WriteLine($"🔴 AssignTenant: Tenant not found");
+                return BadRequest("Użytkownik nie istnieje");
+            }
+
+            // Sprawdź czy użytkownik jest najemcą tego właściciela
+            // (zaakceptował zaproszenie jako Najemca LUB został przez niego utworzony)
+            var isAcceptedTenant = await _context.UserInvitations
+                .AnyAsync(i => i.InviterId == landlordId && 
+                              i.InviteeId == request.TenantId && 
+                              i.InvitationType == "Najemca" && 
+                              i.Status == "Accepted");
+
+            var isCreatedByLandlord = tenant.CreatedByLandlordId == landlordId;
+
+            Console.WriteLine($"🔵 AssignTenant: isAcceptedTenant={isAcceptedTenant}, isCreatedByLandlord={isCreatedByLandlord}");
+
+            if (!isAcceptedTenant && !isCreatedByLandlord)
+            {
+                Console.WriteLine($"🔴 AssignTenant: User is not a tenant of this landlord");
+                return BadRequest("Użytkownik nie jest Twoim najemcą. Najpierw wyślij mu zaproszenie jako Najemca.");
+            }
 
             // Sprawdź czy najemca już jest przypisany do nieruchomości
             var existingTenant = await _context.PropertyTenants
@@ -210,44 +235,51 @@ namespace zarzadzanieMieszkaniami.Controllers
             return Ok();
         }
 
-        // Pobierz listę najemców wynajmującego (wszystkich utworzonych przez tego właściciela)
+        // Pobierz listę najemców wynajmującego (wszystkich zaakceptowanych przez zaproszenia lub utworzonych przez tego właściciela)
         [HttpGet("my-tenants")]
-        [Authorize(Roles = "Wlasciciel")]
+        [Authorize]
         public async Task<IActionResult> GetMyTenants()
         {
             var landlordId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            
+            // Sprawdź czy użytkownik jest właścicielem jakiegoś mieszkania
+            var hasProperty = await _context.Properties.AnyAsync(p => p.OwnerId == landlordId);
+            if (!hasProperty)
+            {
+                return Ok(new List<UserResponse>());
+            }
 
             Console.WriteLine($"🔵 Getting tenants for landlord: {landlordId}");
 
-            // DEBUG: Pokaż wszystkich użytkowników w systemie
-            var allSystemUsers = await _context.Users.ToListAsync();
-            Console.WriteLine($"🔍 Total users in system: {allSystemUsers.Count}");
-            foreach (var u in allSystemUsers)
-            {
-                var userRoles = await _userManager.GetRolesAsync(u);
-                Console.WriteLine($"🔍 User: {u.Email}, CreatedBy: {u.CreatedByLandlordId}, Roles: {string.Join(",", userRoles)}");
-            }
-
-            // Pobierz wszystkich użytkowników utworzonych przez tego właściciela z rolą Najemca
-            var allUsers = await _context.Users
-                .Where(u => u.CreatedByLandlordId == landlordId)
+            // Pobierz najemców z zaakceptowanych zaproszeń (jako Najemca)
+            var acceptedTenantIds = await _context.UserInvitations
+                .Where(i => i.InviterId == landlordId && 
+                           i.InvitationType == "Najemca" && 
+                           i.Status == "Accepted")
+                .Select(i => i.InviteeId)
                 .ToListAsync();
 
-            Console.WriteLine($"🔵 Found {allUsers.Count} users created by landlord");
+            Console.WriteLine($"🔵 Accepted tenant IDs from invitations: {string.Join(", ", acceptedTenantIds)}");
 
-            // Filtruj tylko tych z rolą Najemca
-            var tenants = new List<User>();
-            foreach (var user in allUsers)
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-                if (roles.Contains("Najemca"))
-                {
-                    tenants.Add(user);
-                    Console.WriteLine($"✅ Tenant found: {user.FirstName} {user.LastName}");
-                }
-            }
+            // Pobierz też najemców utworzonych przez tego właściciela (stary system)
+            var createdTenantIds = await _context.Users
+                .Where(u => u.CreatedByLandlordId == landlordId)
+                .Select(u => u.Id)
+                .ToListAsync();
 
-            Console.WriteLine($"🔵 Total tenants: {tenants.Count}");
+            Console.WriteLine($"🔵 Created tenant IDs: {string.Join(", ", createdTenantIds)}");
+
+            // Połącz obie listy
+            var allTenantIds = acceptedTenantIds.Union(createdTenantIds).Distinct().ToList();
+
+            Console.WriteLine($"🔵 All tenant IDs: {string.Join(", ", allTenantIds)}");
+
+            // Pobierz użytkowników (nie filtrujemy po roli - zaproszenie typu Najemca wystarczy)
+            var tenants = await _context.Users
+                .Where(u => allTenantIds.Contains(u.Id))
+                .ToListAsync();
+
+            Console.WriteLine($"🔵 Found {tenants.Count} tenants");
 
             // Pobierz informacje o nieruchomościach dla każdego najemcy
             var responses = new List<UserResponse>();
@@ -256,6 +288,7 @@ namespace zarzadzanieMieszkaniami.Controllers
                 var properties = await _context.PropertyTenants
                     .Where(pt => pt.TenantId == tenant.Id)
                     .Include(pt => pt.Property)
+                    .Where(pt => pt.Property.OwnerId == landlordId) // Tylko nieruchomości tego właściciela
                     .Select(pt => pt.Property.Address)
                     .ToListAsync();
 
@@ -269,21 +302,52 @@ namespace zarzadzanieMieszkaniami.Controllers
                     CreatedAt = tenant.CreatedAt,
                     Properties = properties
                 });
+
+                Console.WriteLine($"✅ Tenant: {tenant.FirstName} {tenant.LastName}, Properties: {properties.Count}");
             }
+
+            Console.WriteLine($"🔵 Returning {responses.Count} tenants");
 
             return Ok(responses);
         }
 
-        // Pobierz listę serwisantów wynajmującego
+        // Pobierz listę serwisantów wynajmującego (z zaakceptowanych zaproszeń i relacji)
         [HttpGet("my-servicemen")]
-        [Authorize(Roles = "Wlasciciel")]
+        [Authorize]
         public async Task<IActionResult> GetMyServicemen()
         {
             var landlordId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            
+            // Sprawdź czy użytkownik jest właścicielem jakiegoś mieszkania
+            var hasProperty = await _context.Properties.AnyAsync(p => p.OwnerId == landlordId);
+            if (!hasProperty)
+            {
+                return Ok(new List<UserResponse>());
+            }
 
-            var servicemen = await _context.LandlordServicemen
+            Console.WriteLine($"🔵 Getting servicemen for landlord: {landlordId}");
+
+            // Pobierz serwisantów z relacji LandlordServicemen
+            var servicemanIds = await _context.LandlordServicemen
                 .Where(ls => ls.LandlordId == landlordId)
-                .Select(ls => ls.Serviceman)
+                .Select(ls => ls.ServicemanId)
+                .ToListAsync();
+
+            // Pobierz też serwisantów z zaakceptowanych zaproszeń (na wypadek gdyby relacja nie została utworzona)
+            var acceptedServicemanIds = await _context.UserInvitations
+                .Where(i => i.InviterId == landlordId && 
+                           i.InvitationType == "Serwisant" && 
+                           i.Status == "Accepted")
+                .Select(i => i.InviteeId)
+                .ToListAsync();
+
+            // Połącz obie listy
+            var allServicemanIds = servicemanIds.Union(acceptedServicemanIds).Distinct().ToList();
+
+            Console.WriteLine($"🔵 Found {allServicemanIds.Count} servicemen IDs");
+
+            var servicemen = await _context.Users
+                .Where(u => allServicemanIds.Contains(u.Id))
                 .ToListAsync();
 
             var responses = servicemen.Select(s => new UserResponse
@@ -295,6 +359,8 @@ namespace zarzadzanieMieszkaniami.Controllers
                 Role = "Serwisant",
                 CreatedAt = s.CreatedAt
             }).ToList();
+
+            Console.WriteLine($"🔵 Returning {responses.Count} servicemen");
 
             return Ok(responses);
         }

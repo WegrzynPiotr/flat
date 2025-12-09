@@ -38,27 +38,22 @@ namespace zarzadzanieMieszkaniami.Controllers
             
             Console.WriteLine($"🔵 GetAll properties for user: {userId}, role: {userRole}");
             
-            IEnumerable<Property> properties;
+            // Pobierz nieruchomości jako właściciel
+            var ownedProperties = await _propertyRepository.GetByOwnerIdAsync(userId);
+            Console.WriteLine($"🔵 Found {ownedProperties.Count()} owned properties");
             
-            if (userRole == "Wlasciciel")
-            {
-                // Właściciel widzi swoje mieszkania
-                properties = await _propertyRepository.GetByOwnerIdAsync(userId);
-            }
-            else if (userRole == "Najemca")
-            {
-                // Najemca widzi mieszkania do których jest przypisany
-                properties = await _propertyRepository.GetByTenantIdAsync(userId);
-            }
-            else
-            {
-                // Serwisant lub inna rola - brak mieszkań
-                properties = new List<Property>();
-            }
+            // Pobierz nieruchomości jako najemca (dla wszystkich użytkowników, nie tylko z rolą Najemca)
+            var tenantProperties = await _propertyRepository.GetByTenantIdAsync(userId);
+            Console.WriteLine($"🔵 Found {tenantProperties.Count()} tenant properties");
             
-            Console.WriteLine($"🔵 Found {properties.Count()} properties");
+            // Połącz obie listy (bez duplikatów)
+            var allProperties = ownedProperties
+                .Union(tenantProperties, new PropertyComparer())
+                .ToList();
             
-            var dtos = properties.Select(p => PropertyMapper.ToResponse(p, Request, userId)).ToList();
+            Console.WriteLine($"🔵 Total unique properties: {allProperties.Count}");
+            
+            var dtos = allProperties.Select(p => PropertyMapper.ToResponse(p, Request, userId)).ToList();
             
             Console.WriteLine($"🔵 Returning {dtos.Count} properties");
             
@@ -272,6 +267,21 @@ namespace zarzadzanieMieszkaniami.Controllers
             await _propertyRepository.DeleteAsync(id);
 
             return NoContent();
+        }
+    }
+
+    // Helper class to compare properties by ID
+    public class PropertyComparer : IEqualityComparer<Property>
+    {
+        public bool Equals(Property? x, Property? y)
+        {
+            if (x == null || y == null) return false;
+            return x.Id == y.Id;
+        }
+
+        public int GetHashCode(Property obj)
+        {
+            return obj.Id.GetHashCode();
         }
     }
 }

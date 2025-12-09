@@ -46,6 +46,13 @@ namespace zarzadzanieMieszkaniami.Helpers
                 Longitude = property.Longitude,
                 Description = property.Description,
                 OwnerId = property.OwnerId,
+                Owner = property.Owner != null ? new OwnerInfo
+                {
+                    Id = property.Owner.Id,
+                    Name = $"{property.Owner.FirstName} {property.Owner.LastName}",
+                    Email = property.Owner.Email,
+                    PhoneNumber = property.Owner.PhoneNumber
+                } : null,
                 Photos = string.IsNullOrEmpty(property.Photos)
                     ? new List<string>()
                     : JsonSerializer.Deserialize<List<string>>(property.Photos)!

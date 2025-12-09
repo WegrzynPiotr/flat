@@ -15,6 +15,13 @@ export interface TenantInfo {
   endDate?: string;
 }
 
+export interface OwnerInfo {
+  id: string;
+  name: string;
+  email?: string;
+  phoneNumber?: string;
+}
+
 export interface PropertyDocumentInfo {
   filename: string;
   originalName: string;
@@ -56,6 +63,7 @@ export interface Property {
   city?: string;
   postalCode?: string;
   ownerId?: string;
+  owner?: OwnerInfo;
   photos?: string[];
   documents?: PropertyDocumentInfo[];
   tenants?: TenantInfo[];
@@ -149,6 +157,7 @@ export interface PropertyResponse {
   description?: string;
   city?: string;
   postalCode?: string;
+  ownerId?: string;
   roomsCount?: number;
   area?: number;
   photos?: string[];
@@ -156,6 +165,9 @@ export interface PropertyResponse {
   tenants: TenantInfo[];
   createdAt?: string;
   isActiveTenant?: boolean;
+  latitude?: number;
+  longitude?: number;
+  owner?: OwnerInfo;
 }
 
 export interface IssueResponse {
@@ -214,4 +226,19 @@ export interface AssignTenantRequest {
 export interface AssignServicemanRequest {
   issueId: string;
   servicemanId: string;
+}
+
+export interface InvitationResponse {
+  id: string;
+  inviterId: string;
+  inviterName: string;
+  inviterEmail: string;
+  inviteeId: string;
+  inviteeName: string;
+  inviteeEmail: string;
+  invitationType: 'Najemca' | 'Serwisant';
+  status: 'Pending' | 'Accepted' | 'Rejected';
+  message?: string;
+  createdAt: string;
+  respondedAt?: string;
 }

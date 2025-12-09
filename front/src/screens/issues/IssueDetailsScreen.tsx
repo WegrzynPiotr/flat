@@ -239,7 +239,7 @@ export default function IssueDetailsScreen({ route, navigation }: any) {
         </View>
       </Modal>
 
-      {userRole === 'Wlasciciel' && (
+      {userRole === 'Wlasciciel' && isOwner && (
         <>
           <View style={styles.card}>
             <AssignServicemanForm issueId={id} onAssigned={handleServicemanAssigned} />

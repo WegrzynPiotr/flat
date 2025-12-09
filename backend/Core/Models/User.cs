@@ -34,5 +34,9 @@ namespace Core.Models
         // Relacje - Wynajmujący <-> Serwisant
         public ICollection<LandlordServiceman> LandlordServicemen { get; set; }
         public ICollection<LandlordServiceman> ServicemanLandlords { get; set; }
+        
+        // Relacje - Zaproszenia
+        public ICollection<UserInvitation> SentInvitations { get; set; }
+        public ICollection<UserInvitation> ReceivedInvitations { get; set; }
     }
 }

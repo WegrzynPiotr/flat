@@ -21,6 +21,7 @@ namespace Infrastructure
         public DbSet<LandlordServiceman> LandlordServicemen { get; set; }
         public DbSet<IssueServiceman> IssueServicemen { get; set; }
         public DbSet<PropertyDocument> PropertyDocuments { get; set; }
+        public DbSet<UserInvitation> UserInvitations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -251,6 +252,29 @@ namespace Infrastructure
                     .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasIndex(e => new { e.PropertyId, e.DocumentType, e.IsLatest });
+            });
+
+            // Konfiguracja UserInvitation
+            modelBuilder.Entity<UserInvitation>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.InvitationType).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.Status).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.Message).HasMaxLength(500);
+
+                entity.HasOne(e => e.Inviter)
+                    .WithMany(u => u.SentInvitations)
+                    .HasForeignKey(e => e.InviterId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Invitee)
+                    .WithMany(u => u.ReceivedInvitations)
+                    .HasForeignKey(e => e.InviteeId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(e => new { e.InviterId, e.InviteeId, e.InvitationType })
+                    .IsUnique()
+                    .HasFilter("status = 'Pending'");
             });
         }
     }

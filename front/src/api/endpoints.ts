@@ -13,7 +13,8 @@ import {
   UserManagementResponse,
   CreateUserRequest,
   AssignTenantRequest,
-  AssignServicemanRequest
+  AssignServicemanRequest,
+  InvitationResponse
 } from '../types/api';
 import { storage } from '../utils/storage';
 import Constants from 'expo-constants';
@@ -202,6 +203,22 @@ export const userManagementAPI = {
     client.get<UserManagementResponse[]>('/usermanagement/my-servicemen'),
   removeTenant: (propertyId: string, tenantId: string) =>
     client.delete(`/usermanagement/remove-tenant?propertyId=${propertyId}&tenantId=${tenantId}`),
+};
+
+// Invitations (Zaproszenia)
+export const invitationsAPI = {
+  send: (data: { email: string; invitationType: 'Najemca' | 'Serwisant'; message?: string }) =>
+    client.post<InvitationResponse>('/invitations/send', data),
+  respond: (invitationId: string, accept: boolean) =>
+    client.post('/invitations/respond', { invitationId, accept }),
+  getPending: () =>
+    client.get<InvitationResponse[]>('/invitations/pending'),
+  getSent: () =>
+    client.get<InvitationResponse[]>('/invitations/sent'),
+  cancel: (invitationId: string) =>
+    client.delete(`/invitations/${invitationId}`),
+  getPendingCount: () =>
+    client.get<{ count: number }>('/invitations/pending/count'),
 };
 
 // Repairs

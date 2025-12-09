@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { userManagementAPI } from '../../api/endpoints';
-import { UserManagementResponse } from '../../types/api';
+import { userManagementAPI, invitationsAPI } from '../../api/endpoints';
+import { UserManagementResponse, InvitationResponse } from '../../types/api';
 import { capitalizeFullName } from '../../utils/textFormatters';
-import CreateUserForm from '../../components/userManagement/CreateUserForm';
+import InviteUserForm from '../../components/userManagement/InviteUserForm';
 import AssignTenantForm from '../../components/userManagement/AssignTenantForm';
 import { Colors } from '../../styles/colors';
 import { Spacing } from '../../styles/spacing';
 import { Typography } from '../../styles/typography';
 
-type TabType = 'tenants' | 'servicemen' | 'assign' | 'create';
+type TabType = 'tenants' | 'servicemen' | 'assign' | 'invite';
 
 export default function ManagementScreen({ navigation }: any) {
   const [activeTab, setActiveTab] = useState<TabType>('tenants');
   const [tenants, setTenants] = useState<UserManagementResponse[]>([]);
   const [servicemen, setServicemen] = useState<UserManagementResponse[]>([]);
+  const [sentInvitations, setSentInvitations] = useState<InvitationResponse[]>([]);
   const [loading, setLoading] = useState(false);
 
   // Załaduj obie listy przy montowaniu komponentu
@@ -26,19 +27,32 @@ export default function ManagementScreen({ navigation }: any) {
   useEffect(() => {
     if (activeTab === 'tenants' || activeTab === 'servicemen') {
       loadData();
+    } else if (activeTab === 'invite') {
+      loadSentInvitations();
     }
   }, [activeTab]);
 
   const loadAllData = async () => {
     try {
-      const [tenantsRes, servicemenRes] = await Promise.all([
+      const [tenantsRes, servicemenRes, invitationsRes] = await Promise.all([
         userManagementAPI.getMyTenants(),
-        userManagementAPI.getMyServicemen()
+        userManagementAPI.getMyServicemen(),
+        invitationsAPI.getSent()
       ]);
       setTenants(tenantsRes.data);
       setServicemen(servicemenRes.data);
+      setSentInvitations(invitationsRes.data);
     } catch (error) {
       console.error('Failed to load all data:', error);
+    }
+  };
+
+  const loadSentInvitations = async () => {
+    try {
+      const response = await invitationsAPI.getSent();
+      setSentInvitations(response.data);
+    } catch (error) {
+      console.error('Failed to load sent invitations:', error);
     }
   };
 
@@ -60,31 +74,42 @@ export default function ManagementScreen({ navigation }: any) {
   };
 
   const handleUserCreated = async () => {
-    // Odśwież obie listy
-    try {
-      const [tenantsRes, servicemenRes] = await Promise.all([
-        userManagementAPI.getMyTenants(),
-        userManagementAPI.getMyServicemen()
-      ]);
-      setTenants(tenantsRes.data);
-      setServicemen(servicemenRes.data);
-    } catch (error) {
-      console.error('Failed to refresh lists:', error);
-    }
+    // Odśwież wszystkie listy
+    await loadAllData();
   };
 
   const handleTenantAssigned = async () => {
-    // Odśwież obie listy
-    try {
-      const [tenantsRes, servicemenRes] = await Promise.all([
-        userManagementAPI.getMyTenants(),
-        userManagementAPI.getMyServicemen()
-      ]);
-      setTenants(tenantsRes.data);
-      setServicemen(servicemenRes.data);
-    } catch (error) {
-      console.error('Failed to refresh lists:', error);
-    }
+    // Odśwież wszystkie listy
+    await loadAllData();
+    // Przełącz na zakładkę "Najemcy" aby pokazać zaktualizowane dane
+    setActiveTab('tenants');
+  };
+
+  const handleInvitationSent = async () => {
+    // Odśwież listę wysłanych zaproszeń
+    await loadSentInvitations();
+  };
+
+  const handleCancelInvitation = async (invitationId: string) => {
+    Alert.alert(
+      'Anuluj zaproszenie',
+      'Czy na pewno chcesz anulować to zaproszenie?',
+      [
+        { text: 'Nie', style: 'cancel' },
+        {
+          text: 'Tak',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await invitationsAPI.cancel(invitationId);
+              await loadSentInvitations();
+            } catch (error) {
+              Alert.alert('Błąd', 'Nie udało się anulować zaproszenia');
+            }
+          },
+        },
+      ]
+    );
   };
 
   const renderUserCard = ({ item }: { item: UserManagementResponse }) => (
@@ -148,8 +173,8 @@ export default function ManagementScreen({ navigation }: any) {
             </Text>
             <Text style={styles.emptySubtext}>
               {activeTab === 'tenants' 
-                ? 'Utwórz konto najemcy i przypisz do mieszkania' 
-                : 'Utwórz konto serwisanta'}
+                ? 'Zaproś najemcę i przypisz do mieszkania' 
+                : 'Zaproś serwisanta do współpracy'}
             </Text>
           </View>
         }
@@ -165,11 +190,42 @@ export default function ManagementScreen({ navigation }: any) {
       );
     }
 
-    if (activeTab === 'create') {
+    if (activeTab === 'invite') {
+      const pendingInvitations = sentInvitations.filter(i => i.status === 'Pending');
       return (
-        <View style={styles.formContainer}>
-          <CreateUserForm onUserCreated={handleUserCreated} />
-        </View>
+        <ScrollView style={styles.inviteContainer}>
+          <View style={styles.formContainer}>
+            <InviteUserForm onInvitationSent={handleInvitationSent} />
+          </View>
+          
+          {pendingInvitations.length > 0 && (
+            <View style={styles.pendingSection}>
+              <Text style={styles.pendingSectionTitle}>Oczekujące zaproszenia</Text>
+              {pendingInvitations.map((invitation) => (
+                <View key={invitation.id} style={styles.invitationCard}>
+                  <View style={styles.invitationInfo}>
+                    <Text style={styles.invitationName}>{invitation.inviteeName}</Text>
+                    <Text style={styles.invitationEmail}>{invitation.inviteeEmail}</Text>
+                    <View style={styles.invitationTypeBadge}>
+                      <Ionicons 
+                        name={invitation.invitationType === 'Najemca' ? 'person' : 'construct'} 
+                        size={14} 
+                        color={Colors.primary} 
+                      />
+                      <Text style={styles.invitationTypeText}>{invitation.invitationType}</Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity
+                    style={styles.cancelButton}
+                    onPress={() => handleCancelInvitation(invitation.id)}
+                  >
+                    <Ionicons name="close-circle" size={24} color={Colors.error} />
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          )}
+        </ScrollView>
       );
     }
   };
@@ -247,20 +303,27 @@ export default function ManagementScreen({ navigation }: any) {
           
           <TouchableOpacity
             style={styles.tabButton}
-            onPress={() => setActiveTab('create')}
+            onPress={() => setActiveTab('invite')}
             activeOpacity={0.7}
           >
             <View style={styles.tabContent}>
               <Ionicons 
                 name="person-add-outline" 
                 size={18} 
-                color={activeTab === 'create' ? Colors.primary : Colors.textSecondary} 
+                color={activeTab === 'invite' ? Colors.primary : Colors.textSecondary} 
               />
-              <Text style={[styles.tabButtonText, activeTab === 'create' && styles.tabButtonTextActive]}>
-                Utwórz
+              <Text style={[styles.tabButtonText, activeTab === 'invite' && styles.tabButtonTextActive]}>
+                Dodaj
               </Text>
+              {sentInvitations.filter(i => i.status === 'Pending').length > 0 && (
+                <View style={[styles.tabBadge, activeTab === 'invite' && styles.tabBadgeActive]}>
+                  <Text style={[styles.tabBadgeText, activeTab === 'invite' && styles.tabBadgeTextActive]}>
+                    {sentInvitations.filter(i => i.status === 'Pending').length}
+                  </Text>
+                </View>
+              )}
             </View>
-            {activeTab === 'create' && <View style={styles.activeIndicator} />}
+            {activeTab === 'invite' && <View style={styles.activeIndicator} />}
           </TouchableOpacity>
         </View>
       </View>
@@ -339,9 +402,9 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 3,
   },
   formContainer: {
-    padding: Spacing.md,
+    padding: Spacing.m,
     backgroundColor: '#fff',
-    margin: Spacing.md,
+    margin: Spacing.m,
     borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -371,7 +434,7 @@ const styles = StyleSheet.create({
   userInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.md,
+    gap: Spacing.m,
   },
   iconContainer: {
     width: 48,
@@ -420,13 +483,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: Spacing.xxl,
-    gap: Spacing.sm,
+    gap: Spacing.s,
   },
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
     color: Colors.text,
-    marginTop: Spacing.md,
+    marginTop: Spacing.m,
   },
   emptySubtext: {
     fontSize: 14,
@@ -449,5 +512,55 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+  },
+  inviteContainer: {
+    flex: 1,
+  },
+  pendingSection: {
+    padding: Spacing.m,
+  },
+  pendingSectionTitle: {
+    ...Typography.h3,
+    marginBottom: Spacing.s,
+  },
+  invitationCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: Spacing.m,
+    borderRadius: 12,
+    marginBottom: Spacing.s,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  invitationInfo: {
+    flex: 1,
+    gap: 4,
+  },
+  invitationName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.text,
+  },
+  invitationEmail: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+  },
+  invitationTypeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 4,
+  },
+  invitationTypeText: {
+    fontSize: 12,
+    color: Colors.primary,
+    fontWeight: '500',
+  },
+  cancelButton: {
+    padding: Spacing.xs,
   },
 });

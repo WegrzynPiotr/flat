@@ -102,69 +102,105 @@ namespace zarzadzanieMieszkaniami.Controllers
         public async Task<IActionResult> GetContacts()
         {
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
             var contactIds = new List<Guid>();
 
-            if (userRole == "Wlasciciel")
+            // 1. Jeśli użytkownik jest właścicielem - jego najemcy i serwisanci (zaakceptowani przez zaproszenia)
+            var ownedProperties = await _context.Properties
+                .Where(p => p.OwnerId == userId)
+                .Select(p => p.Id)
+                .ToListAsync();
+
+            if (ownedProperties.Any())
             {
-                // Właściciel widzi: swoich najemców i serwisantów
+                // Najemcy przypisani do moich mieszkań
                 var tenantIds = await _context.PropertyTenants
-                    .Where(pt => _context.Properties.Any(p => p.OwnerId == userId && p.Id == pt.PropertyId))
+                    .Where(pt => ownedProperties.Contains(pt.PropertyId))
                     .Select(pt => pt.TenantId)
                     .Distinct()
                     .ToListAsync();
+                contactIds.AddRange(tenantIds);
 
+                // Moi serwisanci (z relacji LandlordServiceman)
                 var servicemanIds = await _context.LandlordServicemen
                     .Where(ls => ls.LandlordId == userId)
                     .Select(ls => ls.ServicemanId)
                     .ToListAsync();
-
-                contactIds.AddRange(tenantIds);
                 contactIds.AddRange(servicemanIds);
+
+                // Użytkownicy z zaakceptowanych zaproszeń (najemcy i serwisanci)
+                var acceptedInviteeIds = await _context.UserInvitations
+                    .Where(i => i.InviterId == userId && i.Status == "Accepted")
+                    .Select(i => i.InviteeId)
+                    .ToListAsync();
+                contactIds.AddRange(acceptedInviteeIds);
             }
-            else if (userRole == "Najemca")
+
+            // 2. Jeśli użytkownik wynajmuje mieszkanie - właściciel tego mieszkania
+            var rentedProperties = await _context.PropertyTenants
+                .Where(pt => pt.TenantId == userId)
+                .Join(_context.Properties, pt => pt.PropertyId, p => p.Id, (pt, p) => p)
+                .ToListAsync();
+
+            if (rentedProperties.Any())
             {
-                // Najemca widzi: swojego wynajmującego i serwisantów z otwartych zgłoszeń
-                var landlordIds = await _context.PropertyTenants
-                    .Where(pt => pt.TenantId == userId)
-                    .Join(_context.Properties, pt => pt.PropertyId, p => p.Id, (pt, p) => p.OwnerId)
-                    .Distinct()
-                    .ToListAsync();
-
-                var servicemanIds = await _context.Issues
-                    .Where(i => i.ReportedById == userId)
-                    .SelectMany(i => _context.IssueServicemen.Where(iss => iss.IssueId == i.Id).Select(iss => iss.ServicemanId))
-                    .Distinct()
-                    .ToListAsync();
-
+                // Właściciele mieszkań, które wynajmuję
+                var landlordIds = rentedProperties.Select(p => p.OwnerId).Distinct().ToList();
                 contactIds.AddRange(landlordIds);
-                contactIds.AddRange(servicemanIds);
+
+                // Serwisanci przypisani do moich aktywnych usterek
+                var activeIssueServicemen = await _context.Issues
+                    .Where(i => i.ReportedById == userId && 
+                               (i.Status == "Nowe" || i.Status == "Przypisane" || i.Status == "W trakcie"))
+                    .SelectMany(i => _context.IssueServicemen
+                        .Where(iss => iss.IssueId == i.Id)
+                        .Select(iss => iss.ServicemanId))
+                    .Distinct()
+                    .ToListAsync();
+                contactIds.AddRange(activeIssueServicemen);
             }
-            else if (userRole == "Serwisant")
+
+            // 3. Jeśli użytkownik jest serwisantem - właściciele i najemcy z przypisanych zgłoszeń
+            var assignedIssues = await _context.IssueServicemen
+                .Where(iss => iss.ServicemanId == userId)
+                .Join(_context.Issues, iss => iss.IssueId, i => i.Id, (iss, i) => i)
+                .Where(i => i.Status == "Przypisane" || i.Status == "W trakcie")
+                .Include(i => i.Property)
+                .ToListAsync();
+
+            if (assignedIssues.Any())
             {
-                // Serwisant widzi: właścicieli i najemców z przypisanych zgłoszeń
-                var landlordIds = await _context.LandlordServicemen
-                    .Where(ls => ls.ServicemanId == userId)
-                    .Select(ls => ls.LandlordId)
-                    .ToListAsync();
+                // Właściciele mieszkań z przypisanych zgłoszeń
+                var landlordIdsFromIssues = assignedIssues.Select(i => i.Property.OwnerId).Distinct().ToList();
+                contactIds.AddRange(landlordIdsFromIssues);
 
-                var tenantIds = await _context.IssueServicemen
-                    .Where(iss => iss.ServicemanId == userId)
-                    .Join(_context.Issues, iss => iss.IssueId, i => i.Id, (iss, i) => i.ReportedById)
-                    .Distinct()
-                    .ToListAsync();
-
-                contactIds.AddRange(landlordIds);
-                contactIds.AddRange(tenantIds);
+                // Najemcy którzy zgłosili usterki
+                var reporterIds = assignedIssues.Select(i => i.ReportedById).Distinct().ToList();
+                contactIds.AddRange(reporterIds);
             }
 
-            contactIds = contactIds.Distinct().ToList();
+            // Moi właściciele (jeśli jestem serwisantem)
+            var myLandlords = await _context.LandlordServicemen
+                .Where(ls => ls.ServicemanId == userId)
+                .Select(ls => ls.LandlordId)
+                .ToListAsync();
+            contactIds.AddRange(myLandlords);
+
+            // Właściciele którzy mnie zaprosili (zaakceptowane zaproszenia)
+            var invitersWhoInvitedMe = await _context.UserInvitations
+                .Where(i => i.InviteeId == userId && i.Status == "Accepted")
+                .Select(i => i.InviterId)
+                .ToListAsync();
+            contactIds.AddRange(invitersWhoInvitedMe);
+
+            contactIds = contactIds.Distinct().Where(id => id != userId).ToList();
 
             var contacts = new List<ConversationUserResponse>();
             foreach (var contactId in contactIds)
             {
                 var user = await _context.Users.FindAsync(contactId);
+                if (user == null) continue;
+
                 var role = await _context.UserRoles
                     .Where(ur => ur.UserId == contactId)
                     .Join(_context.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => r.Name)
@@ -176,25 +212,14 @@ namespace zarzadzanieMieszkaniami.Controllers
                 // Pobierz adres mieszkania powiązanego z kontaktem
                 string propertyAddress = null;
                 
-                if (role == "Najemca")
+                // Dla najemcy - pobierz adres mieszkania, które wynajmuje (od aktualnego użytkownika)
+                if (ownedProperties.Any())
                 {
-                    // Dla najemcy - pobierz adres mieszkania, które wynajmuje
                     propertyAddress = await _context.PropertyTenants
-                        .Where(pt => pt.TenantId == contactId)
+                        .Where(pt => pt.TenantId == contactId && ownedProperties.Contains(pt.PropertyId))
                         .Join(_context.Properties, pt => pt.PropertyId, p => p.Id, (pt, p) => p.Address)
                         .FirstOrDefaultAsync();
                 }
-                else if (role == "Wlasciciel" && userRole == "Najemca")
-                {
-                    // Dla właściciela (gdy najemca pyta) - pobierz adres mieszkania najemcy
-                    propertyAddress = await _context.PropertyTenants
-                        .Where(pt => pt.TenantId == userId)
-                        .Join(_context.Properties, pt => pt.PropertyId, p => p.Id, (pt, p) => p)
-                        .Where(p => p.OwnerId == contactId)
-                        .Select(p => p.Address)
-                        .FirstOrDefaultAsync();
-                }
-                // Serwisant nie ma przypisanego mieszkania - pomijamy
 
                 contacts.Add(new ConversationUserResponse
                 {

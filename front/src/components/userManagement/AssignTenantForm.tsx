@@ -3,18 +3,21 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList, Alert, ActivityIndi
 import { Picker } from '@react-native-picker/picker';
 import { Calendar } from 'react-native-calendars';
 import { Ionicons } from '@expo/vector-icons';
+import { useSelector } from 'react-redux';
 import { userManagementAPI, propertiesAPI } from '../../api/endpoints';
 import { PropertyResponse, UserManagementResponse } from '../../types/api';
 import { Colors } from '../../styles/colors';
 import { Spacing } from '../../styles/spacing';
 import { Typography } from '../../styles/typography';
 import { capitalizeFullName } from '../../utils/textFormatters';
+import { RootState } from '../../store/store';
 
 interface AssignTenantFormProps {
   onTenantAssigned?: () => void;
 }
 
 export default function AssignTenantForm({ onTenantAssigned }: AssignTenantFormProps) {
+  const user = useSelector((state: RootState) => state.auth.user);
   const [properties, setProperties] = useState<PropertyResponse[]>([]);
   const [tenants, setTenants] = useState<UserManagementResponse[]>([]);
   const [selectedProperty, setSelectedProperty] = useState<string>('');
@@ -56,7 +59,13 @@ export default function AssignTenantForm({ onTenantAssigned }: AssignTenantFormP
       ]);
       console.log('🔵 Properties:', propsResponse.data);
       console.log('🔵 Tenants:', tenantsResponse.data);
-      setProperties(propsResponse.data);
+      
+      // Filtruj tylko nieruchomości, których użytkownik jest właścicielem
+      const ownedProperties = propsResponse.data.filter(
+        (prop: PropertyResponse) => prop.ownerId === user?.id
+      );
+      console.log('🔵 Owned properties:', ownedProperties);
+      setProperties(ownedProperties);
       
       // Sortuj alfabetycznie po nazwisku
       const sortedTenants = [...tenantsResponse.data].sort((a, b) => 

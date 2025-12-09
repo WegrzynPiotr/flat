@@ -40,9 +40,10 @@ const DOCUMENT_TYPES = [
 interface PropertyDocumentsManagerProps {
   propertyId: string;
   onClose?: () => void;
+  onDocumentsChanged?: () => void;
 }
 
-export default function PropertyDocumentsManager({ propertyId, onClose }: PropertyDocumentsManagerProps) {
+export default function PropertyDocumentsManager({ propertyId, onClose, onDocumentsChanged }: PropertyDocumentsManagerProps) {
   const user = useSelector((state: RootState) => state.auth.user);
   const isOwner = user?.role === 'Wlasciciel';
   
@@ -111,6 +112,8 @@ export default function PropertyDocumentsManager({ propertyId, onClose }: Proper
       
       Alert.alert('Sukces', 'Dokument został dodany');
       await loadDocuments();
+      // Powiadom rodzica o zmianie dokumentów
+      onDocumentsChanged?.();
     } catch (error: any) {
       console.error('❌ Error uploading document:', error);
       console.error('❌ Error response:', error.response?.data);
@@ -276,7 +279,10 @@ export default function PropertyDocumentsManager({ propertyId, onClose }: Proper
             propertyId={propertyId}
             documentType={calendarDocType}
             onClose={() => setShowCalendar(false)}
-            onVersionDeleted={loadDocuments}
+            onVersionDeleted={() => {
+              loadDocuments();
+              onDocumentsChanged?.();
+            }}
             isOwner={isOwner}
           />
         )}

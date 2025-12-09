@@ -68,10 +68,10 @@ export default function RegisterScreen({ navigation }: any) {
         password: formData.password,
         firstName: formData.firstName,
         lastName: formData.lastName,
-        role: 'Wlasciciel', // Rejestracja tylko dla właścicieli
+        role: 'Najemca', // Domyślna rola - można być najemcą/serwisantem/właścicielem jednocześnie
       })).unwrap();
       
-      Alert.alert('Sukces', 'Konto właściciela zostało utworzone');
+      Alert.alert('Sukces', 'Konto zostało utworzone');
       // Nie przekierowuj - użytkownik zostanie automatycznie zalogowany
     } catch (err) {
       Alert.alert('Błąd', 'Nie udało się utworzyć konta');
@@ -84,10 +84,10 @@ export default function RegisterScreen({ navigation }: any) {
       style={styles.container}
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.title}>Rejestracja właściciela</Text>
+        <Text style={styles.title}>Utwórz konto</Text>
         <Text style={styles.subtitle}>
-          Rejestracja jest przeznaczona wyłącznie dla właścicieli nieruchomości.
-          {'\n'}Najemców i serwisantów dodajesz z poziomu zakładki "Zarządzanie".
+          Zarejestruj się, aby korzystać z aplikacji.
+          {'\n'}Możesz być właścicielem, najemcą lub serwisantem.
         </Text>
 
         <View style={styles.form}>

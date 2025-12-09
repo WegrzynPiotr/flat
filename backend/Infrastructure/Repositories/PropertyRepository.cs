@@ -40,6 +40,7 @@ namespace Infrastructure.Repositories
             Console.WriteLine($"🔵 PropertyRepository.GetByOwnerIdAsync for owner: {ownerId}");
             
             var properties = await _context.Properties
+                .Include(p => p.Owner)
                 .Include(p => p.Tenants)
                     .ThenInclude(pt => pt.Tenant)
                 .Where(p => p.OwnerId == ownerId)

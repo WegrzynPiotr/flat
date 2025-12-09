@@ -16,6 +16,14 @@ namespace Application.DTOs
         public string Url { get; set; }
     }
 
+    public class OwnerInfo
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string? PhoneNumber { get; set; }
+    }
+
     public class PropertyResponse
     {
         public Guid Id { get; set; }
@@ -28,6 +36,7 @@ namespace Application.DTOs
         public double? Longitude { get; set; }
         public string? Description { get; set; }
         public Guid OwnerId { get; set; }
+        public OwnerInfo? Owner { get; set; }
         public List<string> Photos { get; set; } = new List<string>();
         public List<PropertyDocumentInfo> Documents { get; set; } = new List<PropertyDocumentInfo>();
         public List<TenantInfo> Tenants { get; set; } = new List<TenantInfo>();

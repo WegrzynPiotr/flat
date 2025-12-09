@@ -181,9 +181,14 @@ namespace zarzadzanieMieszkaniami.Controllers
 
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             
-            if (property.OwnerId != userId)
+            // Sprawdź dostęp: właściciel lub najemca
+            var isOwner = property.OwnerId == userId;
+            var isTenant = await _context.PropertyTenants
+                .AnyAsync(pt => pt.PropertyId == propertyId && pt.TenantId == userId);
+            
+            if (!isOwner && !isTenant)
             {
-                Console.WriteLine($"🔴 User {userId} is not owner of property");
+                Console.WriteLine($"🔴 User {userId} is not owner or tenant of property");
                 return Forbid();
             }
 
@@ -260,14 +265,18 @@ namespace zarzadzanieMieszkaniami.Controllers
 
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             
-            if (property.OwnerId != userId)
-                return Forbid();
-
             var document = await _context.PropertyDocuments
                 .FirstOrDefaultAsync(d => d.Id == documentId && d.PropertyId == propertyId);
 
             if (document == null)
                 return NotFound("Document not found");
+
+            // Sprawdź dostęp: właściciel nieruchomości lub osoba która przesłała dokument
+            var isOwner = property.OwnerId == userId;
+            var isUploader = document.UploadedById == userId;
+            
+            if (!isOwner && !isUploader)
+                return Forbid();
 
             // Usuń plik fizyczny
             var fileName = Path.GetFileName(new Uri(document.FileUrl).LocalPath);

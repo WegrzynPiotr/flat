@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { useFocusEffect } from '@react-navigation/native';
 import { propertiesAPI, userManagementAPI, propertyDocumentsAPI } from '../../api/endpoints';
 import { PropertyResponse } from '../../types/api';
 import { Colors } from '../../styles/colors';
@@ -34,10 +35,15 @@ const API_URL = Constants.expoConfig?.extra?.apiBaseUrl || 'http://193.106.130.5
 export default function PropertyDetailsScreen({ route, navigation }: any) {
   const { propertyId } = route.params;
   const user = useSelector((state: RootState) => state.auth.user);
-  const isOwner = user?.role === 'Wlasciciel';
-  const isTenant = user?.role === 'Najemca';
   
   const [property, setProperty] = useState<PropertyResponse | null>(null);
+  
+  // Sprawdź czy użytkownik jest faktycznym właścicielem TEJ nieruchomości (nie tylko ma rolę Wlasciciel)
+  const isActualOwner = property?.ownerId === user?.id;
+  // Dla kompatybilności wstecznej - używane w niektórych miejscach
+  const isOwner = isActualOwner;
+  const isTenant = !isActualOwner && property?.tenants?.some(t => t.tenantId === user?.id);
+  
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
@@ -69,6 +75,14 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
     loadProperty();
     loadLatestDocuments();
   }, [propertyId]);
+
+  // Odśwież dane przy powrocie na ekran (np. po przypisaniu najemców)
+  useFocusEffect(
+    useCallback(() => {
+      loadProperty();
+      loadLatestDocuments();
+    }, [propertyId])
+  );
 
   const loadLatestDocuments = async () => {
     try {
@@ -798,6 +812,37 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
         </TouchableOpacity>
       </View>
 
+      {/* Właściciel - widoczny dla najemców */}
+      {isTenant && property.owner && (
+        <View style={styles.card}>
+          <Text style={Typography.h3}>Właściciel</Text>
+          <View style={styles.ownerInfo}>
+            <View style={styles.ownerRow}>
+              <Ionicons name="person" size={20} color={Colors.primary} />
+              <Text style={styles.ownerName}>{property.owner.name}</Text>
+            </View>
+            {property.owner.email && (
+              <TouchableOpacity 
+                style={styles.ownerRow}
+                onPress={() => Linking.openURL(`mailto:${property.owner?.email}`)}
+              >
+                <Ionicons name="mail" size={20} color={Colors.primary} />
+                <Text style={styles.ownerContact}>{property.owner.email}</Text>
+              </TouchableOpacity>
+            )}
+            {property.owner.phoneNumber && (
+              <TouchableOpacity 
+                style={styles.ownerRow}
+                onPress={() => Linking.openURL(`tel:${property.owner?.phoneNumber}`)}
+              >
+                <Ionicons name="call" size={20} color={Colors.primary} />
+                <Text style={styles.ownerContact}>{property.owner.phoneNumber}</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+      )}
+
       {/* Najemcy */}
       {property.tenants && property.tenants.length > 0 && (() => {
         const dates = property.tenants
@@ -968,6 +1013,7 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
         <PropertyDocumentsManager 
           propertyId={propertyId}
           onClose={() => setShowDocumentsManager(false)}
+          onDocumentsChanged={loadLatestDocuments}
         />
       </Modal>
 
@@ -1303,6 +1349,28 @@ const styles = StyleSheet.create({
   },
   tenantDeleteButton: {
     padding: Spacing.s,
+  },
+  ownerInfo: {
+    marginTop: Spacing.m,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 8,
+    padding: Spacing.m,
+  },
+  ownerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 8,
+  },
+  ownerName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.text,
+  },
+  ownerContact: {
+    fontSize: 14,
+    color: Colors.primary,
+    fontWeight: '500',
   },
   errorText: {
     fontSize: 16,

@@ -393,7 +393,7 @@ namespace zarzadzanieMieszkaniami.Controllers
         }
 
         [HttpPut("{id}/status")]
-        [Authorize(Roles = "Serwisant,Wlasciciel")]
+        [Authorize(Roles = "Serwisant,Wlasciciel,Najemca")]
         public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateIssueStatusRequest request)
         {
             var issue = await _issueService.GetIssueByIdAsync(id);
@@ -417,13 +417,19 @@ namespace zarzadzanieMieszkaniami.Controllers
                 if (!isAssigned)
                     return StatusCode(403, new { message = "Nie jesteś przypisany do tego zgłoszenia" });
             }
-            // Właściciel może aktualizować zgłoszenia ze swoich nieruchomości
-            else if (userRole == "Wlasciciel")
+            // Właściciel lub najemca może aktualizować zgłoszenia ze swoich nieruchomości
+            else
             {
-                if (issue.Property?.OwnerId != userId)
+                var isOwner = issue.Property?.OwnerId == userId;
+                var isTenant = await _context.PropertyTenants.AnyAsync(pt => pt.PropertyId == issue.PropertyId && pt.TenantId == userId);
+                var isReporter = issue.ReportedById == userId;
+                
+                Console.WriteLine($"🔵 isOwner: {isOwner}, isTenant: {isTenant}, isReporter: {isReporter}");
+                
+                if (!isOwner && !isTenant && !isReporter)
                 {
                     Console.WriteLine($"🔴 Access denied - Property owner: {issue.Property?.OwnerId}, User: {userId}");
-                    return StatusCode(403, new { message = "Nie jesteś właścicielem tej nieruchomości" });
+                    return StatusCode(403, new { message = "Brak uprawnień do aktualizacji tego zgłoszenia" });
                 }
             }
 

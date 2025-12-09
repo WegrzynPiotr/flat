@@ -556,6 +556,58 @@ namespace zarzadzanieMieszkaniami.Migrations
                     b.ToTable("asp_net_users", (string)null);
                 });
 
+            modelBuilder.Entity("Core.Models.UserInvitation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("InvitationType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("invitation_type");
+
+                    b.Property<Guid>("InviteeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("invitee_id");
+
+                    b.Property<Guid>("InviterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("inviter_id");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("message");
+
+                    b.Property<DateTime?>("RespondedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("responded_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("p_k_user_invitations");
+
+                    b.HasIndex("InviteeId");
+
+                    b.HasIndex("InviterId", "InviteeId", "InvitationType")
+                        .IsUnique()
+                        .HasFilter("status = 'Pending'");
+
+                    b.ToTable("user_invitations");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
                 {
                     b.Property<Guid>("Id")
@@ -906,6 +958,25 @@ namespace zarzadzanieMieszkaniami.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Core.Models.UserInvitation", b =>
+                {
+                    b.HasOne("Core.Models.User", "Invitee")
+                        .WithMany("ReceivedInvitations")
+                        .HasForeignKey("InviteeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Core.Models.User", "Inviter")
+                        .WithMany("SentInvitations")
+                        .HasForeignKey("InviterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Invitee");
+
+                    b.Navigation("Inviter");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
@@ -991,9 +1062,13 @@ namespace zarzadzanieMieszkaniami.Migrations
 
                     b.Navigation("OwnedProperties");
 
+                    b.Navigation("ReceivedInvitations");
+
                     b.Navigation("ReceivedMessages");
 
                     b.Navigation("ReportedIssues");
+
+                    b.Navigation("SentInvitations");
 
                     b.Navigation("SentMessages");
 

@@ -15,7 +15,8 @@ import { capitalize } from '../../utils/textFormatters';
 export default function PropertiesScreen({ navigation }: any) {
   const dispatch = useDispatch<AppDispatch>();
   const { properties, loading } = useSelector((state: RootState) => state.properties);
-  const userRole = useSelector((state: RootState) => state.auth.user?.role);
+  const user = useSelector((state: RootState) => state.auth.user);
+  const userRole = user?.role;
   const [modalVisible, setModalVisible] = useState(false);
   const [formData, setFormData] = useState({
     address: '',
@@ -135,13 +136,11 @@ export default function PropertiesScreen({ navigation }: any) {
       setPhotoPreviewUrls([]);
       
       console.log('🔵 Refreshing properties list...');
-      await dispatch(fetchProperties());
+      await dispatch(fetchProperties()).unwrap();
       console.log('🟢 Properties refreshed');
       
       // Navigate to the newly created property details
-      if (photos.length > 0) {
-        navigation.navigate('PropertyDetails', { propertyId });
-      }
+      navigation.navigate('PropertyDetails', { propertyId });
     } catch (error: any) {
       console.error('🔴 Failed to add property:', error);
       console.error('🔴 Error response:', error.response?.data);
@@ -157,6 +156,9 @@ export default function PropertiesScreen({ navigation }: any) {
 
   const renderProperty = ({ item }: any) => {
     const firstPhoto = item.photos && item.photos.length > 0 ? item.photos[0] : null;
+    
+    // Sprawdź czy użytkownik jest właścicielem tej nieruchomości
+    const isOwnerOfThis = item.ownerId === user?.id;
     
     // Sprawdź czy najemca ma nieaktywny najem
     const isInactive = userRole === 'Najemca' && item.isActiveTenant === false;
@@ -182,10 +184,17 @@ export default function PropertiesScreen({ navigation }: any) {
     
     return (
       <TouchableOpacity 
-        style={[styles.card, isInactive && styles.cardInactive]}
+        style={[
+          styles.card, 
+          isInactive && styles.cardInactive,
+          isOwnerOfThis ? styles.cardOwned : styles.cardRented
+        ]}
         onPress={() => navigation.navigate('PropertyDetails', { propertyId: item.id })}
         activeOpacity={0.7}
       >
+        {/* Kolorowy pasek wskazujący typ */}
+        <View style={[styles.ownershipIndicator, isOwnerOfThis ? styles.indicatorOwned : styles.indicatorRented]} />
+        
         {firstPhoto && (
           <Image 
             source={{ uri: firstPhoto }} 
@@ -194,6 +203,18 @@ export default function PropertiesScreen({ navigation }: any) {
           />
         )}
         <View style={styles.cardContent}>
+          {/* Badge typu własności */}
+          <View style={[styles.ownershipBadge, isOwnerOfThis ? styles.badgeOwned : styles.badgeRented]}>
+            <Ionicons 
+              name={isOwnerOfThis ? "home" : "key"} 
+              size={12} 
+              color={isOwnerOfThis ? Colors.primary : "#8B5CF6"} 
+            />
+            <Text style={[styles.ownershipBadgeText, isOwnerOfThis ? styles.badgeTextOwned : styles.badgeTextRented]}>
+              {isOwnerOfThis ? 'Twoje mieszkanie' : 'Wynajmujesz'}
+            </Text>
+          </View>
+          
           <View style={styles.cardHeader}>
             <Text style={[Typography.h3, isInactive && styles.textInactive]}>{item.address}</Text>
             <Ionicons name="chevron-forward" size={24} color={isInactive ? Colors.textSecondary : Colors.textSecondary} />
@@ -238,6 +259,15 @@ export default function PropertiesScreen({ navigation }: any) {
               </View>
             )}
           </View>
+          
+          {/* Pokaż właściciela dla najemców */}
+          {!isOwnerOfThis && item.owner && (
+            <View style={styles.ownerInfoRow}>
+              <Ionicons name="person" size={14} color={isInactive ? Colors.textSecondary : Colors.primary} />
+              <Text style={[styles.ownerLabel, isInactive && styles.textInactive]}>Właściciel: </Text>
+              <Text style={[styles.ownerNameText, isInactive && styles.textInactive]}>{item.owner.name}</Text>
+            </View>
+          )}
         </View>
       </TouchableOpacity>
     );
@@ -467,6 +497,52 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
   },
+  cardOwned: {
+    borderLeftWidth: 0,
+  },
+  cardRented: {
+    borderLeftWidth: 0,
+  },
+  ownershipIndicator: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 4,
+    zIndex: 10,
+  },
+  indicatorOwned: {
+    backgroundColor: Colors.primary,
+  },
+  indicatorRented: {
+    backgroundColor: '#8B5CF6',
+  },
+  ownershipBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    alignSelf: 'flex-start',
+    marginBottom: Spacing.s,
+  },
+  badgeOwned: {
+    backgroundColor: '#E8F5E9',
+  },
+  badgeRented: {
+    backgroundColor: '#EDE9FE',
+  },
+  ownershipBadgeText: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  badgeTextOwned: {
+    color: Colors.primary,
+  },
+  badgeTextRented: {
+    color: '#8B5CF6',
+  },
   cardInactive: {
     opacity: 0.6,
     backgroundColor: '#f5f5f5',
@@ -566,6 +642,25 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     marginTop: 2,
     textAlign: 'right',
+  },
+  ownerInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: Spacing.s,
+    paddingTop: Spacing.s,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+  },
+  ownerLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: Colors.text,
+  },
+  ownerNameText: {
+    fontSize: 12,
+    color: Colors.primary,
+    fontWeight: '500',
   },
   emptyText: {
     textAlign: 'center',
