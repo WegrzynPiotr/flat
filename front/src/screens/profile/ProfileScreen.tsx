@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, ScrollView, ActivityIndicator, Alert, Modal, TextInput, BackHandler } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import { logoutAsync } from '../../store/slices/authSlice';
 import { RootState, AppDispatch } from '../../store/store';
-import { invitationsAPI } from '../../api/endpoints';
+import { invitationsAPI, usersAPI } from '../../api/endpoints';
 import { InvitationResponse } from '../../types/api';
 import { Colors } from '../../styles/colors';
 import { Typography } from '../../styles/typography';
@@ -17,6 +17,13 @@ export default function ProfileScreen() {
   const [pendingInvitations, setPendingInvitations] = useState<InvitationResponse[]>([]);
   const [loadingInvitations, setLoadingInvitations] = useState(true);
   const [respondingTo, setRespondingTo] = useState<string | null>(null);
+  
+  // Edycja profilu
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editFirstName, setEditFirstName] = useState(user?.firstName || '');
+  const [editLastName, setEditLastName] = useState(user?.lastName || '');
+  const [editPhoneNumber, setEditPhoneNumber] = useState(user?.phoneNumber || '');
+  const [savingProfile, setSavingProfile] = useState(false);
 
   useEffect(() => {
     loadPendingInvitations();
@@ -47,6 +54,50 @@ export default function ProfileScreen() {
       Alert.alert('Błąd', typeof errorMessage === 'string' ? errorMessage : 'Błąd');
     } finally {
       setRespondingTo(null);
+    }
+  };
+
+  const openEditModal = () => {
+    setEditFirstName(user?.firstName || '');
+    setEditLastName(user?.lastName || '');
+    setEditPhoneNumber(user?.phoneNumber || '');
+    setEditModalVisible(true);
+  };
+
+  const handleSaveProfile = async () => {
+    if (!editFirstName.trim() || !editLastName.trim()) {
+      Alert.alert('Błąd', 'Imię i nazwisko są wymagane');
+      return;
+    }
+
+    setSavingProfile(true);
+    try {
+      const response = await usersAPI.updateProfile({
+        firstName: editFirstName.trim(),
+        lastName: editLastName.trim(),
+        phoneNumber: editPhoneNumber.trim() || undefined,
+      });
+      
+      // Odśwież dane użytkownika w store
+      if (response.data) {
+        dispatch({ 
+          type: 'auth/setUser', 
+          payload: {
+            ...user,
+            firstName: response.data.firstName,
+            lastName: response.data.lastName,
+            phoneNumber: response.data.phoneNumber,
+          }
+        });
+      }
+      
+      setEditModalVisible(false);
+      Alert.alert('Sukces', 'Profil został zaktualizowany');
+    } catch (error: any) {
+      console.error('Failed to update profile:', error);
+      Alert.alert('Błąd', error.response?.data?.message || 'Nie udało się zaktualizować profilu');
+    } finally {
+      setSavingProfile(false);
     }
   };
 
@@ -91,7 +142,68 @@ export default function ProfileScreen() {
             <Text style={styles.infoText}>{user.phoneNumber}</Text>
           </>
         )}
+
+        <TouchableOpacity style={styles.editButton} onPress={openEditModal}>
+          <Ionicons name="create-outline" size={20} color={Colors.primary} />
+          <Text style={styles.editButtonText}>Edytuj profil</Text>
+        </TouchableOpacity>
       </View>
+
+      {/* Modal edycji profilu */}
+      <Modal
+        visible={editModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setEditModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Edytuj profil</Text>
+              <TouchableOpacity onPress={() => setEditModalVisible(false)}>
+                <Ionicons name="close" size={24} color={Colors.text} />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.inputLabel}>Imię</Text>
+            <TextInput
+              style={styles.input}
+              value={editFirstName}
+              onChangeText={setEditFirstName}
+              placeholder="Imię"
+            />
+
+            <Text style={styles.inputLabel}>Nazwisko</Text>
+            <TextInput
+              style={styles.input}
+              value={editLastName}
+              onChangeText={setEditLastName}
+              placeholder="Nazwisko"
+            />
+
+            <Text style={styles.inputLabel}>Telefon (opcjonalnie)</Text>
+            <TextInput
+              style={styles.input}
+              value={editPhoneNumber}
+              onChangeText={setEditPhoneNumber}
+              placeholder="Numer telefonu"
+              keyboardType="phone-pad"
+            />
+
+            <TouchableOpacity
+              style={[styles.saveButton, savingProfile && styles.saveButtonDisabled]}
+              onPress={handleSaveProfile}
+              disabled={savingProfile}
+            >
+              {savingProfile ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.saveButtonText}>Zapisz</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       {/* Sekcja oczekujących zaproszeń */}
       <View style={styles.invitationsSection}>
@@ -293,6 +405,78 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xxl,
   },
   logoutButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  editButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.xs,
+    marginTop: Spacing.l,
+    paddingVertical: Spacing.s,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    borderRadius: 8,
+  },
+  editButtonText: {
+    color: Colors.primary,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: Spacing.m,
+  },
+  modalContent: {
+    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    padding: Spacing.l,
+    width: '100%',
+    maxWidth: 400,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.l,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: Colors.text,
+  },
+  inputLabel: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.xs,
+    marginTop: Spacing.m,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 8,
+    paddingHorizontal: Spacing.m,
+    paddingVertical: Spacing.s,
+    fontSize: 16,
+    color: Colors.text,
+    backgroundColor: Colors.background,
+  },
+  saveButton: {
+    backgroundColor: Colors.primary,
+    paddingVertical: Spacing.m,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: Spacing.l,
+  },
+  saveButtonDisabled: {
+    backgroundColor: Colors.disabled,
+  },
+  saveButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',

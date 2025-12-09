@@ -123,11 +123,50 @@ export default function AppNavigator() {
         tabBarInactiveTintColor: Colors.disabled,
       })}
     >
-      <Tab.Screen name="Issues" component={IssuesStack} options={{ headerShown: false, title: 'Usterki' }} />
-      <Tab.Screen name="Properties" component={PropertiesStack} options={{ headerShown: false, title: 'Mieszkania' }} />
-      <Tab.Screen name="Messages" component={MessagesScreen} options={{ title: 'Wiadomości' }} />
+      <Tab.Screen 
+        name="Issues" 
+        component={IssuesStack} 
+        options={{ headerShown: false, title: 'Usterki' }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            // Sprawdź czy jesteśmy już na tej zakładce
+            const state = navigation.getState();
+            const currentRoute = state.routes[state.index];
+            if (currentRoute.name === 'Issues') {
+              // Zapobiegamy domyślnej akcji i resetujemy stack
+              e.preventDefault();
+              navigation.navigate('Issues', { screen: 'IssuesList' });
+            }
+            // W przeciwnym razie - domyślna nawigacja (przejście do zakładki bez resetu)
+          },
+        })}
+      />
+      <Tab.Screen 
+        name="Properties" 
+        component={PropertiesStack} 
+        options={{ headerShown: false, title: 'Mieszkania' }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            const state = navigation.getState();
+            const currentRoute = state.routes[state.index];
+            if (currentRoute.name === 'Properties') {
+              e.preventDefault();
+              navigation.navigate('Properties', { screen: 'PropertiesList' });
+            }
+          },
+        })}
+      />
+      <Tab.Screen 
+        name="Messages" 
+        component={MessagesScreen} 
+        options={{ title: 'Wiadomości' }}
+      />
       {isPropertyOwner && (
-        <Tab.Screen name="Management" component={ManagementScreen} options={{ title: 'Zarządzanie' }} />
+        <Tab.Screen 
+          name="Management" 
+          component={ManagementScreen} 
+          options={{ title: 'Zarządzanie' }}
+        />
       )}
       <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profil' }} />
     </Tab.Navigator>

@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import MessagesList from '../../components/messages/MessagesList';
 import Conversation from '../../components/messages/Conversation';
 import { UserRelation, ConversationUser } from '../../types/api';
@@ -15,6 +15,24 @@ export default function MessagesScreen() {
   const [selectedContact, setSelectedContact] = useState<SelectedContact | null>(null);
   const [contacts, setContacts] = useState<ConversationUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigation = useNavigation();
+
+  // Reset do listy kontaktów gdy użytkownik kliknie PONOWNIE na zakładkę "Wiadomości"
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('tabPress', (e: any) => {
+      // Sprawdź czy już jesteśmy na tej zakładce (ponowne kliknięcie)
+      const state = navigation.getState();
+      const currentRoute = state?.routes?.[state.index];
+      
+      // Tylko resetuj jeśli jesteśmy na zakładce Messages i mamy otwartą konwersację
+      if (currentRoute?.name === 'Messages' && selectedContact) {
+        e.preventDefault();
+        setSelectedContact(null);
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation, selectedContact]);
 
   const loadContacts = useCallback(async () => {
     try {

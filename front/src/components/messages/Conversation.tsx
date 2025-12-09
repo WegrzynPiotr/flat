@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, BackHandler } from 'react-native';
 import { messagesAPI } from '../../api/endpoints';
 import { MessageResponse, UserRelation } from '../../types/api';
 import { Colors } from '../../styles/colors';
@@ -27,6 +27,15 @@ export default function Conversation({ userId, userName, relations, onBack, onRe
   const currentUserId = useSelector((state: RootState) => state.auth.user?.id);
   const token = useSelector((state: RootState) => state.auth.accessToken);
   const flatListRef = useRef<FlatList>(null);
+
+  // Obsługa przycisku wstecz na Androidzie
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      onBack();
+      return true;
+    });
+    return () => backHandler.remove();
+  }, [onBack]);
 
   // Odśwież kontakty przy wejściu do konwersacji
   useEffect(() => {

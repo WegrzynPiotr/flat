@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, ScrollView, Alert, TextInput, Modal, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { userManagementAPI, invitationsAPI, userNotesAPI } from '../../api/endpoints';
 import { UserManagementResponse, InvitationResponse, UserNoteResponse } from '../../types/api';
 import { capitalizeFullName } from '../../utils/textFormatters';
@@ -26,6 +26,24 @@ export default function ManagementScreen({ navigation, route }: any) {
   const [noteModalVisible, setNoteModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserManagementResponse | null>(null);
   const [noteContent, setNoteContent] = useState('');
+
+  // Reset do domyślnej zakładki gdy użytkownik kliknie PONOWNIE na zakładkę "Zarządzanie"
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('tabPress', (e: any) => {
+      // Sprawdź czy już jesteśmy na tej zakładce (ponowne kliknięcie)
+      const state = navigation.getState();
+      const currentRoute = state?.routes?.[state.index];
+      
+      // Tylko resetuj jeśli jesteśmy na zakładce Management i nie na domyślnej zakładce
+      if (currentRoute?.name === 'Management' && activeTab !== 'tenants') {
+        e.preventDefault();
+        setActiveTab('tenants');
+        setCurrentPropertyId(undefined);
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation, activeTab]);
 
   // Aktualizuj zakładkę i propertyId przy każdym wejściu na ekran
   useFocusEffect(
