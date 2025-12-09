@@ -845,19 +845,18 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
 
       {/* Najemcy */}
       {isOwner && (
-          <TouchableOpacity 
-            style={styles.card}
-            onPress={() => {
-              navigation.navigate('Management', { tab: 'assign', propertyId: property.id });
-            }}
-            activeOpacity={0.7}
-          >
+          <View style={styles.card}>
             <View style={styles.tenantsHeader}>
               <Text style={Typography.h3}>Najemcy ({property.tenants?.length || 0})</Text>
-              <View style={styles.editTenantsHint}>
+              <TouchableOpacity 
+                style={styles.editTenantsHint}
+                onPress={() => {
+                  navigation.navigate('Management', { tab: 'assign', propertyId: property.id });
+                }}
+              >
                 <Ionicons name="pencil" size={16} color={Colors.primary} />
                 <Text style={styles.editTenantsText}>Zarządzaj</Text>
-              </View>
+              </TouchableOpacity>
             </View>
             {property.tenants && property.tenants.length > 0 ? (
               property.tenants.map((tenant, index) => (
@@ -878,10 +877,10 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
               <View style={styles.noTenantsContainer}>
                 <Ionicons name="person-add-outline" size={32} color={Colors.textSecondary} />
                 <Text style={styles.noTenantsText}>Brak przypisanych najemców</Text>
-                <Text style={styles.noTenantsHint}>Kliknij, aby przypisać najemcę</Text>
+                <Text style={styles.noTenantsHint}>Kliknij "Zarządzaj", aby przypisać</Text>
               </View>
             )}
-          </TouchableOpacity>
+          </View>
       )}
 
       {/* Najemcy - widok dla najemcy (nie właściciela) */}

@@ -1,37 +1,24 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { messagesAPI } from '../../api/endpoints';
-import { ConversationUser, MessageResponse, UserRelation } from '../../types/api';
+import { ConversationUser, MessageResponse } from '../../types/api';
 import { Colors } from '../../styles/colors';
 import { Spacing } from '../../styles/spacing';
 import { Typography } from '../../styles/typography';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
-import { startSignalRConnection, onReceiveMessage, offReceiveMessage } from '../../services/signalrService';
+import { startSignalRConnection, onReceiveMessage } from '../../services/signalrService';
 
 interface MessagesListProps {
-  onSelectContact: (userId: string, name: string, relations: UserRelation[]) => void;
+  contacts: ConversationUser[];
+  loading: boolean;
+  onRefresh: () => void;
+  onSelectContact: (userId: string, name: string) => void;
 }
 
-interface MessagesListProps {
-  onSelectContact: (userId: string, name: string, propertyAddress?: string) => void;
-}
-
-export default function MessagesList({ onSelectContact }: MessagesListProps) {
-  const [contacts, setContacts] = useState<ConversationUser[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function MessagesList({ contacts, loading, onRefresh, onSelectContact }: MessagesListProps) {
   const currentUserId = useSelector((state: RootState) => state.auth.user?.id);
-  const userRole = useSelector((state: RootState) => state.auth.user?.role);
   const token = useSelector((state: RootState) => state.auth.accessToken);
-
-  // Odświeżaj kontakty przy każdym wejściu na ekran (np. po zatwierdzeniu zaproszenia)
-  useFocusEffect(
-    useCallback(() => {
-      loadContacts();
-    }, [])
-  );
 
   useEffect(() => {
     let cleanup: (() => void) | undefined;
@@ -47,20 +34,10 @@ export default function MessagesList({ onSelectContact }: MessagesListProps) {
           cleanup = onReceiveMessage((message: MessageResponse) => {
             console.log('📨 New message notification in MessagesList:', message);
             
-            // Jeśli jestem odbiorcą wiadomości, zwiększ licznik nieodczytanych
+            // Jeśli jestem odbiorcą wiadomości, odśwież kontakty
             if (message.receiverId === currentUserId) {
-              console.log('✅ Message is for me, updating unread count');
-              setContacts(prevContacts => {
-                return prevContacts.map(contact => {
-                  if (contact.userId === message.senderId) {
-                    return {
-                      ...contact,
-                      unreadCount: contact.unreadCount + 1
-                    };
-                  }
-                  return contact;
-                });
-              });
+              console.log('✅ Message is for me, refreshing contacts');
+              onRefresh();
             }
           });
         })
@@ -73,26 +50,12 @@ export default function MessagesList({ onSelectContact }: MessagesListProps) {
       console.log('🔌 Cleaning up SignalR listeners in MessagesList');
       if (cleanup) cleanup();
     };
-  }, [token, currentUserId, userRole]);
-
-  const loadContacts = async () => {
-    try {
-      // Użyj standardowego endpointu kontaktów - backend sam obsługuje
-      // wszystkie przypadki (właściciele widzą najemców/serwisantów,
-      // najemcy widzą właścicieli, serwisanci widzą właścicieli/najemców)
-      const response = await messagesAPI.getContacts();
-      setContacts(response.data);
-    } catch (error) {
-      console.error('Failed to load contacts:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [token, currentUserId, onRefresh]);
 
   const renderContact = ({ item }: { item: ConversationUser }) => (
     <TouchableOpacity
       style={styles.contactCard}
-      onPress={() => onSelectContact(item.userId, item.name, item.relations)}
+      onPress={() => onSelectContact(item.userId, item.name)}
     >
       <View style={styles.avatarContainer}>
         <View style={styles.avatar}>
@@ -117,10 +80,14 @@ export default function MessagesList({ onSelectContact }: MessagesListProps) {
                 <View style={styles.roleBadge}>
                   <Text style={styles.roleText}>{relation.role}</Text>
                 </View>
-                {relation.propertyAddress && (
-                  <View style={styles.propertyRow}>
-                    <Ionicons name="home-outline" size={12} color={Colors.textSecondary} />
-                    <Text style={styles.contactProperty} numberOfLines={1}>{relation.propertyAddress}</Text>
+                {relation.details && (
+                  <View style={styles.detailsRow}>
+                    <Ionicons 
+                      name={relation.role === 'Serwisant' ? 'construct-outline' : 'home-outline'} 
+                      size={12} 
+                      color={Colors.textSecondary} 
+                    />
+                    <Text style={styles.contactDetails} numberOfLines={1}>{relation.details}</Text>
                   </View>
                 )}
               </View>
@@ -233,13 +200,13 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontWeight: '600',
   },
-  propertyRow: {
+  detailsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
     flex: 1,
   },
-  contactProperty: {
+  contactDetails: {
     fontSize: 12,
     color: Colors.textSecondary,
     flex: 1,

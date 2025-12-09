@@ -29,6 +29,6 @@ namespace Application.DTOs
     public class UserRelation
     {
         public string Role { get; set; } // "Właściciel", "Najemca", "Serwisant", "Wynajmujący"
-        public string PropertyAddress { get; set; }
+        public string Details { get; set; } // Adres mieszkania lub nazwa usterki dla serwisanta
     }
 }

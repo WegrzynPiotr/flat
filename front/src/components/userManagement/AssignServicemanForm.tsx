@@ -11,13 +11,21 @@ import { capitalizeFullName } from '../../utils/textFormatters';
 interface AssignServicemanFormProps {
   issueId: string;
   onAssigned: () => void;
+  currentServicemanId?: string;
 }
 
-export default function AssignServicemanForm({ issueId, onAssigned }: AssignServicemanFormProps) {
+export default function AssignServicemanForm({ issueId, onAssigned, currentServicemanId }: AssignServicemanFormProps) {
   const [servicemen, setServicemen] = useState<UserManagementResponse[]>([]);
-  const [selectedServiceman, setSelectedServiceman] = useState<string>('');
+  const [selectedServiceman, setSelectedServiceman] = useState<string>(currentServicemanId || '');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  // Aktualizuj wybranego serwisanta gdy zmieni się currentServicemanId
+  useEffect(() => {
+    if (currentServicemanId) {
+      setSelectedServiceman(currentServicemanId);
+    }
+  }, [currentServicemanId]);
 
   useEffect(() => {
     loadServicemen();

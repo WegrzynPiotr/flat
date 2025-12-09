@@ -133,7 +133,7 @@ export interface MessageResponse {
 
 export interface UserRelation {
   role: string;
-  propertyAddress?: string;
+  details?: string; // Adres mieszkania lub nazwa usterki dla serwisanta
 }
 
 export interface ConversationUser {

@@ -23,6 +23,48 @@ namespace zarzadzanieMieszkaniami.Controllers
             _hubContext = hubContext;
         }
 
+        // Tymczasowy endpoint diagnostyczny
+        [HttpGet("debug-issues")]
+        [Authorize]
+        public async Task<IActionResult> DebugIssues()
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            
+            var ownedProperties = await _context.Properties
+                .Where(p => p.OwnerId == userId)
+                .Select(p => new { p.Id, p.Address })
+                .ToListAsync();
+
+            var ownedPropertyIds = ownedProperties.Select(p => p.Id).ToList();
+
+            // Wszystkie usterki z moich nieruchomości (bez filtra statusu)
+            var allIssues = await _context.Issues
+                .Where(i => ownedPropertyIds.Contains(i.PropertyId))
+                .Select(i => new { i.Id, i.Title, i.Status, i.PropertyId })
+                .ToListAsync();
+
+            // Aktywne usterki
+            var activeIssues = allIssues
+                .Where(i => i.Status == "Nowe" || i.Status == "Przypisane" || i.Status == "W trakcie")
+                .ToList();
+
+            var allIssueIds = allIssues.Select(i => i.Id).ToList();
+            
+            var issueServicemen = await _context.IssueServicemen
+                .Where(iss => allIssueIds.Contains(iss.IssueId))
+                .Join(_context.Users, iss => iss.ServicemanId, u => u.Id, 
+                    (iss, u) => new { iss.IssueId, iss.ServicemanId, ServicemanName = u.FirstName + " " + u.LastName })
+                .ToListAsync();
+
+            return Ok(new { 
+                UserId = userId,
+                OwnedProperties = ownedProperties,
+                AllIssues = allIssues,
+                ActiveIssues = activeIssues, 
+                IssueServicemen = issueServicemen 
+            });
+        }
+
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> SendMessage([FromBody] SendMessageRequest request)
@@ -131,29 +173,58 @@ namespace zarzadzanieMieszkaniami.Controllers
                 .Where(pt => pt.TenantId == userId)
                 .Join(_context.Properties, pt => pt.PropertyId, p => p.Id, (pt, p) => p)
                 .ToListAsync();
+            var rentedPropertyIds = rentedProperties.Select(p => p.Id).ToList();
 
             // Właściciele mieszkań które wynajmuję
             contactIds.AddRange(rentedProperties.Select(p => p.OwnerId));
 
-            // 3. Serwisanci z moich aktywnych zgłoszeń (jako najemca)
+            // 3. Usterki z moich mieszkań (jako najemca lub właściciel) - wszystkie poza "Rozwiązane"
             var myActiveIssues = await _context.Issues
-                .Where(i => i.ReportedById == userId && 
-                           (i.Status == "Nowe" || i.Status == "Przypisane" || i.Status == "W trakcie"))
+                .Where(i => (i.ReportedById == userId || ownedPropertyIds.Contains(i.PropertyId)) && 
+                           i.Status != "Rozwiązane")
                 .Include(i => i.Property)
                 .ToListAsync();
 
-            var servicemanIssueMap = await _context.IssueServicemen
-                .Where(iss => myActiveIssues.Select(i => i.Id).Contains(iss.IssueId))
-                .Join(_context.Issues.Include(i => i.Property), iss => iss.IssueId, i => i.Id, 
-                    (iss, i) => new { iss.ServicemanId, i.Property.Address })
-                .ToListAsync();
-            contactIds.AddRange(servicemanIssueMap.Select(s => s.ServicemanId));
+            Console.WriteLine($"🔍 User {userId} has {myActiveIssues.Count} active issues");
+            foreach (var issue in myActiveIssues)
+            {
+                Console.WriteLine($"   Issue: {issue.Id} - {issue.Title} - Status: {issue.Status}");
+            }
 
-            // 4. Jeśli jestem serwisantem - właściciele i najemcy z przypisanych zgłoszeń
+            var myActiveIssueIds = myActiveIssues.Select(i => i.Id).ToList();
+
+            // Serwisanci przypisani do moich usterek z nazwą usterki
+            var servicemanIssueMap = await _context.IssueServicemen
+                .Where(iss => myActiveIssueIds.Contains(iss.IssueId))
+                .ToListAsync();
+            
+            Console.WriteLine($"🔧 Found {servicemanIssueMap.Count} serviceman assignments");
+            foreach (var iss in servicemanIssueMap)
+            {
+                Console.WriteLine($"   IssueId: {iss.IssueId} - ServicemanId: {iss.ServicemanId}");
+            }
+            
+            // Pobierz tytuły usterek
+            var servicemanWithIssueTitle = servicemanIssueMap
+                .Select(iss => new { 
+                    iss.ServicemanId, 
+                    IssueTitle = myActiveIssues.FirstOrDefault(i => i.Id == iss.IssueId)?.Title 
+                })
+                .ToList();
+            
+            Console.WriteLine($"📋 Serviceman with titles: {servicemanWithIssueTitle.Count}");
+            foreach (var s in servicemanWithIssueTitle)
+            {
+                Console.WriteLine($"   ServicemanId: {s.ServicemanId} - Title: {s.IssueTitle}");
+            }
+            
+            contactIds.AddRange(servicemanWithIssueTitle.Select(s => s.ServicemanId));
+
+            // 4. Jeśli jestem serwisantem - właściciele i najemcy z przypisanych zgłoszeń (poza rozwiązanymi)
             var assignedIssues = await _context.IssueServicemen
                 .Where(iss => iss.ServicemanId == userId)
                 .Join(_context.Issues, iss => iss.IssueId, i => i.Id, (iss, i) => i)
-                .Where(i => i.Status == "Przypisane" || i.Status == "W trakcie")
+                .Where(i => i.Status != "Rozwiązane")
                 .Include(i => i.Property)
                 .ToListAsync();
 
@@ -183,30 +254,35 @@ namespace zarzadzanieMieszkaniami.Controllers
                 // Relacja 1: Kontakt jest moim najemcą (ja jestem właścicielem, on wynajmuje ode mnie)
                 var tenantRelations = myTenants
                     .Where(t => t.TenantId == contactId)
-                    .Select(t => new UserRelation { Role = "Najemca", PropertyAddress = t.Address })
+                    .Select(t => new UserRelation { Role = "Najemca", Details = t.Address })
                     .ToList();
                 relations.AddRange(tenantRelations);
 
                 // Relacja 2: Kontakt jest moim właścicielem/wynajmującym (ja wynajmuję od niego)
                 var landlordRelations = rentedProperties
                     .Where(p => p.OwnerId == contactId)
-                    .Select(p => new UserRelation { Role = "Wynajmujący", PropertyAddress = p.Address })
+                    .Select(p => new UserRelation { Role = "Wynajmujący", Details = p.Address })
                     .ToList();
                 relations.AddRange(landlordRelations);
 
-                // Relacja 3: Kontakt jest serwisantem przypisanym do mojego zgłoszenia
-                var servicemanRelations = servicemanIssueMap
+                // Relacja 3: Kontakt jest serwisantem przypisanym do mojego zgłoszenia (pokazuj nazwę usterki)
+                var servicemanRelations = servicemanWithIssueTitle
                     .Where(s => s.ServicemanId == contactId)
-                    .Select(s => new UserRelation { Role = "Serwisant", PropertyAddress = s.Address })
-                    .Distinct()
+                    .Select(s => new UserRelation { Role = "Serwisant", Details = s.IssueTitle })
                     .ToList();
                 relations.AddRange(servicemanRelations);
+
+                // Relacja 3b: Kontakt jest moim serwisantem (z LandlordServicemen - ja jestem właścicielem) - bez aktywnych usterek
+                if (myServicemen.Contains(contactId) && !servicemanRelations.Any())
+                {
+                    relations.Add(new UserRelation { Role = "Serwisant", Details = null });
+                }
 
                 // Relacja 4: Jestem serwisantem, kontakt jest właścicielem mieszkania ze zgłoszenia
                 var ownerFromIssueRelations = assignedIssues
                     .Where(i => i.Property.OwnerId == contactId)
-                    .Select(i => new UserRelation { Role = "Właściciel", PropertyAddress = i.Property.Address })
-                    .GroupBy(r => r.PropertyAddress)
+                    .Select(i => new UserRelation { Role = "Właściciel", Details = i.Property.Address })
+                    .GroupBy(r => r.Details)
                     .Select(g => g.First())
                     .ToList();
                 relations.AddRange(ownerFromIssueRelations);
@@ -214,8 +290,8 @@ namespace zarzadzanieMieszkaniami.Controllers
                 // Relacja 5: Jestem serwisantem, kontakt jest najemcą który zgłosił usterkę
                 var reporterFromIssueRelations = assignedIssues
                     .Where(i => i.ReportedById == contactId && i.Property.OwnerId != contactId)
-                    .Select(i => new UserRelation { Role = "Najemca", PropertyAddress = i.Property.Address })
-                    .GroupBy(r => r.PropertyAddress)
+                    .Select(i => new UserRelation { Role = "Najemca", Details = i.Property.Address })
+                    .GroupBy(r => r.Details)
                     .Select(g => g.First())
                     .ToList();
                 relations.AddRange(reporterFromIssueRelations);
@@ -226,13 +302,13 @@ namespace zarzadzanieMieszkaniami.Controllers
                     // Jeśli nie ma jeszcze relacji właściciela, dodaj ogólną
                     if (!relations.Any(r => r.Role == "Właściciel"))
                     {
-                        relations.Add(new UserRelation { Role = "Właściciel", PropertyAddress = null });
+                        relations.Add(new UserRelation { Role = "Właściciel", Details = null });
                     }
                 }
 
-                // Usuń duplikaty (ta sama rola + adres)
+                // Usuń duplikaty (ta sama rola + details)
                 relations = relations
-                    .GroupBy(r => new { r.Role, r.PropertyAddress })
+                    .GroupBy(r => new { r.Role, r.Details })
                     .Select(g => g.First())
                     .ToList();
 

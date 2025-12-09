@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, ScrollView, Alert, TextInput, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, ScrollView, Alert, TextInput, Modal, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { userManagementAPI, invitationsAPI, userNotesAPI } from '../../api/endpoints';
@@ -153,32 +153,40 @@ export default function ManagementScreen({ navigation, route }: any) {
   const deleteNote = async () => {
     if (!selectedUser) return;
     
-    Alert.alert(
-      'Usuń notatkę',
-      'Czy na pewno chcesz usunąć tę notatkę?',
-      [
-        { text: 'Anuluj', style: 'cancel' },
-        {
-          text: 'Usuń',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await userNotesAPI.deleteNote(selectedUser.id);
-              setUserNotes(prev => {
-                const newNotes = { ...prev };
-                delete newNotes[selectedUser.id];
-                return newNotes;
-              });
-              setNoteModalVisible(false);
-              Alert.alert('Sukces', 'Notatka została usunięta');
-            } catch (error) {
-              console.error('Failed to delete note:', error);
-              Alert.alert('Błąd', 'Nie udało się usunąć notatki');
-            }
+    const performDelete = async () => {
+      try {
+        await userNotesAPI.deleteNote(selectedUser.id);
+        setUserNotes(prev => {
+          const newNotes = { ...prev };
+          delete newNotes[selectedUser.id];
+          return newNotes;
+        });
+        setNoteModalVisible(false);
+        Alert.alert('Sukces', 'Notatka została usunięta');
+      } catch (error) {
+        console.error('Failed to delete note:', error);
+        Alert.alert('Błąd', 'Nie udało się usunąć notatki');
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      if (window.confirm('Czy na pewno chcesz usunąć tę notatkę?')) {
+        await performDelete();
+      }
+    } else {
+      Alert.alert(
+        'Usuń notatkę',
+        'Czy na pewno chcesz usunąć tę notatkę?',
+        [
+          { text: 'Anuluj', style: 'cancel' },
+          {
+            text: 'Usuń',
+            style: 'destructive',
+            onPress: performDelete
           }
-        }
-      ]
-    );
+        ]
+      );
+    }
   };
 
   const handleCancelInvitation = async (invitationId: string) => {

@@ -16,9 +16,10 @@ interface ConversationProps {
   userName: string;
   relations: UserRelation[];
   onBack: () => void;
+  onRefreshContacts?: () => void;
 }
 
-export default function Conversation({ userId, userName, relations, onBack }: ConversationProps) {
+export default function Conversation({ userId, userName, relations, onBack, onRefreshContacts }: ConversationProps) {
   const [messages, setMessages] = useState<MessageResponse[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
@@ -26,6 +27,13 @@ export default function Conversation({ userId, userName, relations, onBack }: Co
   const currentUserId = useSelector((state: RootState) => state.auth.user?.id);
   const token = useSelector((state: RootState) => state.auth.accessToken);
   const flatListRef = useRef<FlatList>(null);
+
+  // Odśwież kontakty przy wejściu do konwersacji
+  useEffect(() => {
+    if (onRefreshContacts) {
+      onRefreshContacts();
+    }
+  }, []);
 
   useEffect(() => {
     loadMessages();
@@ -166,10 +174,14 @@ export default function Conversation({ userId, userName, relations, onBack }: Co
                   <View style={styles.headerRoleBadge}>
                     <Text style={styles.headerRoleText}>{relation.role}</Text>
                   </View>
-                  {relation.propertyAddress && (
-                    <View style={styles.headerPropertyRow}>
-                      <Ionicons name="home-outline" size={12} color={Colors.textSecondary} />
-                      <Text style={styles.headerProperty} numberOfLines={1}>{relation.propertyAddress}</Text>
+                  {relation.details && (
+                    <View style={styles.headerDetailsRow}>
+                      <Ionicons 
+                        name={relation.role === 'Serwisant' ? 'construct-outline' : 'home-outline'} 
+                        size={12} 
+                        color={Colors.textSecondary} 
+                      />
+                      <Text style={styles.headerDetails} numberOfLines={1}>{relation.details}</Text>
                     </View>
                   )}
                 </View>
@@ -260,13 +272,13 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontWeight: '600',
   },
-  headerPropertyRow: {
+  headerDetailsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
     flex: 1,
   },
-  headerProperty: {
+  headerDetails: {
     fontSize: 11,
     color: Colors.textSecondary,
     flex: 1,

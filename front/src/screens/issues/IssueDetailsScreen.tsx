@@ -242,7 +242,11 @@ export default function IssueDetailsScreen({ route, navigation }: any) {
       {userRole === 'Wlasciciel' && isOwner && (
         <>
           <View style={styles.card}>
-            <AssignServicemanForm issueId={id} onAssigned={handleServicemanAssigned} />
+            <AssignServicemanForm 
+              issueId={id} 
+              onAssigned={handleServicemanAssigned}
+              currentServicemanId={selectedIssue.assignedServicemen?.[0]?.servicemanId}
+            />
           </View>
           <View style={styles.card}>
             <UpdateStatusForm 
