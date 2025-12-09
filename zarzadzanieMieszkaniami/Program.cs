@@ -8,7 +8,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
+using System.Security.Claims;
 using System.Text;
+using zarzadzanieMieszkaniami.Data;
+using zarzadzanieMieszkaniami.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,19 +74,43 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = jwtIssuer,
         ValidAudience = jwtAudience,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey)),
+        RoleClaimType = ClaimTypes.Role // Ensure role claims are recognized
+    };
+
+    // SignalR authentication
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
     };
 });
 
 builder.Services.AddControllers();
 
+builder.Services.AddSignalR();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins(
+                "http://localhost:8081", 
+                "http://193.106.130.55:8081",
+                "http://193.106.130.55:2323",
+                "http://10.0.0.5:8081"
+              )
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
@@ -136,8 +163,23 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowAll");
 app.UseStaticFiles();
-app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<ChatHub>("/chatHub");
 
+// Inicjalizacja ról
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        await DbInitializer.InitializeRoles(services);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error initializing roles: {ex.Message}");
+    }
+}
+
+app.Run();
 app.Run();

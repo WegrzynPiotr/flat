@@ -21,10 +21,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.piotreg8.zarzadzaniemieszkaniami"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "77e49fa8-aec8-4d3f-8c79-fd95bc650f8c"
+      },
+      "apiBaseUrl": "http://193.106.130.55:5162/api"
     }
   }
 }

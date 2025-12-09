@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { Issue } from '../../types/api';
+import { IssueResponse } from '../../types/api';
 import { Colors } from '../../styles/colors';
 import { Spacing } from '../../styles/spacing';
 
 interface IssueCardProps {
-  issue: Issue;
+  issue: IssueResponse;
   onPress: () => void;
 }
 
@@ -37,11 +37,22 @@ export default function IssueCard({ issue, onPress }: IssueCardProps) {
             <Text style={styles.priorityText}>{issue.priority}</Text>
           </View>
         </View>
+        {issue.propertyAddress && (
+          <View style={styles.locationRow}>
+            <Text style={styles.locationIcon}>📍</Text>
+            <Text style={styles.location}>{issue.propertyAddress}</Text>
+          </View>
+        )}
         <Text style={styles.description} numberOfLines={2}>
           {issue.description}
         </Text>
         <Text style={styles.category}>{issue.category}</Text>
         <Text style={styles.status}>Status: {issue.status}</Text>
+        {issue.assignedServicemen && issue.assignedServicemen.length > 0 && (
+          <Text style={styles.servicemen}>
+            Serwisanci: {issue.assignedServicemen.map(s => s.servicemanName).join(', ')}
+          </Text>
+        )}
       </View>
     </TouchableOpacity>
   );
@@ -51,13 +62,14 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: Colors.surface,
     borderRadius: 12,
-    marginBottom: Spacing.m,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     overflow: 'hidden',
+    width: '100%',
+    height: '100%',
   },
   photo: {
     width: '100%',
@@ -72,6 +84,24 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: Spacing.s,
+  },
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.s,
+    backgroundColor: Colors.background,
+    padding: Spacing.xs,
+    borderRadius: 8,
+  },
+  locationIcon: {
+    fontSize: 14,
+    marginRight: 4,
+  },
+  location: {
+    fontSize: 13,
+    color: Colors.text,
+    fontWeight: '500',
+    flex: 1,
   },
   title: {
     fontSize: 18,
@@ -102,5 +132,11 @@ const styles = StyleSheet.create({
   status: {
     fontSize: 12,
     color: Colors.textSecondary,
+  },
+  servicemen: {
+    fontSize: 12,
+    color: Colors.success,
+    marginTop: 4,
+    fontWeight: '500',
   },
 });

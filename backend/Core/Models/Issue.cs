@@ -9,16 +9,25 @@ namespace Core.Models
         public string Title { get; set; }
         public string Description { get; set; }
         public string Category { get; set; } // "Hydraulika", "Elektryka", "Ogrzewanie", etc.
-        public string Priority { get; set; } // "Niska", "Œrednia", "Wysoka", "Krytyczna"
-        public string Status { get; set; } // "Nowe", "Przypisane", "WTrakcie", "Rozwi¹zane", "Zamkniête"
+        public string Priority { get; set; } // "Niska", "Åšrednia", "Wysoka", "Krytyczna"
+        public string Status { get; set; } // "Nowe", "Przypisane", "WTrakcie", "RozwiÄ…zane", "ZamkniÄ™te"
         public Guid PropertyId { get; set; }
         public Guid ReportedById { get; set; }
         public DateTime ReportedAt { get; set; }
         public DateTime? ResolvedAt { get; set; }
-        public List<string> Photos { get; set; } = new List<string>();
+        public List<string> Photos { get; set; } = new List<string>(); // Legacy - zachowane dla kompatybilnoÅ›ci
 
         // Relacje
         public Property Property { get; set; }
         public User ReportedBy { get; set; }
+        
+        // Komentarze/wpisy (ticket system)
+        public ICollection<IssueComment> Comments { get; set; }
+        
+        // Przypisani serwisanci (many-to-many)
+        public ICollection<IssueServiceman> AssignedServicemen { get; set; }
+        
+        // ZdjÄ™cia z metadanymi
+        public ICollection<IssuePhoto> PhotosWithMetadata { get; set; }
     }
 }
