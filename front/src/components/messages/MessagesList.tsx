@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 import { messagesAPI } from '../../api/endpoints';
-import { ConversationUser, MessageResponse } from '../../types/api';
+import { ConversationUser, MessageResponse, UserRelation } from '../../types/api';
 import { Colors } from '../../styles/colors';
 import { Spacing } from '../../styles/spacing';
 import { Typography } from '../../styles/typography';
@@ -11,7 +12,11 @@ import { RootState } from '../../store/store';
 import { startSignalRConnection, onReceiveMessage, offReceiveMessage } from '../../services/signalrService';
 
 interface MessagesListProps {
-  onSelectContact: (userId: string, name: string) => void;
+  onSelectContact: (userId: string, name: string, relations: UserRelation[]) => void;
+}
+
+interface MessagesListProps {
+  onSelectContact: (userId: string, name: string, propertyAddress?: string) => void;
 }
 
 export default function MessagesList({ onSelectContact }: MessagesListProps) {
@@ -87,20 +92,42 @@ export default function MessagesList({ onSelectContact }: MessagesListProps) {
   const renderContact = ({ item }: { item: ConversationUser }) => (
     <TouchableOpacity
       style={styles.contactCard}
-      onPress={() => onSelectContact(item.userId, item.name)}
+      onPress={() => onSelectContact(item.userId, item.name, item.relations)}
     >
+      <View style={styles.avatarContainer}>
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>
+            {item.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+          </Text>
+        </View>
+      </View>
       <View style={styles.contactInfo}>
-        <Text style={styles.contactName}>{item.name}</Text>
-        <Text style={styles.contactRole}>{item.role}</Text>
-        {item.propertyAddress && (
-          <Text style={styles.contactProperty}>{item.propertyAddress}</Text>
+        <View style={styles.nameRow}>
+          <Text style={styles.contactName}>{item.name}</Text>
+          {item.unreadCount > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{item.unreadCount}</Text>
+            </View>
+          )}
+        </View>
+        {item.relations && item.relations.length > 0 && (
+          <View style={styles.relationsContainer}>
+            {item.relations.map((relation, index) => (
+              <View key={index} style={styles.relationRow}>
+                <View style={styles.roleBadge}>
+                  <Text style={styles.roleText}>{relation.role}</Text>
+                </View>
+                {relation.propertyAddress && (
+                  <View style={styles.propertyRow}>
+                    <Ionicons name="home-outline" size={12} color={Colors.textSecondary} />
+                    <Text style={styles.contactProperty} numberOfLines={1}>{relation.propertyAddress}</Text>
+                  </View>
+                )}
+              </View>
+            ))}
+          </View>
         )}
       </View>
-      {item.unreadCount > 0 && (
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>{item.unreadCount}</Text>
-        </View>
-      )}
     </TouchableOpacity>
   );
 
@@ -144,43 +171,91 @@ const styles = StyleSheet.create({
   },
   contactCard: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: Colors.surface,
     padding: Spacing.m,
-    borderRadius: 8,
+    borderRadius: 12,
     marginBottom: Spacing.s,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  avatarContainer: {
+    marginRight: Spacing.m,
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarText: {
+    color: Colors.white,
+    fontSize: 18,
+    fontWeight: '700',
   },
   contactInfo: {
     flex: 1,
   },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
   contactName: {
-    ...Typography.bodyBold,
+    fontSize: 16,
+    fontWeight: '600',
     color: Colors.text,
+    flex: 1,
   },
-  contactRole: {
-    fontSize: 12,
-    color: Colors.textSecondary,
-    marginTop: 4,
+  relationsContainer: {
+    gap: 4,
   },
-  contactProperty: {
+  relationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  roleBadge: {
+    backgroundColor: '#E8F4FD',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  roleText: {
     fontSize: 11,
     color: Colors.primary,
-    marginTop: 2,
-    fontStyle: 'italic',
+    fontWeight: '600',
+  },
+  propertyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    flex: 1,
+  },
+  contactProperty: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    flex: 1,
   },
   badge: {
     backgroundColor: Colors.error,
-    borderRadius: 12,
-    minWidth: 24,
-    height: 24,
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 8,
+    paddingHorizontal: 6,
   },
   badgeText: {
     color: Colors.white,
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 'bold',
   },
   emptyText: {

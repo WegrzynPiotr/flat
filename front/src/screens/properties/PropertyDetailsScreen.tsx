@@ -844,50 +844,68 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
       )}
 
       {/* Najemcy */}
-      {property.tenants && property.tenants.length > 0 && (() => {
-        const dates = property.tenants
-          .map(t => ({ start: new Date(t.startDate), end: t.endDate ? new Date(t.endDate) : null }))
-          .filter(d => !isNaN(d.start.getTime()));
-        
-        const earliestDate = dates.length > 0 ? new Date(Math.min(...dates.map(d => d.start.getTime()))) : null;
-        const latestDate = dates.length > 0 && dates.some(d => d.end)
-          ? new Date(Math.max(...dates.filter(d => d.end).map(d => d.end!.getTime())))
-          : null;
-        
-        return (
-          <View style={styles.card}>
-            <Text style={Typography.h3}>Najemcy ({property.tenants.length})</Text>
-            <View style={styles.tenantsSummary}>
-              <Ionicons name="people" size={24} color={Colors.primary} />
-              <View style={styles.tenantsInfo}>
-                <Text style={styles.tenantsNames}>
-                  {property.tenants.map(t => capitalize(t.tenantName)).join(', ')}
-                </Text>
-                {earliestDate && (
-                  <Text style={styles.tenantsDate}>
-                    Okres wynajmu: {earliestDate.toLocaleDateString('pl-PL')}
-                    {latestDate ? ` - ${latestDate.toLocaleDateString('pl-PL')}` : ' - obecnie'}
-                  </Text>
-                )}
+      {isOwner && (
+          <TouchableOpacity 
+            style={styles.card}
+            onPress={() => {
+              navigation.navigate('Management', { tab: 'assign', propertyId: property.id });
+            }}
+            activeOpacity={0.7}
+          >
+            <View style={styles.tenantsHeader}>
+              <Text style={Typography.h3}>Najemcy ({property.tenants?.length || 0})</Text>
+              <View style={styles.editTenantsHint}>
+                <Ionicons name="pencil" size={16} color={Colors.primary} />
+                <Text style={styles.editTenantsText}>Zarządzaj</Text>
               </View>
+            </View>
+            {property.tenants && property.tenants.length > 0 ? (
+              property.tenants.map((tenant, index) => (
+                <View key={index} style={styles.tenantItem}>
+                  <View style={styles.tenantAvatar}>
+                    <Ionicons name="person" size={20} color={Colors.white} />
+                  </View>
+                  <View style={styles.tenantInfo}>
+                    <Text style={styles.tenantName}>{capitalize(tenant.tenantName)}</Text>
+                    <Text style={styles.tenantDate}>
+                      {new Date(tenant.startDate).toLocaleDateString('pl-PL')}
+                      {tenant.endDate ? ` - ${new Date(tenant.endDate).toLocaleDateString('pl-PL')}` : ' - obecnie'}
+                    </Text>
+                  </View>
+                </View>
+              ))
+            ) : (
+              <View style={styles.noTenantsContainer}>
+                <Ionicons name="person-add-outline" size={32} color={Colors.textSecondary} />
+                <Text style={styles.noTenantsText}>Brak przypisanych najemców</Text>
+                <Text style={styles.noTenantsHint}>Kliknij, aby przypisać najemcę</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+      )}
+
+      {/* Najemcy - widok dla najemcy (nie właściciela) */}
+      {!isOwner && property.tenants && property.tenants.length > 0 && (
+          <View style={styles.card}>
+            <View style={styles.tenantsHeader}>
+              <Text style={Typography.h3}>Najemcy ({property.tenants.length})</Text>
             </View>
             {property.tenants.map((tenant, index) => (
               <View key={index} style={styles.tenantItem}>
-                <Ionicons name="person" size={18} color={Colors.textSecondary} />
-                <Text style={styles.tenantName}>{capitalize(tenant.tenantName)}</Text>
-                {isOwner && (
-                  <TouchableOpacity
-                    style={styles.tenantDeleteButton}
-                    onPress={() => removeTenant(tenant.tenantId)}
-                  >
-                    <Ionicons name="trash-outline" size={18} color={Colors.error} />
-                  </TouchableOpacity>
-                )}
+                <View style={styles.tenantAvatar}>
+                  <Ionicons name="person" size={20} color={Colors.white} />
+                </View>
+                <View style={styles.tenantInfo}>
+                  <Text style={styles.tenantName}>{capitalize(tenant.tenantName)}</Text>
+                  <Text style={styles.tenantDate}>
+                    {new Date(tenant.startDate).toLocaleDateString('pl-PL')}
+                    {tenant.endDate ? ` - ${new Date(tenant.endDate).toLocaleDateString('pl-PL')}` : ' - obecnie'}
+                  </Text>
+                </View>
               </View>
             ))}
           </View>
-        );
-      })()}
+      )}
 
       {/* Lightbox Modal */}
       <Modal
@@ -1305,31 +1323,31 @@ const styles = StyleSheet.create({
   tenantItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    padding: 8,
-    marginTop: 6,
-    backgroundColor: 'transparent',
-  },
-  tenantsSummary: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
     gap: 12,
-    padding: 14,
+    padding: 12,
+    marginTop: 8,
     backgroundColor: '#F8F9FA',
-    borderRadius: 8,
-    marginTop: 12,
-    marginBottom: 8,
+    borderRadius: 10,
   },
-  tenantsInfo: {
-    flex: 1,
+  tenantAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  tenantsNames: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: Colors.text,
-    marginBottom: 4,
+  tenantsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  tenantsDate: {
+  editTenantsHint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  editTenantsText: {
     fontSize: 14,
     color: Colors.primary,
     fontWeight: '500',
@@ -1338,8 +1356,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   tenantName: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: 15,
+    fontWeight: '600',
     color: Colors.text,
   },
   tenantDate: {
@@ -1349,6 +1367,20 @@ const styles = StyleSheet.create({
   },
   tenantDeleteButton: {
     padding: Spacing.s,
+  },
+  noTenantsContainer: {
+    alignItems: 'center',
+    paddingVertical: Spacing.l,
+    gap: 8,
+  },
+  noTenantsText: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: Colors.textSecondary,
+  },
+  noTenantsHint: {
+    fontSize: 13,
+    color: Colors.primary,
   },
   ownerInfo: {
     marginTop: Spacing.m,

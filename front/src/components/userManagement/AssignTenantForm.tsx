@@ -14,13 +14,14 @@ import { RootState } from '../../store/store';
 
 interface AssignTenantFormProps {
   onTenantAssigned?: () => void;
+  initialPropertyId?: string;
 }
 
-export default function AssignTenantForm({ onTenantAssigned }: AssignTenantFormProps) {
+export default function AssignTenantForm({ onTenantAssigned, initialPropertyId }: AssignTenantFormProps) {
   const user = useSelector((state: RootState) => state.auth.user);
   const [properties, setProperties] = useState<PropertyResponse[]>([]);
   const [tenants, setTenants] = useState<UserManagementResponse[]>([]);
-  const [selectedProperty, setSelectedProperty] = useState<string>('');
+  const [selectedProperty, setSelectedProperty] = useState<string>(initialPropertyId || '');
   const [selectedTenants, setSelectedTenants] = useState<string[]>([]);
   const [initialTenants, setInitialTenants] = useState<string[]>([]); // Oryginalni najemcy nieruchomości
   const [searchQuery, setSearchQuery] = useState('');
@@ -39,6 +40,13 @@ export default function AssignTenantForm({ onTenantAssigned }: AssignTenantFormP
   useEffect(() => {
     loadData();
   }, []);
+
+  // Ustaw początkową nieruchomość gdy jest przekazana
+  useEffect(() => {
+    if (initialPropertyId && properties.length > 0) {
+      setSelectedProperty(initialPropertyId);
+    }
+  }, [initialPropertyId, properties]);
 
   // Ładuj aktualnych najemców po wybraniu nieruchomości
   useEffect(() => {
@@ -207,103 +215,166 @@ export default function AssignTenantForm({ onTenantAssigned }: AssignTenantFormP
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={true}>
-      <Text style={Typography.h2}>Przypisz najemców</Text>
+      {/* Nagłówek */}
+      <View style={styles.header}>
+        <View style={styles.iconWrapper}>
+          <Ionicons name="link" size={28} color={Colors.primary} />
+        </View>
+        <View style={styles.headerText}>
+          <Text style={styles.title}>Przypisz najemców</Text>
+          <Text style={styles.subtitle}>
+            Dodaj najemców do nieruchomości
+          </Text>
+        </View>
+      </View>
 
       <View style={styles.form}>
-        <Text style={styles.label}>Nieruchomość</Text>
-        <View style={styles.pickerContainer}>
-          <Picker
-            selectedValue={selectedProperty}
-            onValueChange={setSelectedProperty}
-            style={styles.picker}
-          >
-            <Picker.Item label="Wybierz nieruchomość..." value="" />
-            {properties.map((prop) => (
-              <Picker.Item key={prop.id} label={prop.address} value={prop.id} />
-            ))}
-          </Picker>
+        {/* Wybór nieruchomości */}
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>
+            <Ionicons name="home-outline" size={14} color={Colors.textSecondary} /> Nieruchomość
+          </Text>
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={selectedProperty}
+              onValueChange={setSelectedProperty}
+              style={styles.picker}
+            >
+              <Picker.Item label="Wybierz nieruchomość..." value="" />
+              {properties.map((prop) => (
+                <Picker.Item key={prop.id} label={prop.address} value={prop.id} />
+              ))}
+            </Picker>
+          </View>
         </View>
 
-        <Text style={styles.label}>Wyszukaj najemców</Text>
-        <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color={Colors.textSecondary} />
-          <TextInput
-            style={styles.searchInput}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholder="Wpisz imię, nazwisko lub email..."
-            placeholderTextColor={Colors.textSecondary}
-          />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Ionicons name="close-circle" size={20} color={Colors.textSecondary} />
-            </TouchableOpacity>
+        {/* Wyszukiwanie najemców */}
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>
+            <Ionicons name="search-outline" size={14} color={Colors.textSecondary} /> Wyszukaj najemców
+          </Text>
+          <View style={styles.searchContainer}>
+            <Ionicons name="search" size={20} color={Colors.textSecondary} />
+            <TextInput
+              style={styles.searchInput}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholder="Wpisz imię, nazwisko lub email..."
+              placeholderTextColor={Colors.textSecondary}
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => setSearchQuery('')}>
+                <Ionicons name="close-circle" size={20} color={Colors.textSecondary} />
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+
+        {/* Lista najemców */}
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>
+            <Ionicons name="people-outline" size={14} color={Colors.textSecondary} /> Wybrani najemcy 
+            <Text style={styles.countBadge}> ({selectedTenants.length})</Text>
+          </Text>
+          
+          {filteredTenants.length === 0 ? (
+            <View style={styles.emptyTenantsContainer}>
+              <Ionicons name="person-add-outline" size={40} color={Colors.textSecondary} />
+              <Text style={styles.emptyTenantsText}>Brak najemców do wyświetlenia</Text>
+              <Text style={styles.emptyTenantsHint}>Najpierw zaproś najemców w zakładce "Dodaj"</Text>
+            </View>
+          ) : (
+            <View style={styles.tenantsScrollView}>
+              {filteredTenants.map((tenant) => {
+                const isSelected = selectedTenants.includes(tenant.id);
+                return (
+                  <TouchableOpacity
+                    key={tenant.id}
+                    style={[styles.tenantSelectItem, isSelected && styles.tenantSelectItemSelected]}
+                    onPress={() => toggleTenantSelection(tenant.id)}
+                  >
+                    <View style={[styles.tenantIcon, isSelected && styles.tenantIconSelected]}>
+                      <Ionicons 
+                        name="person" 
+                        size={18} 
+                        color={isSelected ? '#fff' : Colors.primary} 
+                      />
+                    </View>
+                    <View style={styles.tenantSelectInfo}>
+                      <Text style={[styles.tenantSelectName, isSelected && styles.tenantSelectNameSelected]}>
+                        {capitalizeFullName(tenant.firstName, tenant.lastName)}
+                      </Text>
+                      <Text style={styles.tenantSelectEmail}>{tenant.email}</Text>
+                    </View>
+                    <Ionicons 
+                      name={isSelected ? "checkbox" : "square-outline"} 
+                      size={24} 
+                      color={isSelected ? Colors.primary : Colors.textSecondary} 
+                    />
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           )}
         </View>
 
-        <Text style={styles.label}>
-          Wybrani najemcy ({selectedTenants.length})
-        </Text>
-        <ScrollView style={styles.tenantsScrollView}>
-          {filteredTenants.map((tenant) => {
-            const isSelected = selectedTenants.includes(tenant.id);
-            return (
-              <TouchableOpacity
-                key={tenant.id}
-                style={[styles.tenantSelectItem, isSelected && styles.tenantSelectItemSelected]}
-                onPress={() => toggleTenantSelection(tenant.id)}
-              >
-                <View style={styles.tenantSelectInfo}>
-                  <Text style={[styles.tenantSelectName, isSelected && styles.tenantSelectNameSelected]}>
-                    {capitalizeFullName(tenant.firstName, tenant.lastName)}
-                  </Text>
-                  <Text style={styles.tenantSelectEmail}>{tenant.email}</Text>
-                </View>
-                <Ionicons 
-                  name={isSelected ? "checkbox" : "square-outline"} 
-                  size={24} 
-                  color={isSelected ? Colors.primary : Colors.textSecondary} 
-                />
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
+        {/* Daty */}
+        <View style={styles.datesRow}>
+          <View style={styles.dateColumn}>
+            <Text style={styles.label}>
+              <Ionicons name="calendar-outline" size={14} color={Colors.textSecondary} /> Od
+            </Text>
+            <TouchableOpacity
+              style={styles.dateInput}
+              onPress={() => setShowStartCalendar(true)}
+            >
+              <Ionicons name="calendar" size={18} color={Colors.primary} />
+              <Text style={styles.dateInputText}>{startDate || 'Wybierz'}</Text>
+            </TouchableOpacity>
+          </View>
 
-        <Text style={styles.label}>Data rozpoczęcia wynajmu</Text>
-        <TouchableOpacity
-          style={styles.dateInput}
-          onPress={() => setShowStartCalendar(true)}
-        >
-          <Ionicons name="calendar" size={20} color={Colors.primary} />
-          <Text style={styles.dateInputText}>{startDate || 'Wybierz datę'}</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.label}>Data zakończenia wynajmu (opcjonalnie)</Text>
-        <TouchableOpacity
-          style={styles.dateInput}
-          onPress={() => setShowEndCalendar(true)}
-        >
-          <Ionicons name="calendar" size={20} color={Colors.primary} />
-          <Text style={styles.dateInputText}>{endDate || 'Wybierz datę (opcjonalnie)'}</Text>
-        </TouchableOpacity>
+          <View style={styles.dateColumn}>
+            <Text style={styles.label}>
+              <Ionicons name="calendar-outline" size={14} color={Colors.textSecondary} /> Do (opcjonalnie)
+            </Text>
+            <TouchableOpacity
+              style={styles.dateInput}
+              onPress={() => setShowEndCalendar(true)}
+            >
+              <Ionicons name="calendar" size={18} color={Colors.primary} />
+              <Text style={[styles.dateInputText, !endDate && styles.dateInputPlaceholder]}>
+                {endDate || 'Bezterminowo'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        
         {endDate && (
           <TouchableOpacity 
             style={styles.clearDateButton}
             onPress={() => setEndDate('')}
           >
+            <Ionicons name="close-circle" size={16} color={Colors.error} />
             <Text style={styles.clearDateText}>Wyczyść datę zakończenia</Text>
           </TouchableOpacity>
         )}
-        <Text style={styles.hint}>Pozostaw puste dla umowy bezterminowej</Text>
 
+        {/* Przycisk */}
         <TouchableOpacity
           style={[styles.submitButton, submitting && styles.submitButtonDisabled]}
           onPress={handleAssign}
           disabled={submitting}
         >
-          <Text style={styles.submitButtonText}>
-            {submitting ? 'Aktualizuję...' : `Zaktualizuj (${selectedTenants.length})`}
-          </Text>
+          {submitting ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <>
+              <Ionicons name="checkmark-circle" size={20} color="#fff" />
+              <Text style={styles.submitButtonText}>
+                Zaktualizuj przypisanie ({selectedTenants.length})
+              </Text>
+            </>
+          )}
         </TouchableOpacity>
       </View>
 
@@ -388,20 +459,55 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.l,
+    gap: Spacing.m,
+  },
+  iconWrapper: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: Colors.primary + '15',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerText: {
+    flex: 1,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: Colors.text,
+    marginBottom: 2,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+  },
   form: {
-    marginTop: Spacing.l,
+    gap: Spacing.xs,
+  },
+  inputGroup: {
+    marginBottom: Spacing.m,
   },
   label: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
-    marginBottom: Spacing.s,
-    marginTop: Spacing.m,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.xs,
+  },
+  countBadge: {
+    color: Colors.primary,
+    fontWeight: '700',
   },
   pickerContainer: {
     borderWidth: 1,
     borderColor: Colors.border,
-    borderRadius: 8,
-    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    backgroundColor: '#FAFAFA',
+    overflow: 'hidden',
   },
   picker: {
     height: 50,
@@ -412,8 +518,8 @@ const styles = StyleSheet.create({
     gap: Spacing.s,
     borderWidth: 1,
     borderColor: Colors.border,
-    borderRadius: 8,
-    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    backgroundColor: '#FAFAFA',
     paddingHorizontal: Spacing.m,
     paddingVertical: Spacing.s,
   },
@@ -424,22 +530,55 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.xs,
   },
   tenantsScrollView: {
-    maxHeight: 300,
+    maxHeight: 280,
     borderWidth: 1,
     borderColor: Colors.border,
-    borderRadius: 8,
-    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    backgroundColor: '#FAFAFA',
+    overflow: 'hidden',
+  },
+  emptyTenantsContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Spacing.xl,
+    backgroundColor: '#FAFAFA',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderStyle: 'dashed',
+  },
+  emptyTenantsText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.textSecondary,
+    marginTop: Spacing.s,
+  },
+  emptyTenantsHint: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    marginTop: Spacing.xs,
   },
   tenantSelectItem: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     padding: Spacing.m,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
+    gap: Spacing.m,
   },
   tenantSelectItemSelected: {
+    backgroundColor: Colors.primary + '10',
+  },
+  tenantIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: Colors.primary + '15',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tenantIconSelected: {
+    backgroundColor: Colors.primary,
   },
   tenantSelectInfo: {
     flex: 1,
@@ -457,34 +596,48 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.textSecondary,
   },
+  datesRow: {
+    flexDirection: 'row',
+    gap: Spacing.m,
+    marginBottom: Spacing.s,
+  },
+  dateColumn: {
+    flex: 1,
+  },
   dateInput: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.m,
+    gap: Spacing.s,
     borderWidth: 1,
     borderColor: Colors.border,
-    borderRadius: 8,
-    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    backgroundColor: '#FAFAFA',
     padding: Spacing.m,
   },
   dateInputText: {
-    fontSize: 16,
+    fontSize: 14,
     color: Colors.text,
+    fontWeight: '500',
+  },
+  dateInputPlaceholder: {
+    color: Colors.textSecondary,
   },
   clearDateButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     alignSelf: 'flex-start',
-    marginTop: Spacing.xs,
+    gap: Spacing.xs,
+    marginBottom: Spacing.m,
   },
   clearDateText: {
     fontSize: 13,
     color: Colors.error,
-    textDecorationLine: 'underline',
   },
   input: {
     borderWidth: 1,
     borderColor: Colors.border,
-    borderRadius: 8,
-    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    backgroundColor: '#FAFAFA',
     padding: Spacing.m,
     fontSize: 16,
     color: Colors.text,
@@ -503,7 +656,7 @@ const styles = StyleSheet.create({
   },
   calendarModal: {
     backgroundColor: Colors.surface,
-    borderRadius: 12,
+    borderRadius: 16,
     padding: Spacing.l,
     width: '90%',
     maxWidth: 400,
@@ -515,18 +668,26 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.m,
   },
   submitButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: Colors.primary,
     padding: Spacing.m,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: Spacing.xl,
+    borderRadius: 12,
+    gap: Spacing.s,
+    marginTop: Spacing.l,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   submitButtonDisabled: {
-    backgroundColor: Colors.textSecondary,
+    opacity: 0.7,
   },
   submitButtonText: {
     color: '#FFFFFF',
-    fontWeight: 'bold',
+    fontWeight: '700',
     fontSize: 16,
   },
   tenantsSection: {
@@ -535,7 +696,7 @@ const styles = StyleSheet.create({
   tenantCard: {
     backgroundColor: Colors.surface,
     padding: Spacing.m,
-    borderRadius: 8,
+    borderRadius: 12,
     marginTop: Spacing.s,
   },
   dateText: {

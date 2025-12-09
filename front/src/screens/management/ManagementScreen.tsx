@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, ScrollView, Alert } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, ScrollView, Alert, TextInput, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { userManagementAPI, invitationsAPI } from '../../api/endpoints';
-import { UserManagementResponse, InvitationResponse } from '../../types/api';
+import { useFocusEffect } from '@react-navigation/native';
+import { userManagementAPI, invitationsAPI, userNotesAPI } from '../../api/endpoints';
+import { UserManagementResponse, InvitationResponse, UserNoteResponse } from '../../types/api';
 import { capitalizeFullName } from '../../utils/textFormatters';
 import InviteUserForm from '../../components/userManagement/InviteUserForm';
 import AssignTenantForm from '../../components/userManagement/AssignTenantForm';
@@ -12,12 +13,39 @@ import { Typography } from '../../styles/typography';
 
 type TabType = 'tenants' | 'servicemen' | 'assign' | 'invite';
 
-export default function ManagementScreen({ navigation }: any) {
+export default function ManagementScreen({ navigation, route }: any) {
   const [activeTab, setActiveTab] = useState<TabType>('tenants');
+  const [currentPropertyId, setCurrentPropertyId] = useState<string | undefined>(undefined);
   const [tenants, setTenants] = useState<UserManagementResponse[]>([]);
   const [servicemen, setServicemen] = useState<UserManagementResponse[]>([]);
   const [sentInvitations, setSentInvitations] = useState<InvitationResponse[]>([]);
   const [loading, setLoading] = useState(false);
+  
+  // Notatki
+  const [userNotes, setUserNotes] = useState<Record<string, string>>({});
+  const [noteModalVisible, setNoteModalVisible] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserManagementResponse | null>(null);
+  const [noteContent, setNoteContent] = useState('');
+
+  // Aktualizuj zakładkę i propertyId przy każdym wejściu na ekran
+  useFocusEffect(
+    useCallback(() => {
+      const tab = route?.params?.tab as TabType | undefined;
+      const propertyId = route?.params?.propertyId as string | undefined;
+      
+      if (tab) {
+        setActiveTab(tab);
+      }
+      if (propertyId) {
+        setCurrentPropertyId(propertyId);
+      }
+      
+      // Wyczyść parametry po użyciu (żeby nie były używane przy kolejnym wejściu bez parametrów)
+      if (tab || propertyId) {
+        navigation.setParams({ tab: undefined, propertyId: undefined });
+      }
+    }, [route?.params?.tab, route?.params?.propertyId])
+  );
 
   // Załaduj obie listy przy montowaniu komponentu
   useEffect(() => {
@@ -34,14 +62,24 @@ export default function ManagementScreen({ navigation }: any) {
 
   const loadAllData = async () => {
     try {
-      const [tenantsRes, servicemenRes, invitationsRes] = await Promise.all([
+      const [tenantsRes, servicemenRes, invitationsRes, notesRes] = await Promise.all([
         userManagementAPI.getMyTenants(),
         userManagementAPI.getMyServicemen(),
-        invitationsAPI.getSent()
+        invitationsAPI.getSent(),
+        userNotesAPI.getAllNotes()
       ]);
       setTenants(tenantsRes.data);
       setServicemen(servicemenRes.data);
       setSentInvitations(invitationsRes.data);
+      
+      // Przekształć tablicę notatek na mapę userId -> content
+      const notesMap: Record<string, string> = {};
+      notesRes.data.forEach((note: UserNoteResponse) => {
+        if (note.content) {
+          notesMap[note.targetUserId] = note.content;
+        }
+      });
+      setUserNotes(notesMap);
     } catch (error) {
       console.error('Failed to load all data:', error);
     }
@@ -79,15 +117,68 @@ export default function ManagementScreen({ navigation }: any) {
   };
 
   const handleTenantAssigned = async () => {
-    // Odśwież wszystkie listy
+    // Odśwież wszystkie listy (zostań na zakładce Przypisz)
     await loadAllData();
-    // Przełącz na zakładkę "Najemcy" aby pokazać zaktualizowane dane
-    setActiveTab('tenants');
   };
 
   const handleInvitationSent = async () => {
     // Odśwież listę wysłanych zaproszeń
     await loadSentInvitations();
+  };
+
+  // Funkcje obsługi notatek
+  const openNoteModal = (user: UserManagementResponse) => {
+    setSelectedUser(user);
+    setNoteContent(userNotes[user.id] || '');
+    setNoteModalVisible(true);
+  };
+
+  const saveNote = async () => {
+    if (!selectedUser) return;
+    
+    try {
+      await userNotesAPI.saveNote(selectedUser.id, noteContent);
+      setUserNotes(prev => ({
+        ...prev,
+        [selectedUser.id]: noteContent
+      }));
+      setNoteModalVisible(false);
+      Alert.alert('Sukces', 'Notatka została zapisana');
+    } catch (error) {
+      console.error('Failed to save note:', error);
+      Alert.alert('Błąd', 'Nie udało się zapisać notatki');
+    }
+  };
+
+  const deleteNote = async () => {
+    if (!selectedUser) return;
+    
+    Alert.alert(
+      'Usuń notatkę',
+      'Czy na pewno chcesz usunąć tę notatkę?',
+      [
+        { text: 'Anuluj', style: 'cancel' },
+        {
+          text: 'Usuń',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await userNotesAPI.deleteNote(selectedUser.id);
+              setUserNotes(prev => {
+                const newNotes = { ...prev };
+                delete newNotes[selectedUser.id];
+                return newNotes;
+              });
+              setNoteModalVisible(false);
+              Alert.alert('Sukces', 'Notatka została usunięta');
+            } catch (error) {
+              console.error('Failed to delete note:', error);
+              Alert.alert('Błąd', 'Nie udało się usunąć notatki');
+            }
+          }
+        }
+      ]
+    );
   };
 
   const handleCancelInvitation = async (invitationId: string) => {
@@ -112,36 +203,62 @@ export default function ManagementScreen({ navigation }: any) {
     );
   };
 
-  const renderUserCard = ({ item }: { item: UserManagementResponse }) => (
-    <View style={styles.userCard}>
-      <View style={styles.userInfo}>
-        <View style={styles.iconContainer}>
-          <Ionicons 
-            name={activeTab === 'tenants' ? 'person' : 'construct'} 
-            size={24} 
-            color={Colors.primary} 
-          />
-        </View>
-        <View style={styles.userDetails}>
-          <Text style={styles.userName}>{capitalizeFullName(item.firstName, item.lastName)}</Text>
-          <Text style={styles.userEmail}>{item.email}</Text>
-          {activeTab === 'tenants' && item.properties && item.properties.length > 0 && (
-            <View style={styles.propertiesContainer}>
-              {item.properties.map((address, index) => (
-                <View key={index} style={styles.propertyItem}>
-                  <Ionicons name="home" size={14} color={Colors.primary} />
-                  <Text style={styles.propertyAddress}>{address}</Text>
-                </View>
-              ))}
+  const renderUserCard = ({ item }: { item: UserManagementResponse }) => {
+    const note = userNotes[item.id];
+    
+    return (
+      <TouchableOpacity 
+        style={styles.userCard}
+        onPress={() => openNoteModal(item)}
+        activeOpacity={0.7}
+      >
+        <View style={styles.userInfo}>
+          <View style={styles.iconContainer}>
+            <Ionicons 
+              name={activeTab === 'tenants' ? 'person' : 'construct'} 
+              size={24} 
+              color={Colors.primary} 
+            />
+          </View>
+          <View style={styles.userDetails}>
+            <View style={styles.userNameRow}>
+              <Text style={styles.userName}>{capitalizeFullName(item.firstName, item.lastName)}</Text>
+              <TouchableOpacity 
+                style={styles.noteButton}
+                onPress={() => openNoteModal(item)}
+              >
+                <Ionicons 
+                  name={note ? 'document-text' : 'document-text-outline'} 
+                  size={20} 
+                  color={note ? Colors.primary : Colors.textSecondary} 
+                />
+              </TouchableOpacity>
             </View>
-          )}
-          {activeTab === 'tenants' && (!item.properties || item.properties.length === 0) && (
-            <Text style={styles.noProperties}>Nie przypisano do żadnej nieruchomości</Text>
-          )}
+            <Text style={styles.userEmail}>{item.email}</Text>
+            {note && (
+              <View style={styles.notePreview}>
+                <Ionicons name="create-outline" size={14} color={Colors.textSecondary} />
+                <Text style={styles.notePreviewText} numberOfLines={2}>{note}</Text>
+              </View>
+            )}
+            {activeTab === 'tenants' && item.properties && item.properties.length > 0 && (
+              <View style={styles.propertiesContainer}>
+                {item.properties.map((address, index) => (
+                  <View key={index} style={styles.propertyItem}>
+                    <Ionicons name="home" size={14} color={Colors.primary} />
+                    <Text style={styles.propertyAddress}>{address}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+            {activeTab === 'tenants' && (!item.properties || item.properties.length === 0) && (
+              <Text style={styles.noProperties}>Nie przypisano do żadnej nieruchomości</Text>
+            )}
+          </View>
         </View>
-      </View>
-    </View>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   const renderContent = () => {
     if (activeTab === 'tenants' || activeTab === 'servicemen') {
@@ -185,7 +302,11 @@ export default function ManagementScreen({ navigation }: any) {
     if (activeTab === 'assign') {
       return (
         <View style={styles.formContainer}>
-          <AssignTenantForm onTenantAssigned={handleTenantAssigned} />
+          <AssignTenantForm 
+            key={currentPropertyId || 'no-property'}
+            onTenantAssigned={handleTenantAssigned} 
+            initialPropertyId={currentPropertyId}
+          />
         </View>
       );
     }
@@ -330,6 +451,59 @@ export default function ManagementScreen({ navigation }: any) {
 
       {/* Zawartość */}
       {renderContent()}
+
+      {/* Modal notatki */}
+      <Modal
+        visible={noteModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setNoteModalVisible(false)}
+      >
+        <View style={styles.noteModalOverlay}>
+          <View style={styles.noteModalContent}>
+            <View style={styles.noteModalHeader}>
+              <Text style={styles.noteModalTitle}>
+                Notatka o {selectedUser ? capitalizeFullName(selectedUser.firstName, selectedUser.lastName) : ''}
+              </Text>
+              <TouchableOpacity onPress={() => setNoteModalVisible(false)}>
+                <Ionicons name="close" size={24} color={Colors.textSecondary} />
+              </TouchableOpacity>
+            </View>
+            
+            <Text style={styles.noteModalSubtitle}>
+              Prywatna notatka widoczna tylko dla Ciebie
+            </Text>
+            
+            <TextInput
+              style={styles.noteInput}
+              multiline
+              placeholder="Wpisz notatkę..."
+              value={noteContent}
+              onChangeText={setNoteContent}
+              textAlignVertical="top"
+            />
+            
+            <View style={styles.noteModalButtons}>
+              {userNotes[selectedUser?.id || ''] && (
+                <TouchableOpacity 
+                  style={styles.deleteNoteButton}
+                  onPress={deleteNote}
+                >
+                  <Ionicons name="trash-outline" size={20} color={Colors.error} />
+                  <Text style={styles.deleteNoteText}>Usuń</Text>
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity 
+                style={styles.saveNoteButton}
+                onPress={saveNote}
+              >
+                <Ionicons name="checkmark" size={20} color={Colors.white} />
+                <Text style={styles.saveNoteText}>Zapisz</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -562,5 +736,101 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     padding: Spacing.xs,
+  },
+  // Notatki
+  userNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  noteButton: {
+    padding: 4,
+  },
+  notePreview: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 6,
+    marginTop: 6,
+    paddingTop: 6,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+  },
+  notePreviewText: {
+    flex: 1,
+    fontSize: 13,
+    color: Colors.textSecondary,
+    fontStyle: 'italic',
+  },
+  noteModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  noteModalContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: Spacing.l,
+    paddingBottom: Spacing.xl,
+    maxHeight: '80%',
+  },
+  noteModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.s,
+  },
+  noteModalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  noteModalSubtitle: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.m,
+  },
+  noteInput: {
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    padding: Spacing.m,
+    minHeight: 150,
+    fontSize: 15,
+    color: Colors.text,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  noteModalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: Spacing.m,
+    marginTop: Spacing.m,
+  },
+  deleteNoteButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: Spacing.s,
+    paddingHorizontal: Spacing.m,
+  },
+  deleteNoteText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: Colors.error,
+  },
+  saveNoteButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: Colors.primary,
+    paddingVertical: Spacing.s,
+    paddingHorizontal: Spacing.l,
+    borderRadius: 10,
+  },
+  saveNoteText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: Colors.white,
   },
 });

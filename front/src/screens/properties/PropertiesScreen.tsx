@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, FlatList, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Modal, ScrollView, Image, Platform, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { fetchProperties } from '../../store/slices/propertiesSlice';
 import { AppDispatch, RootState } from '../../store/store';
@@ -30,9 +31,12 @@ export default function PropertiesScreen({ navigation }: any) {
   const [photoPreviewUrls, setPhotoPreviewUrls] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
 
-  useEffect(() => {
-    dispatch(fetchProperties());
-  }, [dispatch]);
+  // Odświeżaj nieruchomości przy każdym wejściu na ekran
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(fetchProperties());
+    }, [dispatch])
+  );
 
   const pickImage = async () => {
     if (Platform.OS === 'web') {

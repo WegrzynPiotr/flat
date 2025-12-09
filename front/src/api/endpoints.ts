@@ -14,7 +14,8 @@ import {
   CreateUserRequest,
   AssignTenantRequest,
   AssignServicemanRequest,
-  InvitationResponse
+  InvitationResponse,
+  UserNoteResponse
 } from '../types/api';
 import { storage } from '../utils/storage';
 import Constants from 'expo-constants';
@@ -203,6 +204,18 @@ export const userManagementAPI = {
     client.get<UserManagementResponse[]>('/usermanagement/my-servicemen'),
   removeTenant: (propertyId: string, tenantId: string) =>
     client.delete(`/usermanagement/remove-tenant?propertyId=${propertyId}&tenantId=${tenantId}`),
+};
+
+// User Notes (prywatne notatki właściciela)
+export const userNotesAPI = {
+  getNote: (targetUserId: string) =>
+    client.get<UserNoteResponse>(`/usernotes/${targetUserId}`),
+  getAllNotes: () =>
+    client.get<UserNoteResponse[]>('/usernotes'),
+  saveNote: (targetUserId: string, content: string) =>
+    client.post(`/usernotes/${targetUserId}`, { content }),
+  deleteNote: (targetUserId: string) =>
+    client.delete(`/usernotes/${targetUserId}`),
 };
 
 // Invitations (Zaproszenia)

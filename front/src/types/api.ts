@@ -131,12 +131,16 @@ export interface MessageResponse {
   sentAt: string;
 }
 
+export interface UserRelation {
+  role: string;
+  propertyAddress?: string;
+}
+
 export interface ConversationUser {
   userId: string;
   name: string;
-  role: string;
   unreadCount: number;
-  propertyAddress?: string;
+  relations: UserRelation[];
 }
 
 export interface Repair {
@@ -241,4 +245,12 @@ export interface InvitationResponse {
   message?: string;
   createdAt: string;
   respondedAt?: string;
+}
+
+export interface UserNoteResponse {
+  id?: string;
+  targetUserId: string;
+  content?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }

@@ -22,8 +22,13 @@ namespace Application.DTOs
     {
         public Guid UserId { get; set; }
         public string Name { get; set; }
-        public string Role { get; set; }
         public int UnreadCount { get; set; }
+        public List<UserRelation> Relations { get; set; } = new List<UserRelation>();
+    }
+
+    public class UserRelation
+    {
+        public string Role { get; set; } // "Właściciel", "Najemca", "Serwisant", "Wynajmujący"
         public string PropertyAddress { get; set; }
     }
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { messagesAPI } from '../../api/endpoints';
-import { MessageResponse } from '../../types/api';
+import { MessageResponse, UserRelation } from '../../types/api';
 import { Colors } from '../../styles/colors';
 import { Spacing } from '../../styles/spacing';
 import { Typography } from '../../styles/typography';
@@ -9,13 +9,16 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import { startSignalRConnection, stopSignalRConnection, onReceiveMessage, offReceiveMessage } from '../../services/signalrService';
 
+import { Ionicons } from '@expo/vector-icons';
+
 interface ConversationProps {
   userId: string;
   userName: string;
+  relations: UserRelation[];
   onBack: () => void;
 }
 
-export default function Conversation({ userId, userName, onBack }: ConversationProps) {
+export default function Conversation({ userId, userName, relations, onBack }: ConversationProps) {
   const [messages, setMessages] = useState<MessageResponse[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
@@ -152,9 +155,28 @@ export default function Conversation({ userId, userName, onBack }: ConversationP
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Text style={styles.backText}>← Wróć</Text>
+          <Ionicons name="arrow-back" size={24} color={Colors.primary} />
         </TouchableOpacity>
-        <Text style={Typography.h3}>{userName}</Text>
+        <View style={styles.headerInfo}>
+          <Text style={styles.headerName}>{userName}</Text>
+          {relations && relations.length > 0 && (
+            <View style={styles.headerRelations}>
+              {relations.map((relation, index) => (
+                <View key={index} style={styles.headerRelationRow}>
+                  <View style={styles.headerRoleBadge}>
+                    <Text style={styles.headerRoleText}>{relation.role}</Text>
+                  </View>
+                  {relation.propertyAddress && (
+                    <View style={styles.headerPropertyRow}>
+                      <Ionicons name="home-outline" size={12} color={Colors.textSecondary} />
+                      <Text style={styles.headerProperty} numberOfLines={1}>{relation.propertyAddress}</Text>
+                    </View>
+                  )}
+                </View>
+              ))}
+            </View>
+          )}
+        </View>
       </View>
 
       <FlatList
@@ -207,10 +229,47 @@ const styles = StyleSheet.create({
   },
   backButton: {
     marginRight: Spacing.m,
+    padding: 4,
   },
-  backText: {
+  headerInfo: {
+    flex: 1,
+  },
+  headerName: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  headerRelations: {
+    marginTop: 4,
+    gap: 3,
+  },
+  headerRelationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    flexWrap: 'wrap',
+  },
+  headerRoleBadge: {
+    backgroundColor: '#E8F4FD',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  headerRoleText: {
+    fontSize: 10,
     color: Colors.primary,
-    fontSize: 16,
+    fontWeight: '600',
+  },
+  headerPropertyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    flex: 1,
+  },
+  headerProperty: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    flex: 1,
   },
   messagesList: {
     flex: 1,

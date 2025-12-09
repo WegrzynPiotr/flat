@@ -22,6 +22,7 @@ namespace Infrastructure
         public DbSet<IssueServiceman> IssueServicemen { get; set; }
         public DbSet<PropertyDocument> PropertyDocuments { get; set; }
         public DbSet<UserInvitation> UserInvitations { get; set; }
+        public DbSet<UserNote> UserNotes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -275,6 +276,28 @@ namespace Infrastructure
                 entity.HasIndex(e => new { e.InviterId, e.InviteeId, e.InvitationType })
                     .IsUnique()
                     .HasFilter("status = 'Pending'");
+            });
+
+            // Konfiguracja UserNote
+            modelBuilder.Entity<UserNote>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Content).IsRequired().HasMaxLength(2000);
+                entity.Property(e => e.CreatedAt).IsRequired();
+
+                entity.HasOne(e => e.Owner)
+                    .WithMany()
+                    .HasForeignKey(e => e.OwnerId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.TargetUser)
+                    .WithMany()
+                    .HasForeignKey(e => e.TargetUserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // Indeks - jeden użytkownik może mieć jedną notatkę dla danego użytkownika
+                entity.HasIndex(e => new { e.OwnerId, e.TargetUserId })
+                    .IsUnique();
             });
         }
     }
