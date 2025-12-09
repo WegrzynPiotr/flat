@@ -1,10 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { issuesAPI } from '../../api/endpoints';
-import { Issue } from '../../types/api';
+import { IssueResponse } from '../../types/api';
 
 export interface IssuesState {
-  issues: Issue[];
-  selectedIssue: Issue | null;
+  issues: IssueResponse[];
+  selectedIssue: IssueResponse | null;
   loading: boolean;
   error: string | null;
 }

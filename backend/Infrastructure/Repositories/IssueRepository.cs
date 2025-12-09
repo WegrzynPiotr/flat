@@ -22,6 +22,10 @@ namespace Infrastructure.Repositories
             return await _context.Issues
                 .Include(i => i.Property)
                 .Include(i => i.ReportedBy)
+                .Include(i => i.AssignedServicemen)
+                    .ThenInclude(ais => ais.Serviceman)
+                .Include(i => i.PhotosWithMetadata)
+                    .ThenInclude(p => p.UploadedBy)
                 .FirstOrDefaultAsync(i => i.Id == id);
         }
 
@@ -50,6 +54,22 @@ namespace Infrastructure.Repositories
                     await _context.Entry(issue)
                         .Reference(i => i.ReportedBy)
                         .LoadAsync();
+                }
+                
+                // Załaduj przypisanych serwisantów
+                await _context.Entry(issue)
+                    .Collection(i => i.AssignedServicemen)
+                    .LoadAsync();
+                
+                // Załaduj dane serwisantów
+                if (issue.AssignedServicemen != null)
+                {
+                    foreach (var assignedServiceman in issue.AssignedServicemen)
+                    {
+                        await _context.Entry(assignedServiceman)
+                            .Reference(ais => ais.Serviceman)
+                            .LoadAsync();
+                    }
                 }
             }
             
