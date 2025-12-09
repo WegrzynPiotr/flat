@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "zarzadzanie-mieszkaniami",
-    "slug": "zarzadzanie-mieszkaniami",
-    "version": "1.0.0",
+    "name": "Flatify",
+    "slug": "flatify",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -22,7 +22,14 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.piotreg8.zarzadzaniemieszkaniami"
+      "package": "com.piotreg8.flatify",
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"

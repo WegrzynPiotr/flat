@@ -6,9 +6,11 @@ import { logout } from '../store/slices/authSlice';
 
 const API_URL = Constants.expoConfig?.extra?.apiBaseUrl || 'http://193.106.130.55:5162/api';
 
+console.log('🌐 API URL configured:', API_URL);
+
 const client: AxiosInstance = axios.create({
   baseURL: API_URL,
-  timeout: 10000,
+  timeout: 30000, // Zwiększam timeout do 30s
   headers: {
     'Content-Type': 'application/json',
   },
@@ -17,13 +19,17 @@ const client: AxiosInstance = axios.create({
 // Request interceptor - dodaj token
 client.interceptors.request.use(
   async (config) => {
+    console.log('📤 REQUEST:', config.method?.toUpperCase(), config.url);
+    console.log('   Base URL:', config.baseURL);
+    console.log('   Full URL:', `${config.baseURL}${config.url}`);
+    
     try {
       const token = await storage.getItemAsync('authToken');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
-        console.log('🔑 Token being sent:', token.substring(0, 50) + '...');
+        console.log('🔑 Token attached');
       } else {
-        console.log('❌ No token found in storage');
+        console.log('⚠️  No token in storage');
       }
       
       // Allow FormData to set its own Content-Type with boundary
@@ -31,11 +37,14 @@ client.interceptors.request.use(
         delete config.headers['Content-Type'];
       }
     } catch (error) {
-      console.error('Error retrieving token:', error);
+      console.error('❌ Error retrieving token:', error);
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    console.error('❌ Request interceptor error:', error);
+    return Promise.reject(error);
+  }
 );
 
 let isRefreshing = false;
@@ -54,8 +63,27 @@ const processQueue = (error: any, token: string | null = null) => {
 
 // Response interceptor - obsługa błędów
 client.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('✅ RESPONSE:', response.status, response.config.url);
+    return response;
+  },
   async (error: AxiosError) => {
+    console.error('❌ RESPONSE ERROR:', {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      message: error.message,
+      data: error.response?.data,
+      code: error.code,
+    });
+    
+    // Sprawdź czy to błąd sieciowy
+    if (error.code === 'ECONNABORTED') {
+      console.error('⏱️  Request timeout - server not responding');
+    } else if (error.code === 'ERR_NETWORK' || !error.response) {
+      console.error('🌐 Network error - cannot reach server at:', API_URL);
+    }
+    
     const originalRequest: any = error.config;
     
     if (error.response?.status === 401 && !originalRequest._retry) {

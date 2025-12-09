@@ -102,12 +102,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.WithOrigins(
-                "http://localhost:8081", 
-                "http://193.106.130.55:8081",
-                "http://193.106.130.55:2323",
-                "http://10.0.0.5:8081"
-              )
+        policy.SetIsOriginAllowed(_ => true) // Zezwala na WSZYSTKIE originy (ważne dla aplikacji mobilnej)
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();
@@ -161,8 +156,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// CORS MUSI BYĆ PRZED AUTHORIZATION!
 app.UseCors("AllowAll");
+
 app.UseStaticFiles();
+app.UseAuthentication(); // Dodaję authentication przed authorization
 app.UseAuthorization();
 app.MapControllers();
 app.MapHub<ChatHub>("/chatHub");
