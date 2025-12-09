@@ -62,6 +62,7 @@ export interface Property {
   roomsCount?: number;
   area?: number;
   createdAt?: string;
+  isActiveTenant?: boolean;
 }
 
 export interface ServicemanInfo {
@@ -152,6 +153,7 @@ export interface PropertyResponse {
   documents?: PropertyDocumentInfo[];
   tenants: TenantInfo[];
   createdAt?: string;
+  isActiveTenant?: boolean;
 }
 
 export interface IssueResponse {

@@ -158,6 +158,9 @@ export default function PropertiesScreen({ navigation }: any) {
   const renderProperty = ({ item }: any) => {
     const firstPhoto = item.photos && item.photos.length > 0 ? item.photos[0] : null;
     
+    // Sprawdź czy najemca ma nieaktywny najem
+    const isInactive = userRole === 'Najemca' && item.isActiveTenant === false;
+    
     // Aktualni najemcy (data zakończenia w przyszłości lub nie ustawiona)
     const currentTenants = item.tenants?.filter((t: any) => {
       if (!t.endDate) return true;
@@ -179,50 +182,57 @@ export default function PropertiesScreen({ navigation }: any) {
     
     return (
       <TouchableOpacity 
-        style={styles.card}
+        style={[styles.card, isInactive && styles.cardInactive]}
         onPress={() => navigation.navigate('PropertyDetails', { propertyId: item.id })}
         activeOpacity={0.7}
       >
         {firstPhoto && (
           <Image 
             source={{ uri: firstPhoto }} 
-            style={styles.propertyImage}
+            style={[styles.propertyImage, isInactive && styles.imageInactive]}
             resizeMode="cover"
           />
         )}
         <View style={styles.cardContent}>
           <View style={styles.cardHeader}>
-            <Text style={Typography.h3}>{item.address}</Text>
-            <Ionicons name="chevron-forward" size={24} color={Colors.textSecondary} />
+            <Text style={[Typography.h3, isInactive && styles.textInactive]}>{item.address}</Text>
+            <Ionicons name="chevron-forward" size={24} color={isInactive ? Colors.textSecondary : Colors.textSecondary} />
           </View>
-          <Text style={styles.city}>{item.city}, {item.postalCode}</Text>
+          <Text style={[styles.city, isInactive && styles.textInactive]}>{item.city}, {item.postalCode}</Text>
+          
+          {isInactive && (
+            <View style={styles.inactiveBadge}>
+              <Ionicons name="time-outline" size={14} color={Colors.error} />
+              <Text style={styles.inactiveText}>Najem zakończony</Text>
+            </View>
+          )}
           
           <View style={styles.detailsRow}>
             <View style={styles.details}>
               <View style={styles.detailBadge}>
-                <Ionicons name="bed-outline" size={16} color={Colors.primary} />
-                <Text style={styles.detailText}>{item.roomsCount} pokoi</Text>
+                <Ionicons name="bed-outline" size={16} color={isInactive ? Colors.textSecondary : Colors.primary} />
+                <Text style={[styles.detailText, isInactive && styles.textInactive]}>{item.roomsCount} pokoi</Text>
               </View>
               <View style={styles.detailBadge}>
-                <Ionicons name="resize-outline" size={16} color={Colors.primary} />
-                <Text style={styles.detailText}>{item.area} m²</Text>
+                <Ionicons name="resize-outline" size={16} color={isInactive ? Colors.textSecondary : Colors.primary} />
+                <Text style={[styles.detailText, isInactive && styles.textInactive]}>{item.area} m²</Text>
               </View>
             </View>
             
             {currentTenants.length > 0 && (
               <View style={styles.tenantInfo}>
                 <View style={styles.tenantHeader}>
-                  <Ionicons name="people" size={14} color={Colors.primary} />
-                  <Text style={styles.tenantLabel}>Najemcy:</Text>
+                  <Ionicons name="people" size={14} color={isInactive ? Colors.textSecondary : Colors.primary} />
+                  <Text style={[styles.tenantLabel, isInactive && styles.textInactive]}>Najemcy:</Text>
                 </View>
                 {currentTenants.map((tenant: any, index: number) => (
-                  <Text key={tenant.tenantId} style={styles.tenantName}>
+                  <Text key={tenant.tenantId} style={[styles.tenantName, isInactive && styles.textInactive]}>
                     {capitalize(tenant.tenantName)}
                   </Text>
                 ))}
                 {rentalPeriod && (
-                  <Text style={styles.rentalPeriod}>
-                    <Ionicons name="calendar-outline" size={11} color={Colors.textSecondary} /> {rentalPeriod}
+                  <Text style={[styles.rentalPeriod, isInactive && styles.textInactive]}>
+                    <Ionicons name="calendar-outline" size={11} color={isInactive ? Colors.textSecondary : Colors.textSecondary} /> {rentalPeriod}
                   </Text>
                 )}
               </View>
@@ -457,10 +467,38 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
   },
+  cardInactive: {
+    opacity: 0.6,
+    backgroundColor: '#f5f5f5',
+  },
   propertyImage: {
     width: '100%',
     height: 180,
     backgroundColor: Colors.disabled,
+  },
+  imageInactive: {
+    opacity: 0.5,
+  },
+  textInactive: {
+    color: Colors.textSecondary,
+  },
+  inactiveBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#fff5f5',
+    paddingHorizontal: Spacing.s,
+    paddingVertical: 6,
+    borderRadius: 8,
+    marginTop: Spacing.s,
+    borderWidth: 1,
+    borderColor: '#ffebeb',
+    alignSelf: 'flex-start',
+  },
+  inactiveText: {
+    fontSize: 12,
+    color: Colors.error,
+    fontWeight: '600',
   },
   cardContent: {
     padding: Spacing.m,

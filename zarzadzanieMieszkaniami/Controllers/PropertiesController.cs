@@ -58,7 +58,7 @@ namespace zarzadzanieMieszkaniami.Controllers
             
             Console.WriteLine($"🔵 Found {properties.Count()} properties");
             
-            var dtos = properties.Select(p => PropertyMapper.ToResponse(p, Request)).ToList();
+            var dtos = properties.Select(p => PropertyMapper.ToResponse(p, Request, userId)).ToList();
             
             Console.WriteLine($"🔵 Returning {dtos.Count} properties");
             
@@ -73,7 +73,8 @@ namespace zarzadzanieMieszkaniami.Controllers
             if (property == null)
                 return NotFound();
 
-            var dto = PropertyMapper.ToResponse(property, Request);
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var dto = PropertyMapper.ToResponse(property, Request, userId);
 
             return Ok(dto);
         }

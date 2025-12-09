@@ -34,6 +34,7 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
   const { propertyId } = route.params;
   const user = useSelector((state: RootState) => state.auth.user);
   const isOwner = user?.role === 'Wlasciciel';
+  const isTenant = user?.role === 'Najemca';
   
   const [property, setProperty] = useState<PropertyResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -49,6 +50,10 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
   const [loadingDocuments, setLoadingDocuments] = useState(false);
   const [previewDocument, setPreviewDocument] = useState<any>(null);
   const [showDocPreview, setShowDocPreview] = useState(false);
+  
+  // Sprawdź czy najemca ma nieaktywny najem
+  const isInactiveTenant = isTenant && property?.isActiveTenant === false;
+  const canEdit = isOwner || (isTenant && !isInactiveTenant);
   
   const [formData, setFormData] = useState({
     address: '',
@@ -543,6 +548,19 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
         </View>
       </View>
 
+      {/* Ostrzeżenie o nieaktywnym najmie */}
+      {isInactiveTenant && (
+        <View style={styles.inactiveWarning}>
+          <Ionicons name="information-circle" size={24} color={Colors.error} />
+          <View style={styles.inactiveWarningText}>
+            <Text style={styles.inactiveWarningTitle}>Najem zakończony</Text>
+            <Text style={styles.inactiveWarningSubtitle}>
+              Możesz przeglądać dokumenty z okresu swojego najmu, ale nie możesz edytować ani zgłaszać usterek.
+            </Text>
+          </View>
+        </View>
+      )}
+
       <View style={styles.card}>
         {editMode ? (
           <>
@@ -615,7 +633,7 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
       <View style={styles.card}>
         <View style={styles.photosHeader}>
           <Text style={Typography.h3}>Zdjęcia</Text>
-          {isOwner && (
+          {isOwner && !isInactiveTenant && (
             <TouchableOpacity
               style={styles.addPhotoButton}
               onPress={pickImage}
@@ -642,7 +660,7 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
               }}
             >
               <Image source={{ uri: mainPhoto || property.photos[0] }} style={styles.mainPhoto} />
-              {isOwner && mainPhoto && (
+              {isOwner && mainPhoto && !isInactiveTenant && (
                 <TouchableOpacity
                   style={styles.mainPhotoDeleteButton}
                   onPress={(e) => {
@@ -667,7 +685,7 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
                   onPress={() => setMainPhoto(photo)}
                 >
                   <Image source={{ uri: photo }} style={styles.thumbnail} />
-                  {isOwner && (
+                  {isOwner && !isInactiveTenant && (
                     <TouchableOpacity
                       style={styles.thumbnailDeleteButton}
                       onPress={(e) => {
@@ -742,7 +760,7 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
           </View>
         ) : (
           <Text style={styles.emptyDocumentsText}>
-            Brak dokumentów. {isOwner ? 'Dodaj pierwsze dokumenty w menadżerze.' : ''}
+            Brak dokumentów. {isOwner ? 'Dodaj pierwsze dokumenty w menadżerze.' : isInactiveTenant ? 'Nie ma dokumentów z Twojego okresu najmu.' : 'Dokumenty będą tutaj widoczne.'}
           </Text>
         )}
 
@@ -753,9 +771,11 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
           <View style={styles.documentsButtonContent}>
             <Ionicons name="folder-open" size={24} color={Colors.primary} />
             <View style={styles.documentsButtonText}>
-              <Text style={styles.documentsButtonTitle}>Otwórz menadżer dokumentów</Text>
+              <Text style={styles.documentsButtonTitle}>
+                {isInactiveTenant ? 'Przeglądaj dokumenty z Twojego najmu' : 'Otwórz menadżer dokumentów'}
+              </Text>
               <Text style={styles.documentsButtonSubtitle}>
-                {isOwner ? 'Zarządzaj wszystkimi typami dokumentów' : 'Przeglądaj i dodawaj dokumenty'}
+                {isOwner ? 'Zarządzaj wszystkimi typami dokumentów' : isInactiveTenant ? 'Tylko dokumenty z Twojego okresu wynajmu' : 'Przeglądaj dokumenty'}
               </Text>
             </View>
           </View>
@@ -1389,6 +1409,32 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.textSecondary,
     marginTop: Spacing.xs,
+  },
+  inactiveWarning: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: '#fff5f5',
+    borderLeftWidth: 4,
+    borderLeftColor: Colors.error,
+    padding: Spacing.m,
+    marginHorizontal: Spacing.m,
+    marginBottom: Spacing.m,
+    borderRadius: 8,
+    gap: Spacing.s,
+  },
+  inactiveWarningText: {
+    flex: 1,
+  },
+  inactiveWarningTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: Colors.error,
+    marginBottom: 4,
+  },
+  inactiveWarningSubtitle: {
+    fontSize: 13,
+    color: '#b91c1c',
+    lineHeight: 18,
   },
   documentsButton: {
     flexDirection: 'row',

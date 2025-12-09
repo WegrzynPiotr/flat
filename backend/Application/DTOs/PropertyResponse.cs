@@ -30,5 +30,6 @@ namespace Application.DTOs
         public List<PropertyDocumentInfo> Documents { get; set; } = new List<PropertyDocumentInfo>();
         public List<TenantInfo> Tenants { get; set; } = new List<TenantInfo>();
         public DateTime CreatedAt { get; set; }
+        public bool IsActiveTenant { get; set; } // Czy aktualny użytkownik ma aktywny najem
     }
 }

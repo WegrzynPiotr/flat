@@ -11,12 +11,28 @@ namespace zarzadzanieMieszkaniami.Helpers
 {
     public static class PropertyMapper
     {
-        public static PropertyResponse ToResponse(Property property, HttpRequest request)
+        public static PropertyResponse ToResponse(Property property, HttpRequest request, Guid? userId = null)
         {
             // Parse documents
             var documents = string.IsNullOrEmpty(property.Documents)
                 ? new List<PropertyDocumentDto>()
                 : JsonSerializer.Deserialize<List<PropertyDocumentDto>>(property.Documents);
+
+            // Sprawdź czy użytkownik ma aktywny najem
+            bool isActiveTenant = false;
+            if (userId.HasValue)
+            {
+                var tenancy = (property.Tenants ?? new List<PropertyTenant>())
+                    .FirstOrDefault(pt => pt.TenantId == userId.Value);
+                
+                if (tenancy != null)
+                {
+                    var now = DateTime.UtcNow;
+                    // Aktywny najem: StartDate <= teraz <= EndDate (lub EndDate null)
+                    isActiveTenant = tenancy.StartDate <= now && 
+                                    (tenancy.EndDate == null || tenancy.EndDate >= now);
+                }
+            }
 
             return new PropertyResponse
             {
@@ -47,7 +63,8 @@ namespace zarzadzanieMieszkaniami.Helpers
                     StartDate = pt.StartDate,
                     EndDate = pt.EndDate
                 }).ToList(),
-                CreatedAt = property.CreatedAt
+                CreatedAt = property.CreatedAt,
+                IsActiveTenant = isActiveTenant
             };
         }
     }

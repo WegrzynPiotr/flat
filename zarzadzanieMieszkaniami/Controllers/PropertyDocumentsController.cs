@@ -42,13 +42,38 @@ namespace zarzadzanieMieszkaniami.Controllers
                 return NotFound();
 
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
             
-            // Tylko właściciel może zobaczyć dokumenty
-            if (property.OwnerId != userId)
+            // Sprawdź dostęp: właściciel lub najemca
+            var isOwner = property.OwnerId == userId;
+            var isTenant = await _context.PropertyTenants
+                .AnyAsync(pt => pt.PropertyId == propertyId && pt.TenantId == userId);
+            
+            if (!isOwner && !isTenant)
                 return Forbid();
 
-            var latestDocuments = await _context.PropertyDocuments
-                .Where(d => d.PropertyId == propertyId && d.IsLatest)
+            // Pobierz dokumenty
+            var documentsQuery = _context.PropertyDocuments
+                .Where(d => d.PropertyId == propertyId && d.IsLatest);
+
+            // Filtruj dla najemców - tylko dokumenty z ich okresu wynajmu
+            if (!isOwner && userRole == "Najemca")
+            {
+                var tenancy = await _context.PropertyTenants
+                    .Where(pt => pt.PropertyId == propertyId && pt.TenantId == userId)
+                    .FirstOrDefaultAsync();
+                
+                if (tenancy != null)
+                {
+                    var now = DateTime.UtcNow;
+                    var endDate = tenancy.EndDate ?? now; // Jeśli EndDate jest null, użyj obecnej daty
+                    
+                    documentsQuery = documentsQuery
+                        .Where(d => d.UploadedAt >= tenancy.StartDate && d.UploadedAt <= endDate);
+                }
+            }
+
+            var latestDocuments = await documentsQuery
                 .OrderBy(d => d.DocumentType)
                 .Select(d => new PropertyDocumentResponse
                 {
@@ -77,12 +102,38 @@ namespace zarzadzanieMieszkaniami.Controllers
                 return NotFound();
 
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
             
-            if (property.OwnerId != userId)
+            // Sprawdź dostęp: właściciel lub najemca
+            var isOwner = property.OwnerId == userId;
+            var isTenant = await _context.PropertyTenants
+                .AnyAsync(pt => pt.PropertyId == propertyId && pt.TenantId == userId);
+            
+            if (!isOwner && !isTenant)
                 return Forbid();
 
-            var versions = await _context.PropertyDocuments
-                .Where(d => d.PropertyId == propertyId && d.DocumentType == documentType)
+            // Pobierz wersje dokumentu
+            var versionsQuery = _context.PropertyDocuments
+                .Where(d => d.PropertyId == propertyId && d.DocumentType == documentType);
+
+            // Filtruj dla najemców - tylko wersje z ich okresu wynajmu
+            if (!isOwner && userRole == "Najemca")
+            {
+                var tenancy = await _context.PropertyTenants
+                    .Where(pt => pt.PropertyId == propertyId && pt.TenantId == userId)
+                    .FirstOrDefaultAsync();
+                
+                if (tenancy != null)
+                {
+                    var now = DateTime.UtcNow;
+                    var endDate = tenancy.EndDate ?? now;
+                    
+                    versionsQuery = versionsQuery
+                        .Where(d => d.UploadedAt >= tenancy.StartDate && d.UploadedAt <= endDate);
+                }
+            }
+
+            var versions = await versionsQuery
                 .OrderByDescending(d => d.Version)
                 .Select(d => new PropertyDocumentVersionResponse
                 {
