@@ -108,7 +108,6 @@ export default function MessagesList({ contacts, loading, onRefresh, onSelectCon
 
   return (
     <View style={styles.container}>
-      <Text style={Typography.h2}>Wiadomości</Text>
       <FlatList
         data={contacts}
         renderItem={renderContact}

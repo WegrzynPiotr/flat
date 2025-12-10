@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("zarzadzanieMieszkaniami")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+20a2544d3b712742e2e206797096424f044f6a8d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+eebc953060b972e7d1c467bc53023be4702ecb86")]
 [assembly: System.Reflection.AssemblyProductAttribute("zarzadzanieMieszkaniami")]
 [assembly: System.Reflection.AssemblyTitleAttribute("zarzadzanieMieszkaniami")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

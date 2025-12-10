@@ -543,36 +543,6 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={Typography.h2}>Szczegóły mieszkania</Text>
-        <View style={styles.headerButtons}>
-          {isOwner && (
-            <>
-              <TouchableOpacity
-                style={styles.editButton}
-                onPress={() => setEditMode(!editMode)}
-              >
-                <Ionicons 
-                  name={editMode ? "close" : "pencil"} 
-                  size={24} 
-                  color={Colors.primary} 
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={deleteProperty}
-              >
-                <Ionicons 
-                  name="trash" 
-                  size={24} 
-                  color={Colors.error} 
-                />
-              </TouchableOpacity>
-            </>
-          )}
-        </View>
-      </View>
-
       {/* Ostrzeżenie o nieaktywnym najmie */}
       {isInactiveTenant && (
         <View style={styles.inactiveWarning}>
@@ -641,8 +611,30 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
           </>
         ) : (
           <>
-            <Text style={Typography.h3}>{property.address}</Text>
-            <Text style={styles.subtitle}>{property.city}, {property.postalCode}</Text>
+            <View style={styles.addressHeader}>
+              <View style={styles.addressInfo}>
+                <Text style={Typography.h3}>{property.address}</Text>
+                <Text style={styles.subtitle}>{property.city}, {property.postalCode}</Text>
+              </View>
+              {isOwner && (
+                <View style={styles.addressActions}>
+                  <TouchableOpacity
+                    style={styles.addressEditButton}
+                    onPress={() => setEditMode(!editMode)}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons name="pencil" size={20} color={Colors.primary} />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.addressDeleteButton}
+                    onPress={deleteProperty}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons name="trash" size={20} color={Colors.error} />
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
             
             {property.description && (
               <>
@@ -678,6 +670,7 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
             {/* Główne zdjęcie */}
             <TouchableOpacity
               style={styles.mainPhotoContainer}
+              activeOpacity={1}
               onPress={() => {
                 const index = property.photos?.indexOf(mainPhoto || '') || 0;
                 setLightboxIndex(index);
@@ -688,6 +681,7 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
               {isOwner && mainPhoto && !isInactiveTenant && (
                 <TouchableOpacity
                   style={styles.mainPhotoDeleteButton}
+                  activeOpacity={0.7}
                   onPress={(e) => {
                     e.stopPropagation();
                     deletePhoto(mainPhoto);
@@ -707,12 +701,14 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
                     styles.thumbnailContainer,
                     mainPhoto === photo && styles.thumbnailSelected
                   ]}
+                  activeOpacity={1}
                   onPress={() => setMainPhoto(photo)}
                 >
                   <Image source={{ uri: photo }} style={styles.thumbnail} />
                   {isOwner && !isInactiveTenant && (
                     <TouchableOpacity
                       style={styles.thumbnailDeleteButton}
+                      activeOpacity={0.7}
                       onPress={(e) => {
                         e.stopPropagation();
                         deletePhoto(photo);
@@ -988,6 +984,7 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
         <View style={styles.lightboxContainer}>
           <TouchableOpacity
             style={styles.lightboxClose}
+            activeOpacity={0.7}
             onPress={() => setSelectedPhoto(null)}
           >
             <Ionicons name="close" size={32} color="#fff" />
@@ -997,6 +994,7 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
             <>
               <TouchableOpacity
                 style={styles.lightboxNavLeft}
+                activeOpacity={0.7}
                 onPress={() => {
                   const newIndex = (lightboxIndex - 1 + property.photos!.length) % property.photos!.length;
                   setLightboxIndex(newIndex);
@@ -1008,6 +1006,7 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
               
               <TouchableOpacity
                 style={styles.lightboxNavRight}
+                activeOpacity={0.7}
                 onPress={() => {
                   const newIndex = (lightboxIndex + 1) % property.photos!.length;
                   setLightboxIndex(newIndex);
@@ -1238,6 +1237,29 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.textSecondary,
     marginTop: Spacing.xs,
+  },
+  addressHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  addressInfo: {
+    flex: 1,
+  },
+  addressActions: {
+    flexDirection: 'row',
+    gap: Spacing.xs,
+    marginLeft: Spacing.m,
+  },
+  addressEditButton: {
+    padding: Spacing.xs,
+    backgroundColor: Colors.primaryLight,
+    borderRadius: 8,
+  },
+  addressDeleteButton: {
+    padding: Spacing.xs,
+    backgroundColor: '#FEE2E2',
+    borderRadius: 8,
   },
   detailsGrid: {
     flexDirection: 'row',

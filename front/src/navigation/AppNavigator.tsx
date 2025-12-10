@@ -152,7 +152,7 @@ export default function AppNavigator() {
         <Tab.Screen 
           name="Management" 
           component={ManagementScreen} 
-          options={{ title: 'Zarządzanie' }}
+          options={{ title: 'Zarządzanie', headerShown: false }}
         />
       )}
       <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profil' }} />

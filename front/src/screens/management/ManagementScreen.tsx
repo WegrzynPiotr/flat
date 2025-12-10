@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, ScrollView, Alert, TextInput, Modal, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, ScrollView, Alert, TextInput, Modal, Platform, Dimensions } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { userManagementAPI, invitationsAPI, userNotesAPI } from '../../api/endpoints';
@@ -444,10 +445,19 @@ export default function ManagementScreen({ navigation, route }: any) {
   const currentData = activeTab === 'tenants' ? tenants : servicemen;
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
+      {/* Nagłówek */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Zarządzanie</Text>
+      </View>
+      
       {/* Zakładki */}
       <View style={styles.tabsWrapper}>
-        <View style={styles.tabsRow}>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.tabsScrollContent}
+        >
           <TouchableOpacity
             style={styles.tabButton}
             onPress={() => setActiveTab('tenants')}
@@ -536,7 +546,7 @@ export default function ManagementScreen({ navigation, route }: any) {
             </View>
             {activeTab === 'invite' && <View style={styles.activeIndicator} />}
           </TouchableOpacity>
-        </View>
+        </ScrollView>
       </View>
 
       {/* Zawartość */}
@@ -594,7 +604,7 @@ export default function ManagementScreen({ navigation, route }: any) {
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -602,6 +612,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
+  },
+  header: {
+    backgroundColor: Colors.primary,
+    paddingVertical: 16,
+    paddingHorizontal: Spacing.m,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
   },
   tabsWrapper: {
     backgroundColor: '#fff',
@@ -611,12 +632,14 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 3,
   },
-  tabsRow: {
+  tabsScrollContent: {
     flexDirection: 'row',
     backgroundColor: '#fff',
+    minWidth: '100%',
   },
   tabButton: {
-    flex: 1,
+    minWidth: 90,
+    paddingHorizontal: 12,
     position: 'relative',
   },
   tabContent: {

@@ -322,10 +322,6 @@ export default function PropertiesScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={Typography.h2}>Moje mieszkania</Text>
-      </View>
-
       <FlatList
         data={properties}
         keyExtractor={(item) => item.id}
