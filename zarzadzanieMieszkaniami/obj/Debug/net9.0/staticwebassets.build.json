@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "x6Jr2ay0NbINsYBwPTzb5nwmISILRIubRxf9Fd7VqAg=",
+  "Hash": "5FC6B7/2leWYduvm9mlGh0iDWvkNq6wDxNqCpuq0PAU=",
   "Source": "zarzadzanieMieszkaniami",
   "BasePath": "_content/zarzadzanieMieszkaniami",
   "Mode": "Default",
@@ -792,6 +792,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\uploads\\properties\\1f136fe4-03d1-4ee3-817c-29c7468e375c_gta.png"
+    },
+    {
+      "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\35021779-f693-49d6-adf4-70d14c82fed3_fad9496a-e2fc-4cca-b0b1-225e572977d8.jpeg",
+      "SourceId": "zarzadzanieMieszkaniami",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\",
+      "BasePath": "_content/zarzadzanieMieszkaniami",
+      "RelativePath": "uploads/properties/35021779-f693-49d6-adf4-70d14c82fed3_fad9496a-e2fc-4cca-b0b1-225e572977d8#[.{fingerprint}]?.jpeg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "2fifzpliyh",
+      "Integrity": "/uHoeL/MNXZm8HHCZ7snyE7tnWOsxXc5l1ztl+h8O24=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\properties\\35021779-f693-49d6-adf4-70d14c82fed3_fad9496a-e2fc-4cca-b0b1-225e572977d8.jpeg"
     },
     {
       "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\7c95073f-cfc2-4864-8ea1-832d2c48b9d8_45609980c94e72b25f1970aed7d49832.jpg",
@@ -4267,6 +4288,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-0HZaq5X1DNtv6wJw5dR5HclyVe2fqhd1a8a/c4JOYEI="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/properties/35021779-f693-49d6-adf4-70d14c82fed3_fad9496a-e2fc-4cca-b0b1-225e572977d8.2fifzpliyh.jpeg",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\35021779-f693-49d6-adf4-70d14c82fed3_fad9496a-e2fc-4cca-b0b1-225e572977d8.jpeg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "131909"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"/uHoeL/MNXZm8HHCZ7snyE7tnWOsxXc5l1ztl+h8O24=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 10 Dec 2025 01:02:50 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "2fifzpliyh"
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/properties/35021779-f693-49d6-adf4-70d14c82fed3_fad9496a-e2fc-4cca-b0b1-225e572977d8.jpeg"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-/uHoeL/MNXZm8HHCZ7snyE7tnWOsxXc5l1ztl+h8O24="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/properties/35021779-f693-49d6-adf4-70d14c82fed3_fad9496a-e2fc-4cca-b0b1-225e572977d8.jpeg",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\35021779-f693-49d6-adf4-70d14c82fed3_fad9496a-e2fc-4cca-b0b1-225e572977d8.jpeg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "131909"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"/uHoeL/MNXZm8HHCZ7snyE7tnWOsxXc5l1ztl+h8O24=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 10 Dec 2025 01:02:50 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-/uHoeL/MNXZm8HHCZ7snyE7tnWOsxXc5l1ztl+h8O24="
         }
       ]
     },
