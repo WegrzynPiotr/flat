@@ -87,10 +87,13 @@ namespace zarzadzanieMieszkaniami.Controllers
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             
             Console.WriteLine($"🔵 Creating property for user: {userId}");
+            Console.WriteLine($"🔵 Address: {request.Address}, City: {request.City}, PostalCode: {request.PostalCode}");
             
             // Pobierz współrzędne na podstawie adresu
+            Console.WriteLine("🔵 Calling geocoding service...");
             var (latitude, longitude) = await _geocodingService.GetCoordinatesAsync(
                 request.Address, request.City, request.PostalCode);
+            Console.WriteLine($"🔵 Geocoding result: Lat={latitude}, Lon={longitude}");
             
             var property = new Property
             {

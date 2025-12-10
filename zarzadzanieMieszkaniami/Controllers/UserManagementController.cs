@@ -172,17 +172,26 @@ namespace zarzadzanieMieszkaniami.Controllers
 
             // Zamiast usuwać relację, kończymy najem ustawiając datę zakończenia na wczoraj
             // Dzięki temu były najemca zachowuje dostęp do historii (dokumenty, mieszkanie wyszarzone)
-            var yesterday = DateTime.UtcNow.Date.AddDays(-1);
+            // Używamy czasu lokalnego (Europa/Warszawa) dla poprawnego obliczenia "wczoraj"
+            // ale konwertujemy wynik z powrotem do UTC dla PostgreSQL
+            var polandTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
+            var localNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, polandTimeZone);
+            var yesterdayLocal = localNow.Date.AddDays(-1);
+            var todayLocal = localNow.Date;
+            
+            // Konwertuj datę lokalną na UTC dla PostgreSQL (ustawiamy na początek dnia w UTC)
+            var yesterdayUtc = DateTime.SpecifyKind(yesterdayLocal, DateTimeKind.Utc);
+            var todayUtc = DateTime.SpecifyKind(todayLocal, DateTimeKind.Utc);
             
             // Jeśli najem jeszcze się nie rozpoczął, po prostu usuń relację
-            if (propertyTenant.StartDate > DateTime.UtcNow.Date)
+            if (propertyTenant.StartDate > todayUtc)
             {
                 _context.PropertyTenants.Remove(propertyTenant);
             }
             else
             {
                 // Najem trwa lub trwał - zakończ go
-                propertyTenant.EndDate = yesterday;
+                propertyTenant.EndDate = yesterdayUtc;
                 _context.PropertyTenants.Update(propertyTenant);
             }
             

@@ -52,11 +52,10 @@ namespace zarzadzanieMieszkaniami.Controllers
                 return Forbid();
 
             // Pobierz dokumenty
-            var documentsQuery = _context.PropertyDocuments
-                .Where(d => d.PropertyId == propertyId && d.IsLatest);
+            List<PropertyDocumentResponse> latestDocuments;
 
-            // Filtruj dla najemców - tylko dokumenty z ich okresu wynajmu
-            // Sprawdzamy czy użytkownik NIE jest właścicielem (niezależnie od jego globalnej roli)
+            // Dla najemców - pokazujemy najnowszą wersję dokumentu dodaną W ICH OKRESIE wynajmu
+            // Dla właścicieli - pokazujemy po prostu najnowsze wersje (IsLatest = true)
             if (!isOwner)
             {
                 var tenancy = await _context.PropertyTenants
@@ -65,32 +64,90 @@ namespace zarzadzanieMieszkaniami.Controllers
                 
                 if (tenancy != null)
                 {
-                    // EndDate jest włącznie - dokumenty uploadowane do końca tego dnia są widoczne
-                    var endDate = tenancy.EndDate.HasValue 
-                        ? tenancy.EndDate.Value.Date.AddDays(1).AddTicks(-1) // Koniec dnia (23:59:59.9999999)
-                        : DateTime.MaxValue; // Brak daty końca = bezterminowo
+                    // Daty umowy są przechowywane jako lokalne (polski czas).
+                    // Musimy przekonwertować je na UTC do porównania z UploadedAt (które jest w UTC).
+                    // Polska: UTC+1 (zima) lub UTC+2 (lato)
                     
-                    documentsQuery = documentsQuery
-                        .Where(d => d.UploadedAt >= tenancy.StartDate && d.UploadedAt <= endDate);
+                    var polandTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
+                    
+                    // StartDate: początek dnia w polskim czasie, przekonwertowany na UTC
+                    var startDatePoland = tenancy.StartDate.Date; // Początek dnia StartDate w polskim czasie
+                    var startDate = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(startDatePoland, DateTimeKind.Unspecified), polandTimeZone);
+                    
+                    // EndDate: koniec dnia w polskim czasie, przekonwertowany na UTC
+                    DateTime endDate;
+                    if (tenancy.EndDate.HasValue)
+                    {
+                        var endDatePoland = tenancy.EndDate.Value.Date.AddDays(1).AddTicks(-1); // Koniec dnia EndDate (23:59:59.9999999 polski czas)
+                        endDate = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(endDatePoland, DateTimeKind.Unspecified), polandTimeZone);
+                    }
+                    else
+                    {
+                        endDate = DateTime.MaxValue;
+                    }
+                    
+                    Console.WriteLine($"📄 Tenant {userId} documents filter: StartDate={startDate} UTC, EndDate={endDate} UTC, OriginalEndDate={tenancy.EndDate}");
+                    
+                    // Dla najemcy: znajdź wszystkie dokumenty w ich okresie, pogrupuj po typie i weź najnowszy z każdego typu
+                    var documentsInPeriod = await _context.PropertyDocuments
+                        .Where(d => d.PropertyId == propertyId && d.UploadedAt >= startDate && d.UploadedAt <= endDate)
+                        .OrderByDescending(d => d.UploadedAt)
+                        .Select(d => new PropertyDocumentResponse
+                        {
+                            Id = d.Id,
+                            PropertyId = d.PropertyId,
+                            DocumentType = d.DocumentType,
+                            FileName = d.FileName,
+                            FileUrl = d.FileUrl,
+                            UploadedAt = d.UploadedAt,
+                            UploadedById = d.UploadedById,
+                            UploadedByName = d.UploadedBy != null ? $"{d.UploadedBy.FirstName} {d.UploadedBy.LastName}" : "Unknown",
+                            Notes = d.Notes,
+                            Version = d.Version
+                        })
+                        .ToListAsync();
+                    
+                    // Grupujemy po typie dokumentu i bierzemy najnowszy z każdego typu (w okresie najemcy)
+                    latestDocuments = documentsInPeriod
+                        .GroupBy(d => d.DocumentType)
+                        .Select(g => g.First()) // Już posortowane malejąco po dacie, więc First() da najnowszy
+                        .OrderBy(d => d.DocumentType)
+                        .ToList();
+                    
+                    Console.WriteLine($"📄 Documents in tenant period: {documentsInPeriod.Count}, grouped to: {latestDocuments.Count}");
+                }
+                else
+                {
+                    latestDocuments = new List<PropertyDocumentResponse>();
                 }
             }
-
-            var latestDocuments = await documentsQuery
-                .OrderBy(d => d.DocumentType)
-                .Select(d => new PropertyDocumentResponse
-                {
-                    Id = d.Id,
-                    PropertyId = d.PropertyId,
-                    DocumentType = d.DocumentType,
-                    FileName = d.FileName,
-                    FileUrl = d.FileUrl,
-                    UploadedAt = d.UploadedAt,
-                    UploadedById = d.UploadedById,
-                    UploadedByName = d.UploadedBy != null ? $"{d.UploadedBy.FirstName} {d.UploadedBy.LastName}" : "Unknown",
-                    Notes = d.Notes,
-                    Version = d.Version
-                })
-                .ToListAsync();
+            else
+            {
+                // Dla właściciela - standardowe pobieranie najnowszych wersji
+                latestDocuments = await _context.PropertyDocuments
+                    .Where(d => d.PropertyId == propertyId && d.IsLatest)
+                    .OrderBy(d => d.DocumentType)
+                    .Select(d => new PropertyDocumentResponse
+                    {
+                        Id = d.Id,
+                        PropertyId = d.PropertyId,
+                        DocumentType = d.DocumentType,
+                        FileName = d.FileName,
+                        FileUrl = d.FileUrl,
+                        UploadedAt = d.UploadedAt,
+                        UploadedById = d.UploadedById,
+                        UploadedByName = d.UploadedBy != null ? $"{d.UploadedBy.FirstName} {d.UploadedBy.LastName}" : "Unknown",
+                        Notes = d.Notes,
+                        Version = d.Version
+                    })
+                    .ToListAsync();
+            }
+            
+            Console.WriteLine($"📄 Returning {latestDocuments.Count} documents:");
+            foreach (var doc in latestDocuments)
+            {
+                Console.WriteLine($"   - {doc.DocumentType}: {doc.FileName}, UploadedAt={doc.UploadedAt}");
+            }
 
             return Ok(latestDocuments);
         }
@@ -127,13 +184,30 @@ namespace zarzadzanieMieszkaniami.Controllers
                 
                 if (tenancy != null)
                 {
-                    // EndDate jest włącznie - dokumenty uploadowane do końca tego dnia są widoczne
-                    var endDate = tenancy.EndDate.HasValue 
-                        ? tenancy.EndDate.Value.Date.AddDays(1).AddTicks(-1) // Koniec dnia (23:59:59.9999999)
-                        : DateTime.MaxValue; // Brak daty końca = bezterminowo
+                    // Daty umowy są przechowywane jako lokalne (polski czas).
+                    // Musimy przekonwertować je na UTC do porównania z UploadedAt (które jest w UTC).
+                    var polandTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
+                    
+                    // StartDate: początek dnia w polskim czasie, przekonwertowany na UTC
+                    var startDatePoland = tenancy.StartDate.Date;
+                    var startDate = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(startDatePoland, DateTimeKind.Unspecified), polandTimeZone);
+                    
+                    // EndDate: koniec dnia w polskim czasie, przekonwertowany na UTC
+                    DateTime endDate;
+                    if (tenancy.EndDate.HasValue)
+                    {
+                        var endDatePoland = tenancy.EndDate.Value.Date.AddDays(1).AddTicks(-1); // Koniec dnia EndDate (23:59:59.9999999 polski czas)
+                        endDate = TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(endDatePoland, DateTimeKind.Unspecified), polandTimeZone);
+                    }
+                    else
+                    {
+                        endDate = DateTime.MaxValue;
+                    }
+                    
+                    Console.WriteLine($"📄 Tenant {userId} document history filter: StartDate={startDate} UTC, EndDate={endDate} UTC");
                     
                     versionsQuery = versionsQuery
-                        .Where(d => d.UploadedAt >= tenancy.StartDate && d.UploadedAt <= endDate);
+                        .Where(d => d.UploadedAt >= startDate && d.UploadedAt <= endDate);
                 }
             }
 

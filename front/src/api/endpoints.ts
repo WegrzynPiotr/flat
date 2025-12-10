@@ -168,6 +168,7 @@ export const propertiesAPI = {
     return client.delete(`/properties/${propertyId}/documents/${encodeURIComponent(filename)}`);
   },
   delete: (id: string) => client.delete(`/properties/${id}`),
+  geocode: (id: string) => client.post<PropertyResponse>(`/properties/${id}/geocode`),
 };
 
 // Comments

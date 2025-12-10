@@ -12,7 +12,8 @@ if (Platform.OS !== 'web') {
   const maps = require('react-native-maps');
   MapView = maps.default;
   Marker = maps.Marker;
-  PROVIDER_GOOGLE = maps.PROVIDER_GOOGLE;
+  // PROVIDER_GOOGLE requires API key, using default provider instead
+  PROVIDER_GOOGLE = null;
 }
 
 interface PropertyMapProps {
@@ -76,7 +77,7 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
       <MapView
         style={styles.map}
         initialRegion={region}
-        provider={PROVIDER_GOOGLE}
+        provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
         showsUserLocation={false}
         showsMyLocationButton={false}
         zoomEnabled={true}

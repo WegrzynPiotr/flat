@@ -392,7 +392,7 @@ export default function ManagementScreen({ navigation, route }: any) {
 
     if (activeTab === 'assign') {
       return (
-        <View style={styles.formContainer}>
+        <View style={styles.assignContainer}>
           <AssignTenantForm 
             key={currentPropertyId || 'no-property'}
             onTenantAssigned={handleTenantAssigned} 
@@ -698,6 +698,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 3,
     elevation: 2,
+  },
+  assignContainer: {
+    flex: 1,
   },
   centerContainer: {
     flex: 1,

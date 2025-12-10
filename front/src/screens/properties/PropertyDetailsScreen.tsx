@@ -160,6 +160,17 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
     }
   };
 
+  const refreshGeocode = async () => {
+    try {
+      const response = await propertiesAPI.geocode(propertyId);
+      setProperty(response.data);
+      Alert.alert('Sukces', 'Lokalizacja została zaktualizowana');
+    } catch (error: any) {
+      console.error('Failed to geocode:', error);
+      Alert.alert('Błąd', error.response?.data || 'Nie udało się ustalić lokalizacji');
+    }
+  };
+
   const handleUpdate = async () => {
     try {
       await propertiesAPI.update(propertyId, {
@@ -746,8 +757,20 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
       {/* Mapa lokalizacji */}
       <View style={styles.card}>
         <View style={styles.sectionHeader}>
-          <Ionicons name="map" size={24} color={Colors.primary} />
-          <Text style={[Typography.h3, { marginLeft: 8 }]}>Lokalizacja</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+            <Ionicons name="map" size={24} color={Colors.primary} />
+            <Text style={[Typography.h3, { marginLeft: 8 }]}>Lokalizacja</Text>
+          </View>
+          {isOwner && (!property.latitude || !property.longitude) && (
+            <TouchableOpacity 
+              style={styles.refreshLocationButton}
+              onPress={refreshGeocode}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="refresh" size={18} color={Colors.primary} />
+              <Text style={styles.refreshLocationText}>Odśwież</Text>
+            </TouchableOpacity>
+          )}
         </View>
         <PropertyMap
           latitude={property.latitude}
@@ -1627,6 +1650,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: Spacing.m,
+  },
+  refreshLocationButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: Spacing.s,
+    paddingVertical: Spacing.xs,
+    backgroundColor: Colors.primaryLight,
+    borderRadius: 8,
+  },
+  refreshLocationText: {
+    fontSize: 13,
+    color: Colors.primary,
+    fontWeight: '600',
   },
   sectionSubtitle: {
     fontSize: 13,

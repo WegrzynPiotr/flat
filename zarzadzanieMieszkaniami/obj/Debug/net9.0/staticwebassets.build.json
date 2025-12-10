@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "7NF9fpDjChx335lhlC+IIYFz0Znh0MR3kK1tsw4iDis=",
+  "Hash": "KYe8gTqOfsh0/bY66yIgfHPnRN2ZWD+rlXDH06NXAeA=",
   "Source": "zarzadzanieMieszkaniami",
   "BasePath": "_content/zarzadzanieMieszkaniami",
   "Mode": "Default",
@@ -794,6 +794,27 @@
       "OriginalItemSpec": "wwwroot\\uploads\\issues\\f120b50a-5917-4618-a724-b7ada0e7a531"
     },
     {
+      "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\107bc46c-c7a0-42a5-8502-7e659f070f85_94ab0b21-9fb2-487a-8a4f-1eb3be59a259.jpeg",
+      "SourceId": "zarzadzanieMieszkaniami",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\",
+      "BasePath": "_content/zarzadzanieMieszkaniami",
+      "RelativePath": "uploads/properties/107bc46c-c7a0-42a5-8502-7e659f070f85_94ab0b21-9fb2-487a-8a4f-1eb3be59a259#[.{fingerprint}]?.jpeg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "z3pauj388i",
+      "Integrity": "YSh+/rIb68Lzo1onJc0BMjYURQKQ6Y6KZ8DhRIfVD1o=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\properties\\107bc46c-c7a0-42a5-8502-7e659f070f85_94ab0b21-9fb2-487a-8a4f-1eb3be59a259.jpeg"
+    },
+    {
       "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\1f136fe4-03d1-4ee3-817c-29c7468e375c_gta.png",
       "SourceId": "zarzadzanieMieszkaniami",
       "SourceType": "Discovered",
@@ -855,6 +876,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\uploads\\properties\\7c95073f-cfc2-4864-8ea1-832d2c48b9d8_45609980c94e72b25f1970aed7d49832.jpg"
+    },
+    {
+      "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\8a1f2100-0a57-4210-afda-b8c9847cb5da_3ff1d460-18b1-4dbf-8d18-b385c2c19574.jpeg",
+      "SourceId": "zarzadzanieMieszkaniami",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\",
+      "BasePath": "_content/zarzadzanieMieszkaniami",
+      "RelativePath": "uploads/properties/8a1f2100-0a57-4210-afda-b8c9847cb5da_3ff1d460-18b1-4dbf-8d18-b385c2c19574#[.{fingerprint}]?.jpeg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "8aewkc9jd5",
+      "Integrity": "UKT+DhzDcvh13hTYvQV5xB1Xnd25iG3Hx5GKBl+RNN4=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\properties\\8a1f2100-0a57-4210-afda-b8c9847cb5da_3ff1d460-18b1-4dbf-8d18-b385c2c19574.jpeg"
     },
     {
       "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\91e1bb56-ef46-426d-abe1-4649a7cf62da_0139ce0f-09bb-4c3a-acfb-95467e686438.jpeg",
@@ -1067,6 +1109,27 @@
       "OriginalItemSpec": "wwwroot\\uploads\\properties\\fd88c87b-b471-417f-910c-6541bc68d11e_IMG_9699.jpeg"
     },
     {
+      "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\8d449c9a-da4d-413c-9e10-43f0a43479d7_Umowa_1_639010036190616264.pdf",
+      "SourceId": "zarzadzanieMieszkaniami",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\",
+      "BasePath": "_content/zarzadzanieMieszkaniami",
+      "RelativePath": "uploads/property-documents/8d449c9a-da4d-413c-9e10-43f0a43479d7_Umowa_1_639010036190616264#[.{fingerprint}]?.pdf",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "28rsfsr4l8",
+      "Integrity": "Lnhs5auWICfEi0xUMQGbFnobt++0tvvnSTKFjeHXjkE=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\property-documents\\8d449c9a-da4d-413c-9e10-43f0a43479d7_Umowa_1_639010036190616264.pdf"
+    },
+    {
       "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\99b68909-20c7-4778-9015-f5c5f2d6b082_Umowa_1_639008281626006869.pdf",
       "SourceId": "zarzadzanieMieszkaniami",
       "SourceType": "Discovered",
@@ -1212,6 +1275,69 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\uploads\\property-documents\\be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_2_639009520123085540.pdf"
+    },
+    {
+      "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_3_639010051088041001.pdf",
+      "SourceId": "zarzadzanieMieszkaniami",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\",
+      "BasePath": "_content/zarzadzanieMieszkaniami",
+      "RelativePath": "uploads/property-documents/be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_3_639010051088041001#[.{fingerprint}]?.pdf",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "zfi8f1hmao",
+      "Integrity": "oU2LdBhHV7/5iZPmGv4nSOLi5GuFg/2OFHg0bELY1aw=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\property-documents\\be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_3_639010051088041001.pdf"
+    },
+    {
+      "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_4_639010052235309036.pdf",
+      "SourceId": "zarzadzanieMieszkaniami",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\",
+      "BasePath": "_content/zarzadzanieMieszkaniami",
+      "RelativePath": "uploads/property-documents/be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_4_639010052235309036#[.{fingerprint}]?.pdf",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "yhvsfw9d9w",
+      "Integrity": "dk0DkK8UUBIpT1RzW7BnMy2FNK2WRCWG0lLjKVt7S/A=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\property-documents\\be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_4_639010052235309036.pdf"
+    },
+    {
+      "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_5_639010067948983777.png",
+      "SourceId": "zarzadzanieMieszkaniami",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\",
+      "BasePath": "_content/zarzadzanieMieszkaniami",
+      "RelativePath": "uploads/property-documents/be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_5_639010067948983777#[.{fingerprint}]?.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "bosw2xe86o",
+      "Integrity": "K5/kaNxSBZ86IHQUYA7rjXh0I9XqXUW8VEKowBWL1OM=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\uploads\\property-documents\\be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_5_639010067948983777.png"
     },
     {
       "Identity": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\be75bbae-e2bc-49fc-a53a-2071c035a3e9_Wodomierz_1_639009113153979686.pdf",
@@ -4397,6 +4523,88 @@
       ]
     },
     {
+      "Route": "uploads/properties/107bc46c-c7a0-42a5-8502-7e659f070f85_94ab0b21-9fb2-487a-8a4f-1eb3be59a259.jpeg",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\107bc46c-c7a0-42a5-8502-7e659f070f85_94ab0b21-9fb2-487a-8a4f-1eb3be59a259.jpeg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1023936"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"YSh+/rIb68Lzo1onJc0BMjYURQKQ6Y6KZ8DhRIfVD1o=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 10 Dec 2025 23:16:44 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-YSh+/rIb68Lzo1onJc0BMjYURQKQ6Y6KZ8DhRIfVD1o="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/properties/107bc46c-c7a0-42a5-8502-7e659f070f85_94ab0b21-9fb2-487a-8a4f-1eb3be59a259.z3pauj388i.jpeg",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\107bc46c-c7a0-42a5-8502-7e659f070f85_94ab0b21-9fb2-487a-8a4f-1eb3be59a259.jpeg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1023936"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"YSh+/rIb68Lzo1onJc0BMjYURQKQ6Y6KZ8DhRIfVD1o=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 10 Dec 2025 23:16:44 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "z3pauj388i"
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/properties/107bc46c-c7a0-42a5-8502-7e659f070f85_94ab0b21-9fb2-487a-8a4f-1eb3be59a259.jpeg"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-YSh+/rIb68Lzo1onJc0BMjYURQKQ6Y6KZ8DhRIfVD1o="
+        }
+      ]
+    },
+    {
       "Route": "uploads/properties/1f136fe4-03d1-4ee3-817c-29c7468e375c_gta.c9gmji4rbf.png",
       "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\1f136fe4-03d1-4ee3-817c-29c7468e375c_gta.png",
       "Selectors": [],
@@ -4639,6 +4847,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-Fm1CcJNGVV2TBKzAGpxDlGh8zzlCQpVmu0NHW/JEVxI="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/properties/8a1f2100-0a57-4210-afda-b8c9847cb5da_3ff1d460-18b1-4dbf-8d18-b385c2c19574.8aewkc9jd5.jpeg",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\8a1f2100-0a57-4210-afda-b8c9847cb5da_3ff1d460-18b1-4dbf-8d18-b385c2c19574.jpeg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1193940"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"UKT+DhzDcvh13hTYvQV5xB1Xnd25iG3Hx5GKBl+RNN4=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 10 Dec 2025 23:16:44 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "8aewkc9jd5"
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/properties/8a1f2100-0a57-4210-afda-b8c9847cb5da_3ff1d460-18b1-4dbf-8d18-b385c2c19574.jpeg"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-UKT+DhzDcvh13hTYvQV5xB1Xnd25iG3Hx5GKBl+RNN4="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/properties/8a1f2100-0a57-4210-afda-b8c9847cb5da_3ff1d460-18b1-4dbf-8d18-b385c2c19574.jpeg",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\8a1f2100-0a57-4210-afda-b8c9847cb5da_3ff1d460-18b1-4dbf-8d18-b385c2c19574.jpeg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1193940"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"UKT+DhzDcvh13hTYvQV5xB1Xnd25iG3Hx5GKBl+RNN4=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 10 Dec 2025 23:16:44 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-UKT+DhzDcvh13hTYvQV5xB1Xnd25iG3Hx5GKBl+RNN4="
         }
       ]
     },
@@ -5463,6 +5753,88 @@
       ]
     },
     {
+      "Route": "uploads/property-documents/8d449c9a-da4d-413c-9e10-43f0a43479d7_Umowa_1_639010036190616264.28rsfsr4l8.pdf",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\8d449c9a-da4d-413c-9e10-43f0a43479d7_Umowa_1_639010036190616264.pdf",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "155585"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/pdf"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Lnhs5auWICfEi0xUMQGbFnobt++0tvvnSTKFjeHXjkE=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 10 Dec 2025 22:46:59 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "28rsfsr4l8"
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/property-documents/8d449c9a-da4d-413c-9e10-43f0a43479d7_Umowa_1_639010036190616264.pdf"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-Lnhs5auWICfEi0xUMQGbFnobt++0tvvnSTKFjeHXjkE="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/property-documents/8d449c9a-da4d-413c-9e10-43f0a43479d7_Umowa_1_639010036190616264.pdf",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\8d449c9a-da4d-413c-9e10-43f0a43479d7_Umowa_1_639010036190616264.pdf",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "155585"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/pdf"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Lnhs5auWICfEi0xUMQGbFnobt++0tvvnSTKFjeHXjkE=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 10 Dec 2025 22:46:59 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-Lnhs5auWICfEi0xUMQGbFnobt++0tvvnSTKFjeHXjkE="
+        }
+      ]
+    },
+    {
       "Route": "uploads/property-documents/99b68909-20c7-4778-9015-f5c5f2d6b082_Umowa_1_639008281626006869.pdf",
       "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\99b68909-20c7-4778-9015-f5c5f2d6b082_Umowa_1_639008281626006869.pdf",
       "Selectors": [],
@@ -6033,6 +6405,252 @@
         {
           "Name": "integrity",
           "Value": "sha256-l2s8eg8Ezcs/JER9cR5lHtlVdzEznAYYnw00r7xkK6Q="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/property-documents/be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_3_639010051088041001.pdf",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_3_639010051088041001.pdf",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "84159"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/pdf"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"oU2LdBhHV7/5iZPmGv4nSOLi5GuFg/2OFHg0bELY1aw=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 10 Dec 2025 23:11:48 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-oU2LdBhHV7/5iZPmGv4nSOLi5GuFg/2OFHg0bELY1aw="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/property-documents/be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_3_639010051088041001.zfi8f1hmao.pdf",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_3_639010051088041001.pdf",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "84159"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/pdf"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"oU2LdBhHV7/5iZPmGv4nSOLi5GuFg/2OFHg0bELY1aw=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 10 Dec 2025 23:11:48 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "zfi8f1hmao"
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/property-documents/be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_3_639010051088041001.pdf"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-oU2LdBhHV7/5iZPmGv4nSOLi5GuFg/2OFHg0bELY1aw="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/property-documents/be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_4_639010052235309036.pdf",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_4_639010052235309036.pdf",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "371658"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/pdf"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"dk0DkK8UUBIpT1RzW7BnMy2FNK2WRCWG0lLjKVt7S/A=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 10 Dec 2025 23:13:43 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-dk0DkK8UUBIpT1RzW7BnMy2FNK2WRCWG0lLjKVt7S/A="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/property-documents/be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_4_639010052235309036.yhvsfw9d9w.pdf",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_4_639010052235309036.pdf",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "371658"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "application/pdf"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"dk0DkK8UUBIpT1RzW7BnMy2FNK2WRCWG0lLjKVt7S/A=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 10 Dec 2025 23:13:43 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "yhvsfw9d9w"
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/property-documents/be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_4_639010052235309036.pdf"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-dk0DkK8UUBIpT1RzW7BnMy2FNK2WRCWG0lLjKVt7S/A="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/property-documents/be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_5_639010067948983777.bosw2xe86o.png",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_5_639010067948983777.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "22741"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"K5/kaNxSBZ86IHQUYA7rjXh0I9XqXUW8VEKowBWL1OM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 10 Dec 2025 23:39:54 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "bosw2xe86o"
+        },
+        {
+          "Name": "label",
+          "Value": "uploads/property-documents/be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_5_639010067948983777.png"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-K5/kaNxSBZ86IHQUYA7rjXh0I9XqXUW8VEKowBWL1OM="
+        }
+      ]
+    },
+    {
+      "Route": "uploads/property-documents/be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_5_639010067948983777.png",
+      "AssetFile": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_5_639010067948983777.png",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "22741"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/png"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"K5/kaNxSBZ86IHQUYA7rjXh0I9XqXUW8VEKowBWL1OM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 10 Dec 2025 23:39:54 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-K5/kaNxSBZ86IHQUYA7rjXh0I9XqXUW8VEKowBWL1OM="
         }
       ]
     },
