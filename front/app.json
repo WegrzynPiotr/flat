@@ -23,6 +23,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.piotreg8.flatify",
+      "usesCleartextTraffic": true,
       "permissions": [
         "INTERNET",
         "ACCESS_NETWORK_STATE",
