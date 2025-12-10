@@ -42,7 +42,6 @@ namespace zarzadzanieMieszkaniami.Controllers
                 return NotFound();
 
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
             
             // Sprawdź dostęp: właściciel lub najemca
             var isOwner = property.OwnerId == userId;
@@ -57,7 +56,8 @@ namespace zarzadzanieMieszkaniami.Controllers
                 .Where(d => d.PropertyId == propertyId && d.IsLatest);
 
             // Filtruj dla najemców - tylko dokumenty z ich okresu wynajmu
-            if (!isOwner && userRole == "Najemca")
+            // Sprawdzamy czy użytkownik NIE jest właścicielem (niezależnie od jego globalnej roli)
+            if (!isOwner)
             {
                 var tenancy = await _context.PropertyTenants
                     .Where(pt => pt.PropertyId == propertyId && pt.TenantId == userId)
@@ -65,8 +65,10 @@ namespace zarzadzanieMieszkaniami.Controllers
                 
                 if (tenancy != null)
                 {
-                    var now = DateTime.UtcNow;
-                    var endDate = tenancy.EndDate ?? now; // Jeśli EndDate jest null, użyj obecnej daty
+                    // EndDate jest włącznie - dokumenty uploadowane do końca tego dnia są widoczne
+                    var endDate = tenancy.EndDate.HasValue 
+                        ? tenancy.EndDate.Value.Date.AddDays(1).AddTicks(-1) // Koniec dnia (23:59:59.9999999)
+                        : DateTime.MaxValue; // Brak daty końca = bezterminowo
                     
                     documentsQuery = documentsQuery
                         .Where(d => d.UploadedAt >= tenancy.StartDate && d.UploadedAt <= endDate);
@@ -102,7 +104,6 @@ namespace zarzadzanieMieszkaniami.Controllers
                 return NotFound();
 
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
             
             // Sprawdź dostęp: właściciel lub najemca
             var isOwner = property.OwnerId == userId;
@@ -117,7 +118,8 @@ namespace zarzadzanieMieszkaniami.Controllers
                 .Where(d => d.PropertyId == propertyId && d.DocumentType == documentType);
 
             // Filtruj dla najemców - tylko wersje z ich okresu wynajmu
-            if (!isOwner && userRole == "Najemca")
+            // Sprawdzamy czy użytkownik NIE jest właścicielem (niezależnie od jego globalnej roli)
+            if (!isOwner)
             {
                 var tenancy = await _context.PropertyTenants
                     .Where(pt => pt.PropertyId == propertyId && pt.TenantId == userId)
@@ -125,8 +127,10 @@ namespace zarzadzanieMieszkaniami.Controllers
                 
                 if (tenancy != null)
                 {
-                    var now = DateTime.UtcNow;
-                    var endDate = tenancy.EndDate ?? now;
+                    // EndDate jest włącznie - dokumenty uploadowane do końca tego dnia są widoczne
+                    var endDate = tenancy.EndDate.HasValue 
+                        ? tenancy.EndDate.Value.Date.AddDays(1).AddTicks(-1) // Koniec dnia (23:59:59.9999999)
+                        : DateTime.MaxValue; // Brak daty końca = bezterminowo
                     
                     versionsQuery = versionsQuery
                         .Where(d => d.UploadedAt >= tenancy.StartDate && d.UploadedAt <= endDate);

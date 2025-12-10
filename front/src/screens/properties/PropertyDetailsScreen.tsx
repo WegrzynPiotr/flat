@@ -32,6 +32,16 @@ import PropertyMap from '../../components/common/PropertyMap';
 
 const API_URL = Constants.expoConfig?.extra?.apiBaseUrl || 'http://193.106.130.55:5162/api';
 
+// Funkcja sprawdzająca czy najem wygasł (data końca jest włącznie - wygasa NASTĘPNEGO dnia)
+const isTenancyExpired = (endDate?: string): boolean => {
+  if (!endDate) return false;
+  const end = new Date(endDate);
+  end.setHours(23, 59, 59, 999); // Koniec dnia (włącznie)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return end < today;
+};
+
 export default function PropertyDetailsScreen({ route, navigation }: any) {
   const { propertyId } = route.params;
   const user = useSelector((state: RootState) => state.auth.user);
@@ -859,20 +869,26 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
               </TouchableOpacity>
             </View>
             {property.tenants && property.tenants.length > 0 ? (
-              property.tenants.map((tenant, index) => (
-                <View key={index} style={styles.tenantItem}>
-                  <View style={styles.tenantAvatar}>
-                    <Ionicons name="person" size={20} color={Colors.white} />
+              property.tenants.map((tenant, index) => {
+                const expired = isTenancyExpired(tenant.endDate);
+                return (
+                  <View key={index} style={[styles.tenantItem, expired && styles.tenantItemExpired]}>
+                    <View style={[styles.tenantAvatar, expired && styles.tenantAvatarExpired]}>
+                      <Ionicons name="person" size={20} color={Colors.white} />
+                    </View>
+                    <View style={styles.tenantInfo}>
+                      <Text style={[styles.tenantName, expired && styles.tenantNameExpired]}>
+                        {capitalize(tenant.tenantName)}
+                        {expired && ' (wygasło)'}
+                      </Text>
+                      <Text style={[styles.tenantDate, expired && styles.tenantDateExpired]}>
+                        {new Date(tenant.startDate).toLocaleDateString('pl-PL')}
+                        {tenant.endDate ? ` - ${new Date(tenant.endDate).toLocaleDateString('pl-PL')}` : ' - obecnie'}
+                      </Text>
+                    </View>
                   </View>
-                  <View style={styles.tenantInfo}>
-                    <Text style={styles.tenantName}>{capitalize(tenant.tenantName)}</Text>
-                    <Text style={styles.tenantDate}>
-                      {new Date(tenant.startDate).toLocaleDateString('pl-PL')}
-                      {tenant.endDate ? ` - ${new Date(tenant.endDate).toLocaleDateString('pl-PL')}` : ' - obecnie'}
-                    </Text>
-                  </View>
-                </View>
-              ))
+                );
+              })
             ) : (
               <View style={styles.noTenantsContainer}>
                 <Ionicons name="person-add-outline" size={32} color={Colors.textSecondary} />
@@ -889,20 +905,26 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
             <View style={styles.tenantsHeader}>
               <Text style={Typography.h3}>Najemcy ({property.tenants.length})</Text>
             </View>
-            {property.tenants.map((tenant, index) => (
-              <View key={index} style={styles.tenantItem}>
-                <View style={styles.tenantAvatar}>
-                  <Ionicons name="person" size={20} color={Colors.white} />
+            {property.tenants.map((tenant, index) => {
+              const expired = isTenancyExpired(tenant.endDate);
+              return (
+                <View key={index} style={[styles.tenantItem, expired && styles.tenantItemExpired]}>
+                  <View style={[styles.tenantAvatar, expired && styles.tenantAvatarExpired]}>
+                    <Ionicons name="person" size={20} color={Colors.white} />
+                  </View>
+                  <View style={styles.tenantInfo}>
+                    <Text style={[styles.tenantName, expired && styles.tenantNameExpired]}>
+                      {capitalize(tenant.tenantName)}
+                      {expired && ' (wygasło)'}
+                    </Text>
+                    <Text style={[styles.tenantDate, expired && styles.tenantDateExpired]}>
+                      {new Date(tenant.startDate).toLocaleDateString('pl-PL')}
+                      {tenant.endDate ? ` - ${new Date(tenant.endDate).toLocaleDateString('pl-PL')}` : ' - obecnie'}
+                    </Text>
+                  </View>
                 </View>
-                <View style={styles.tenantInfo}>
-                  <Text style={styles.tenantName}>{capitalize(tenant.tenantName)}</Text>
-                  <Text style={styles.tenantDate}>
-                    {new Date(tenant.startDate).toLocaleDateString('pl-PL')}
-                    {tenant.endDate ? ` - ${new Date(tenant.endDate).toLocaleDateString('pl-PL')}` : ' - obecnie'}
-                  </Text>
-                </View>
-              </View>
-            ))}
+              );
+            })}
           </View>
       )}
 
@@ -1359,10 +1381,23 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.text,
   },
+  tenantNameExpired: {
+    color: Colors.textSecondary,
+  },
   tenantDate: {
     fontSize: 13,
     color: Colors.textSecondary,
     marginTop: 2,
+  },
+  tenantDateExpired: {
+    color: '#AAAAAA',
+  },
+  tenantItemExpired: {
+    backgroundColor: '#F0F0F0',
+    opacity: 0.7,
+  },
+  tenantAvatarExpired: {
+    backgroundColor: Colors.disabled,
   },
   tenantDeleteButton: {
     padding: Spacing.s,

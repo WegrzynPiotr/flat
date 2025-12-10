@@ -133,6 +133,10 @@
       "PackagePath": "staticwebassets\\uploads\\issues\\5a116a09-0c70-4ce1-bd42-1fc6235e9618.jpg"
     },
     {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\issues\\b3bb5cc5-7607-4aec-8c5a-cc812a61feeb.jpg",
+      "PackagePath": "staticwebassets\\uploads\\issues\\b3bb5cc5-7607-4aec-8c5a-cc812a61feeb.jpg"
+    },
+    {
       "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\issues\\df4f5065-3e22-42b9-8a66-70772f38444b.jpg",
       "PackagePath": "staticwebassets\\uploads\\issues\\df4f5065-3e22-42b9-8a66-70772f38444b.jpg"
     },
@@ -157,6 +161,10 @@
       "PackagePath": "staticwebassets\\uploads\\properties\\7c95073f-cfc2-4864-8ea1-832d2c48b9d8_45609980c94e72b25f1970aed7d49832.jpg"
     },
     {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\91e1bb56-ef46-426d-abe1-4649a7cf62da_0139ce0f-09bb-4c3a-acfb-95467e686438.jpeg",
+      "PackagePath": "staticwebassets\\uploads\\properties\\91e1bb56-ef46-426d-abe1-4649a7cf62da_0139ce0f-09bb-4c3a-acfb-95467e686438.jpeg"
+    },
+    {
       "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\95b8cacb-ab5b-47cb-bb12-c9facb1e3d13_lubieptoszki.png",
       "PackagePath": "staticwebassets\\uploads\\properties\\95b8cacb-ab5b-47cb-bb12-c9facb1e3d13_lubieptoszki.png"
     },
@@ -177,8 +185,16 @@
       "PackagePath": "staticwebassets\\uploads\\properties\\d96107a3-da09-4c2d-a612-5cfd62e6c8f7_images.jpg"
     },
     {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\e9fd09f1-1e7f-426f-aeb1-bc77feb6bcea_9dac8f0e-d745-429e-abcc-eb124e5e7e1e.jpeg",
+      "PackagePath": "staticwebassets\\uploads\\properties\\e9fd09f1-1e7f-426f-aeb1-bc77feb6bcea_9dac8f0e-d745-429e-abcc-eb124e5e7e1e.jpeg"
+    },
+    {
       "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\f57f0c9d-2294-4e86-a992-188edc382aba_gta.png",
       "PackagePath": "staticwebassets\\uploads\\properties\\f57f0c9d-2294-4e86-a992-188edc382aba_gta.png"
+    },
+    {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\f8765333-430b-4aa6-a1be-a56d5d71cd79_b3f00867-c051-4f60-9c6a-3a3234758f53.jpeg",
+      "PackagePath": "staticwebassets\\uploads\\properties\\f8765333-430b-4aa6-a1be-a56d5d71cd79_b3f00867-c051-4f60-9c6a-3a3234758f53.jpeg"
     },
     {
       "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\properties\\fd88c87b-b471-417f-910c-6541bc68d11e_IMG_9699.jpeg",
@@ -207,6 +223,10 @@
     {
       "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_1_639009112799587591.pdf",
       "PackagePath": "staticwebassets\\uploads\\property-documents\\be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_1_639009112799587591.pdf"
+    },
+    {
+      "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_2_639009520123085540.pdf",
+      "PackagePath": "staticwebassets\\uploads\\property-documents\\be75bbae-e2bc-49fc-a53a-2071c035a3e9_Umowa_2_639009520123085540.pdf"
     },
     {
       "Id": "C:\\Users\\Piotr\\Downloads\\praca_inz\\zarzadzanieMieszkaniami\\wwwroot\\uploads\\property-documents\\be75bbae-e2bc-49fc-a53a-2071c035a3e9_Wodomierz_1_639009113153979686.pdf",

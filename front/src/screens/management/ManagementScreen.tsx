@@ -229,60 +229,124 @@ export default function ManagementScreen({ navigation, route }: any) {
     );
   };
 
+  const handleRemoveUser = async (user: UserManagementResponse, userType: 'tenant' | 'serviceman') => {
+    const typeName = userType === 'tenant' ? 'najemcę' : 'serwisanta';
+    const typeNameCapital = userType === 'tenant' ? 'Najemca' : 'Serwisant';
+    const confirmMessage = `Czy na pewno chcesz usunąć ${user.firstName} ${user.lastName} z listy?\n\nUwaga: Użytkownik zachowa dostęp do historii (wcześniejsze wiadomości, mieszkania z okresu najmu).`;
+
+    const performRemove = async () => {
+      try {
+        await userManagementAPI.removeUser(user.id);
+        await loadAllData();
+        if (Platform.OS === 'web') {
+          window.alert(`${typeNameCapital} został usunięty z Twojej listy`);
+        } else {
+          Alert.alert('Sukces', `${typeNameCapital} został usunięty z Twojej listy`);
+        }
+      } catch (error: any) {
+        console.log('Remove user error:', error);
+        console.log('Error response:', error.response);
+        console.log('Error response data:', error.response?.data);
+        
+        let message = 'Nie udało się usunąć użytkownika';
+        if (error.response?.data) {
+          if (typeof error.response.data === 'string') {
+            message = error.response.data;
+          } else if (error.response.data.message) {
+            message = error.response.data.message;
+          } else if (error.response.data.title) {
+            message = error.response.data.title;
+          }
+        } else if (error.message) {
+          message = error.message;
+        }
+        
+        if (Platform.OS === 'web') {
+          window.alert(`Błąd: ${message}`);
+        } else {
+          Alert.alert('Błąd', message);
+        }
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      if (window.confirm(confirmMessage)) {
+        await performRemove();
+      }
+    } else {
+      Alert.alert(
+        `Usuń ${typeName}`,
+        confirmMessage,
+        [
+          { text: 'Anuluj', style: 'cancel' },
+          { text: 'Usuń', style: 'destructive', onPress: performRemove },
+        ]
+      );
+    }
+  };
+
   const renderUserCard = ({ item }: { item: UserManagementResponse }) => {
     const note = userNotes[item.id];
     
     return (
-      <TouchableOpacity 
-        style={styles.userCard}
-        onPress={() => openNoteModal(item)}
-        activeOpacity={0.7}
-      >
-        <View style={styles.userInfo}>
-          <View style={styles.iconContainer}>
-            <Ionicons 
-              name={activeTab === 'tenants' ? 'person' : 'construct'} 
-              size={24} 
-              color={Colors.primary} 
-            />
-          </View>
-          <View style={styles.userDetails}>
-            <View style={styles.userNameRow}>
-              <Text style={styles.userName}>{capitalizeFullName(item.firstName, item.lastName)}</Text>
-              <TouchableOpacity 
-                style={styles.noteButton}
-                onPress={() => openNoteModal(item)}
-              >
-                <Ionicons 
-                  name={note ? 'document-text' : 'document-text-outline'} 
-                  size={20} 
-                  color={note ? Colors.primary : Colors.textSecondary} 
-                />
-              </TouchableOpacity>
+      <View style={styles.userCard}>
+        <TouchableOpacity 
+          style={styles.userCardContent}
+          onPress={() => openNoteModal(item)}
+          activeOpacity={0.7}
+        >
+          <View style={styles.userInfo}>
+            <View style={styles.iconContainer}>
+              <Ionicons 
+                name={activeTab === 'tenants' ? 'person' : 'construct'} 
+                size={24} 
+                color={Colors.primary} 
+              />
             </View>
-            <Text style={styles.userEmail}>{item.email}</Text>
-            {note && (
-              <View style={styles.notePreview}>
-                <Ionicons name="create-outline" size={14} color={Colors.textSecondary} />
-                <Text style={styles.notePreviewText} numberOfLines={2}>{note}</Text>
+            <View style={styles.userDetails}>
+              <View style={styles.userNameRow}>
+                <Text style={styles.userName}>{capitalizeFullName(item.firstName, item.lastName)}</Text>
+                <TouchableOpacity 
+                  style={styles.noteButton}
+                  onPress={() => openNoteModal(item)}
+                >
+                  <Ionicons 
+                    name={note ? 'document-text' : 'document-text-outline'} 
+                    size={20} 
+                    color={note ? Colors.primary : Colors.textSecondary} 
+                  />
+                </TouchableOpacity>
               </View>
-            )}
-            {activeTab === 'tenants' && item.properties && item.properties.length > 0 && (
-              <View style={styles.propertiesContainer}>
-                {item.properties.map((address, index) => (
-                  <View key={index} style={styles.propertyItem}>
-                    <Ionicons name="home" size={14} color={Colors.primary} />
-                    <Text style={styles.propertyAddress}>{address}</Text>
-                  </View>
-                ))}
-              </View>
-            )}
-            {activeTab === 'tenants' && (!item.properties || item.properties.length === 0) && (
-              <Text style={styles.noProperties}>Nie przypisano do żadnej nieruchomości</Text>
-            )}
+              <Text style={styles.userEmail}>{item.email}</Text>
+              {note && (
+                <View style={styles.notePreview}>
+                  <Ionicons name="create-outline" size={14} color={Colors.textSecondary} />
+                  <Text style={styles.notePreviewText} numberOfLines={2}>{note}</Text>
+                </View>
+              )}
+              {activeTab === 'tenants' && item.properties && item.properties.length > 0 && (
+                <View style={styles.propertiesContainer}>
+                  {item.properties.map((address, index) => (
+                    <View key={index} style={styles.propertyItem}>
+                      <Ionicons name="home" size={14} color={Colors.primary} />
+                      <Text style={styles.propertyAddress}>{address}</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+              {activeTab === 'tenants' && (!item.properties || item.properties.length === 0) && (
+                <Text style={styles.noProperties}>Nie przypisano do żadnej nieruchomości</Text>
+              )}
+            </View>
           </View>
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.removeUserButton}
+          onPress={() => handleRemoveUser(item, activeTab === 'tenants' ? 'tenant' : 'serviceman')}
+        >
+          <Ionicons name="trash-outline" size={20} color={Colors.error} />
+        </TouchableOpacity>
+      </View>
     );
   };
 
@@ -623,13 +687,22 @@ const styles = StyleSheet.create({
   userCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
-    padding: Spacing.m,
     marginBottom: Spacing.m,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  userCardContent: {
+    flex: 1,
+    padding: Spacing.m,
+  },
+  removeUserButton: {
+    padding: Spacing.m,
+    marginRight: Spacing.xs,
   },
   userInfo: {
     flexDirection: 'row',

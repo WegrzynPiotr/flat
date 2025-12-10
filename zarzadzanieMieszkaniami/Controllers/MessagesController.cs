@@ -312,6 +312,17 @@ namespace zarzadzanieMieszkaniami.Controllers
                     .Select(g => g.First())
                     .ToList();
 
+                // Usuń "Wynajmujący" jeśli dla tego samego adresu jest "Właściciel"
+                // (Właściciel i Wynajmujący to ta sama osoba - preferuj "Właściciel")
+                var ownerAddresses = relations
+                    .Where(r => r.Role == "Właściciel" && r.Details != null)
+                    .Select(r => r.Details)
+                    .ToHashSet();
+                
+                relations = relations
+                    .Where(r => !(r.Role == "Wynajmujący" && r.Details != null && ownerAddresses.Contains(r.Details)))
+                    .ToList();
+
                 contacts.Add(new ConversationUserResponse
                 {
                     UserId = contactId,

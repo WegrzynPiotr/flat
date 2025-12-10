@@ -364,5 +364,124 @@ namespace zarzadzanieMieszkaniami.Controllers
 
             return Ok(responses);
         }
+
+        // Usuń użytkownika (najemcę lub serwisanta)
+        // Najemca: usuwana jest relacja z właścicielem, ale konto pozostaje - user ma nadal dostęp do historii
+        // Serwisant: usuwana jest relacja z właścicielem
+        [HttpDelete("remove-user/{userId}")]
+        [Authorize(Roles = "Wlasciciel")]
+        public async Task<IActionResult> RemoveUser(Guid userId)
+        {
+            var landlordId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null)
+                return NotFound("Użytkownik nie istnieje");
+
+            // Sprawdź czy to najemca czy serwisant tego właściciela
+            var isMyTenant = await _context.UserInvitations
+                .AnyAsync(i => i.InviterId == landlordId && 
+                              i.InviteeId == userId && 
+                              i.InvitationType == "Najemca" && 
+                              i.Status == "Accepted") ||
+                user.CreatedByLandlordId == landlordId;
+
+            var isMyServiceman = await _context.LandlordServicemen
+                .AnyAsync(ls => ls.LandlordId == landlordId && ls.ServicemanId == userId) ||
+                await _context.UserInvitations
+                    .AnyAsync(i => i.InviterId == landlordId && 
+                                  i.InviteeId == userId && 
+                                  i.InvitationType == "Serwisant" && 
+                                  i.Status == "Accepted");
+
+            if (!isMyTenant && !isMyServiceman)
+                return BadRequest("Ten użytkownik nie jest Twoim najemcą ani serwisantem");
+
+            // Sprawdź czy najemca jest przypisany do któregoś z mieszkań tego właściciela (z aktywnym najmem)
+            if (isMyTenant)
+            {
+                var activeAssignment = await _context.PropertyTenants
+                    .Include(pt => pt.Property)
+                    .Where(pt => pt.TenantId == userId && pt.Property.OwnerId == landlordId)
+                    .Where(pt => pt.EndDate == null || pt.EndDate >= DateTime.UtcNow.Date)
+                    .FirstOrDefaultAsync();
+
+                if (activeAssignment != null)
+                {
+                    return BadRequest($"Nie można usunąć najemcy - jest aktywnie przypisany do mieszkania: {activeAssignment.Property.Address}. Najpierw zakończ jego najem lub usuń go z mieszkania.");
+                }
+            }
+
+            // Sprawdź czy serwisant jest przypisany do otwartych usterek
+            if (isMyServiceman)
+            {
+                var openIssue = await _context.IssueServicemen
+                    .Include(ism => ism.Issue)
+                        .ThenInclude(i => i.Property)
+                    .Where(ism => ism.ServicemanId == userId)
+                    .Where(ism => ism.Issue.Property.OwnerId == landlordId)
+                    .Where(ism => ism.Issue.Status != "Rozwiązane" && ism.Issue.Status != "Zamknięte")
+                    .Select(ism => new { ism.Issue.Title, ism.Issue.Property.Address })
+                    .FirstOrDefaultAsync();
+
+                if (openIssue != null)
+                {
+                    return BadRequest($"Nie można usunąć serwisanta - jest przypisany do otwartej usterki: \"{openIssue.Title}\" ({openIssue.Address}). Najpierw zmień przypisanie lub rozwiąż usterkę.");
+                }
+            }
+
+            // Usuwamy tylko relacje, nie konto użytkownika
+            // Dzięki temu użytkownik nadal ma dostęp do historii (wiadomości, poprzednie mieszkania itp.)
+
+            if (isMyTenant)
+            {
+                // Usuń zaproszenie typu Najemca
+                var invitation = await _context.UserInvitations
+                    .FirstOrDefaultAsync(i => i.InviterId == landlordId && 
+                                             i.InviteeId == userId && 
+                                             i.InvitationType == "Najemca");
+                if (invitation != null)
+                {
+                    _context.UserInvitations.Remove(invitation);
+                }
+
+                // Usuń powiązanie CreatedByLandlordId jeśli był utworzony przez tego właściciela
+                if (user.CreatedByLandlordId == landlordId)
+                {
+                    user.CreatedByLandlordId = null;
+                    await _userManager.UpdateAsync(user);
+                }
+
+                // NIE usuwamy PropertyTenants - to historia najmu, musi zostać dla wglądu
+                // Ale możemy oznaczyć nieaktywne przypisania
+            }
+
+            if (isMyServiceman)
+            {
+                // Usuń relację LandlordServicemen
+                var relation = await _context.LandlordServicemen
+                    .FirstOrDefaultAsync(ls => ls.LandlordId == landlordId && ls.ServicemanId == userId);
+                if (relation != null)
+                {
+                    _context.LandlordServicemen.Remove(relation);
+                }
+
+                // Usuń zaproszenie typu Serwisant
+                var invitation = await _context.UserInvitations
+                    .FirstOrDefaultAsync(i => i.InviterId == landlordId && 
+                                             i.InviteeId == userId && 
+                                             i.InvitationType == "Serwisant");
+                if (invitation != null)
+                {
+                    _context.UserInvitations.Remove(invitation);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation($"User {userId} removed from landlord {landlordId}'s list");
+
+            return Ok(new { message = "Użytkownik został usunięty z Twojej listy" });
+        }
     }
 }

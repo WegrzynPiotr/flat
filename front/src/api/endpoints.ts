@@ -204,6 +204,8 @@ export const userManagementAPI = {
     client.get<UserManagementResponse[]>('/usermanagement/my-servicemen'),
   removeTenant: (propertyId: string, tenantId: string) =>
     client.delete(`/usermanagement/remove-tenant?propertyId=${propertyId}&tenantId=${tenantId}`),
+  removeUser: (userId: string) =>
+    client.delete(`/usermanagement/remove-user/${userId}`),
 };
 
 // User Notes (prywatne notatki właściciela)

@@ -167,10 +167,14 @@ export default function PropertiesScreen({ navigation }: any) {
     // Sprawdź czy najemca ma nieaktywny najem
     const isInactive = userRole === 'Najemca' && item.isActiveTenant === false;
     
-    // Aktualni najemcy (data zakończenia w przyszłości lub nie ustawiona)
+    // Aktualni najemcy (data zakończenia jest włącznie - wygasa NASTĘPNEGO dnia)
     const currentTenants = item.tenants?.filter((t: any) => {
       if (!t.endDate) return true;
-      return new Date(t.endDate) >= new Date();
+      const endDate = new Date(t.endDate);
+      endDate.setHours(23, 59, 59, 999); // Koniec dnia (włącznie)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Początek dzisiejszego dnia
+      return endDate >= today;
     }) || [];
 
     // Oblicz okres umowy (od najwcześniejszej do najpóźniejszej daty)
