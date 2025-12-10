@@ -225,15 +225,21 @@ namespace zarzadzanieMieszkaniami.Controllers
             var hasServiceman = await _context.LandlordServicemen
                 .AnyAsync(ls => ls.LandlordId == landlordId && ls.ServicemanId == request.ServicemanId);
 
+            _logger.LogInformation($"HasServiceman check - LandlordId: {landlordId}, ServicemanId: {request.ServicemanId}, Result: {hasServiceman}");
+
             if (!hasServiceman)
                 return BadRequest("Ten serwisant nie jest przypisany do Ciebie");
 
-            // Sprawdź czy już nie jest przypisany
-            var alreadyAssigned = await _context.IssueServicemen
-                .AnyAsync(iss => iss.IssueId == request.IssueId && iss.ServicemanId == request.ServicemanId);
+            // Usuń wszystkich dotychczasowych serwisantów przypisanych do tego zgłoszenia
+            var existingAssignments = await _context.IssueServicemen
+                .Where(iss => iss.IssueId == request.IssueId)
+                .ToListAsync();
 
-            if (alreadyAssigned)
-                return BadRequest("Serwisant jest już przypisany do tego zgłoszenia");
+            if (existingAssignments.Any())
+            {
+                _logger.LogInformation($"Removing {existingAssignments.Count} existing serviceman assignments from issue {request.IssueId}");
+                _context.IssueServicemen.RemoveRange(existingAssignments);
+            }
 
             _context.IssueServicemen.Add(new IssueServiceman
             {

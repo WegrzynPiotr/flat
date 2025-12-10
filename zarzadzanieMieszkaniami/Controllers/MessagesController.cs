@@ -179,9 +179,20 @@ namespace zarzadzanieMieszkaniami.Controllers
             // Właściciele mieszkań które wynajmuję
             contactIds.AddRange(rentedProperties.Select(p => p.OwnerId));
 
+            // 2b. Współlokatorzy - inni najemcy mieszkań które wynajmuję
+            var coTenants = await _context.PropertyTenants
+                .Where(pt => rentedPropertyIds.Contains(pt.PropertyId) && pt.TenantId != userId)
+                .Join(_context.Properties, pt => pt.PropertyId, p => p.Id, (pt, p) => new { pt.TenantId, p.Address })
+                .Distinct()
+                .ToListAsync();
+            contactIds.AddRange(coTenants.Select(t => t.TenantId));
+
             // 3. Usterki z moich mieszkań (jako najemca lub właściciel) - wszystkie poza "Rozwiązane"
+            // Uwzględnij też usterki z mieszkań gdzie jestem najemcą (nie tylko te które zgłosiłem)
             var myActiveIssues = await _context.Issues
-                .Where(i => (i.ReportedById == userId || ownedPropertyIds.Contains(i.PropertyId)) && 
+                .Where(i => (i.ReportedById == userId || 
+                            ownedPropertyIds.Contains(i.PropertyId) ||
+                            rentedPropertyIds.Contains(i.PropertyId)) && 
                            i.Status != "Rozwiązane")
                 .Include(i => i.Property)
                 .ToListAsync();
@@ -333,15 +344,17 @@ namespace zarzadzanieMieszkaniami.Controllers
                     .Select(g => g.First())
                     .ToList();
 
-                // Usuń "Właściciel" jeśli dla tego samego adresu jest "Wynajmujący"
-                // (z perspektywy najemcy preferuj "Wynajmujący" nad "Właściciel")
+                // Usuń "Właściciel" jeśli jest "Wynajmujący" (z perspektywy najemcy preferuj "Wynajmujący")
+                var hasLandlordRelation = relations.Any(r => r.Role == "Wynajmujący");
                 var landlordAddresses = relations
                     .Where(r => r.Role == "Wynajmujący" && r.Details != null)
                     .Select(r => r.Details)
                     .ToHashSet();
                 
                 relations = relations
-                    .Where(r => !(r.Role == "Właściciel" && r.Details != null && landlordAddresses.Contains(r.Details)))
+                    .Where(r => !(r.Role == "Właściciel" && 
+                                 (r.Details == null && hasLandlordRelation || 
+                                  r.Details != null && landlordAddresses.Contains(r.Details))))
                     .ToList();
 
                 contacts.Add(new ConversationUserResponse
