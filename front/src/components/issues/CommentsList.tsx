@@ -12,6 +12,7 @@ interface CommentsListProps {
   issue: IssueResponse;
   onPhotoAdded: () => void;
   uploadingPhoto: boolean;
+  onIssueUpdated?: () => void;
 }
 
 interface HistoryItem {
@@ -21,7 +22,7 @@ interface HistoryItem {
   data: any;
 }
 
-export default function CommentsList({ issueId, issue, onPhotoAdded, uploadingPhoto }: CommentsListProps) {
+export default function CommentsList({ issueId, issue, onPhotoAdded, uploadingPhoto, onIssueUpdated }: CommentsListProps) {
   const [comments, setComments] = useState<CommentResponse[]>([]);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
@@ -136,6 +137,11 @@ export default function CommentsList({ issueId, issue, onPhotoAdded, uploadingPh
       const response = await commentsAPI.create(issueId, newComment.trim());
       setComments([...comments, response.data]);
       setNewComment('');
+      
+      // Jeśli status się zmienił (np. wznowiono zgłoszenie), odśwież issue
+      if (response.data.statusChanged && onIssueUpdated) {
+        onIssueUpdated();
+      }
     } catch (error) {
       console.error('Failed to add comment:', error);
       alert('Nie udało się dodać komentarza');

@@ -98,6 +98,7 @@ export interface CommentResponse {
   content: string;
   createdAt: string;
   updatedAt?: string;
+  statusChanged?: boolean;
 }
 
 export interface Issue {

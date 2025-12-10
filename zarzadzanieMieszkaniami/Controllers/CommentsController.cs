@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using zarzadzanieMieszkaniami.Helpers;
 
 namespace zarzadzanieMieszkaniami.Controllers
 {
@@ -71,15 +72,15 @@ namespace zarzadzanieMieszkaniami.Controllers
                 Console.WriteLine($"🟢 Reporter access granted");
             }
             
-            // Sprawdź czy serwisant jest przypisany do zgłoszenia
-            if (!hasAccess && userRole == "Serwisant")
+            // Sprawdź czy użytkownik jest przypisany do zgłoszenia jako serwisant (niezależnie od roli w JWT)
+            if (!hasAccess)
             {
                 var isAssigned = await _context.IssueServicemen
                     .AnyAsync(iss => iss.IssueId == request.IssueId && iss.ServicemanId == userId);
                 if (isAssigned)
                 {
                     hasAccess = true;
-                    Console.WriteLine($"🟢 Serviceman access granted");
+                    Console.WriteLine($"🟢 Assigned serviceman access granted");
                 }
             }
 
@@ -99,6 +100,32 @@ namespace zarzadzanieMieszkaniami.Controllers
             };
 
             _context.IssueComments.Add(comment);
+
+            // Jeśli zgłoszenie jest rozwiązane i komentarz NIE jest systemowym komentarzem o zmianie statusu,
+            // zmień status na "W trakcie" i dodaj wpis do historii
+            var statusChanged = false;
+            var isSystemStatusComment = request.Content.StartsWith("Status zmieniony z");
+            
+            if (issue.Status == "Rozwiązane" && !isSystemStatusComment)
+            {
+                var oldStatus = issue.Status;
+                issue.Status = "W trakcie";
+                issue.ResolvedAt = null;
+                statusChanged = true;
+                Console.WriteLine($"🔄 Issue {issue.Id} status changed from 'Rozwiązane' to 'W trakcie'");
+
+                // Dodaj komentarz systemowy o zmianie statusu
+                var statusComment = new IssueComment
+                {
+                    Id = Guid.NewGuid(),
+                    IssueId = request.IssueId,
+                    AuthorId = userId,
+                    Content = $"Status zmieniony z \"{oldStatus}\" na \"W trakcie\" (wznowiono po dodaniu komentarza)",
+                    CreatedAt = DateTime.UtcNow.AddSeconds(1) // +1 sekunda żeby był po komentarzu użytkownika
+                };
+                _context.IssueComments.Add(statusComment);
+            }
+
             await _context.SaveChangesAsync();
 
             var user = await _context.Users.FindAsync(userId);
@@ -108,11 +135,12 @@ namespace zarzadzanieMieszkaniami.Controllers
                 Id = comment.Id,
                 IssueId = comment.IssueId,
                 AuthorId = comment.AuthorId,
-                AuthorName = $"{user.FirstName} {user.LastName}",
+                AuthorName = TextHelper.CapitalizeName(user.FirstName, user.LastName),
                 AuthorRole = userRole,
                 Content = comment.Content,
                 CreatedAt = comment.CreatedAt,
-                UpdatedAt = comment.UpdatedAt
+                UpdatedAt = comment.UpdatedAt,
+                StatusChanged = statusChanged
             };
 
             return Ok(response);
@@ -141,7 +169,7 @@ namespace zarzadzanieMieszkaniami.Controllers
                     Id = comment.Id,
                     IssueId = comment.IssueId,
                     AuthorId = comment.AuthorId,
-                    AuthorName = $"{comment.Author.FirstName} {comment.Author.LastName}",
+                    AuthorName = TextHelper.CapitalizeName(comment.Author.FirstName, comment.Author.LastName),
                     AuthorRole = roles,
                     Content = comment.Content,
                     CreatedAt = comment.CreatedAt,

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
+using zarzadzanieMieszkaniami.Helpers;
 
 namespace zarzadzanieMieszkaniami.Controllers
 {
@@ -72,8 +73,8 @@ namespace zarzadzanieMieszkaniami.Controllers
             {
                 Id = user.Id,
                 Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
+                FirstName = TextHelper.Capitalize(user.FirstName),
+                LastName = TextHelper.Capitalize(user.LastName),
                 Role = request.Role,
                 CreatedAt = user.CreatedAt
             });
@@ -317,8 +318,8 @@ namespace zarzadzanieMieszkaniami.Controllers
                 {
                     Id = tenant.Id,
                     Email = tenant.Email,
-                    FirstName = tenant.FirstName,
-                    LastName = tenant.LastName,
+                    FirstName = TextHelper.Capitalize(tenant.FirstName),
+                    LastName = TextHelper.Capitalize(tenant.LastName),
                     Role = "Najemca",
                     CreatedAt = tenant.CreatedAt,
                     Properties = properties
@@ -375,8 +376,8 @@ namespace zarzadzanieMieszkaniami.Controllers
             {
                 Id = s.Id,
                 Email = s.Email,
-                FirstName = s.FirstName,
-                LastName = s.LastName,
+                FirstName = TextHelper.Capitalize(s.FirstName),
+                LastName = TextHelper.Capitalize(s.LastName),
                 Role = "Serwisant",
                 CreatedAt = s.CreatedAt
             }).ToList();

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using zarzadzanieMieszkaniami.Helpers;
 using zarzadzanieMieszkaniami.Hubs;
 
 namespace zarzadzanieMieszkaniami.Controllers
@@ -91,9 +92,9 @@ namespace zarzadzanieMieszkaniami.Controllers
             {
                 Id = message.Id,
                 SenderId = senderId,
-                SenderName = $"{sender.FirstName} {sender.LastName}",
+                SenderName = TextHelper.CapitalizeName(sender.FirstName, sender.LastName),
                 ReceiverId = request.ReceiverId,
-                ReceiverName = $"{receiver.FirstName} {receiver.LastName}",
+                ReceiverName = TextHelper.CapitalizeName(receiver.FirstName, receiver.LastName),
                 Content = message.Content,
                 IsRead = message.IsRead,
                 SentAt = message.SentAt
@@ -128,9 +129,9 @@ namespace zarzadzanieMieszkaniami.Controllers
             {
                 Id = m.Id,
                 SenderId = m.SenderId,
-                SenderName = $"{m.Sender.FirstName} {m.Sender.LastName}",
+                SenderName = TextHelper.CapitalizeName(m.Sender.FirstName, m.Sender.LastName),
                 ReceiverId = m.ReceiverId,
-                ReceiverName = $"{m.Receiver.FirstName} {m.Receiver.LastName}",
+                ReceiverName = TextHelper.CapitalizeName(m.Receiver.FirstName, m.Receiver.LastName),
                 Content = m.Content,
                 IsRead = m.IsRead,
                 SentAt = m.SentAt
@@ -154,9 +155,12 @@ namespace zarzadzanieMieszkaniami.Controllers
 
             var ownedPropertyIds = ownedProperties.Select(p => p.Id).ToList();
 
-            // Najemcy moich mieszkań - pobierz unikalne kombinacje (najemca, mieszkanie)
+            // Najemcy moich mieszkań - tylko AKTYWNI najemcy
+            var now = DateTime.UtcNow;
             var myTenants = await _context.PropertyTenants
-                .Where(pt => ownedPropertyIds.Contains(pt.PropertyId))
+                .Where(pt => ownedPropertyIds.Contains(pt.PropertyId) &&
+                            pt.StartDate <= now && 
+                            (pt.EndDate == null || pt.EndDate >= now))
                 .Join(_context.Properties, pt => pt.PropertyId, p => p.Id, (pt, p) => new { pt.TenantId, p.Address })
                 .Distinct()
                 .ToListAsync();
@@ -169,9 +173,11 @@ namespace zarzadzanieMieszkaniami.Controllers
                 .ToListAsync();
             contactIds.AddRange(myServicemen);
 
-            // 2. Mieszkania które wynajmuję (jestem najemcą)
+            // 2. Mieszkania które wynajmuję (jestem AKTYWNYM najemcą)
             var rentedProperties = await _context.PropertyTenants
-                .Where(pt => pt.TenantId == userId)
+                .Where(pt => pt.TenantId == userId && 
+                            pt.StartDate <= now && 
+                            (pt.EndDate == null || pt.EndDate >= now))
                 .Join(_context.Properties, pt => pt.PropertyId, p => p.Id, (pt, p) => p)
                 .ToListAsync();
             var rentedPropertyIds = rentedProperties.Select(p => p.Id).ToList();
@@ -179,9 +185,12 @@ namespace zarzadzanieMieszkaniami.Controllers
             // Właściciele mieszkań które wynajmuję
             contactIds.AddRange(rentedProperties.Select(p => p.OwnerId));
 
-            // 2b. Współlokatorzy - inni najemcy mieszkań które wynajmuję
+            // 2b. Współlokatorzy - inni AKTYWNI najemcy mieszkań które wynajmuję
             var coTenants = await _context.PropertyTenants
-                .Where(pt => rentedPropertyIds.Contains(pt.PropertyId) && pt.TenantId != userId)
+                .Where(pt => rentedPropertyIds.Contains(pt.PropertyId) && 
+                            pt.TenantId != userId &&
+                            pt.StartDate <= now && 
+                            (pt.EndDate == null || pt.EndDate >= now))
                 .Join(_context.Properties, pt => pt.PropertyId, p => p.Id, (pt, p) => new { pt.TenantId, p.Address })
                 .Distinct()
                 .ToListAsync();
@@ -270,19 +279,24 @@ namespace zarzadzanieMieszkaniami.Controllers
                     .ToList();
                 relations.AddRange(tenantRelations);
 
-                // Relacja 1b: Kontakt jest najemcą w mieszkaniu gdzie ja też jestem najemcą (współlokatorzy)
-                // Znajdź wszystkie mieszkania gdzie kontakt jest najemcą
+                // Relacja 1b: Kontakt jest AKTYWNYM najemcą w mieszkaniu gdzie ja też jestem AKTYWNYM najemcą (współlokatorzy)
+                // Znajdź wszystkie mieszkania gdzie kontakt jest aktywnym najemcą
                 var contactTenantProperties = await _context.PropertyTenants
-                    .Where(pt => pt.TenantId == contactId)
+                    .Where(pt => pt.TenantId == contactId &&
+                                pt.StartDate <= now && 
+                                (pt.EndDate == null || pt.EndDate >= now))
                     .Join(_context.Properties, pt => pt.PropertyId, p => p.Id, (pt, p) => new { p.Id, p.Address, p.OwnerId })
                     .ToListAsync();
                 
-                // Dla każdego mieszkania gdzie kontakt jest najemcą, sprawdź czy ja też mam z nim relację
+                // Dla każdego mieszkania gdzie kontakt jest aktywnym najemcą, sprawdź czy ja też jestem aktywnym najemcą
                 foreach (var prop in contactTenantProperties)
                 {
-                    // Jeśli ja jestem najemcą tego samego mieszkania (współlokator)
+                    // Jeśli ja jestem aktywnym najemcą tego samego mieszkania (współlokator)
                     var amITenantThere = await _context.PropertyTenants
-                        .AnyAsync(pt => pt.PropertyId == prop.Id && pt.TenantId == userId);
+                        .AnyAsync(pt => pt.PropertyId == prop.Id && 
+                                       pt.TenantId == userId &&
+                                       pt.StartDate <= now && 
+                                       (pt.EndDate == null || pt.EndDate >= now));
                     
                     if (amITenantThere && !relations.Any(r => r.Details == prop.Address))
                     {
@@ -360,7 +374,7 @@ namespace zarzadzanieMieszkaniami.Controllers
                 contacts.Add(new ConversationUserResponse
                 {
                     UserId = contactId,
-                    Name = $"{user.FirstName} {user.LastName}",
+                    Name = TextHelper.CapitalizeName(user.FirstName, user.LastName),
                     UnreadCount = unreadCount,
                     Relations = relations
                 });

@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using zarzadzanieMieszkaniami.Helpers;
 
 namespace zarzadzanieMieszkaniami.Controllers
 {
@@ -65,21 +66,21 @@ namespace zarzadzanieMieszkaniami.Controllers
                 Priority = issue.Priority,
                 Status = issue.Status,
                 PropertyId = issue.PropertyId,
-                PropertyAddress = issue.Property?.Address ?? "Unknown",
+                PropertyAddress = TextHelper.Capitalize(issue.Property?.Address) ?? "Unknown",
                 Property = issue.Property != null ? new PropertyInfo
                 {
                     Id = issue.Property.Id,
-                    Address = issue.Property.Address,
+                    Address = TextHelper.Capitalize(issue.Property.Address),
                     OwnerId = issue.Property.OwnerId,
                     Latitude = issue.Property.Latitude,
                     Longitude = issue.Property.Longitude
                 } : null,
                 ReportedById = issue.ReportedById,
-                ReportedByName = issue.ReportedBy != null ? $"{issue.ReportedBy.FirstName} {issue.ReportedBy.LastName}" : "Unknown",
+                ReportedByName = issue.ReportedBy != null ? TextHelper.CapitalizeName(issue.ReportedBy.FirstName, issue.ReportedBy.LastName) : "Unknown",
                 AssignedServicemen = issue.AssignedServicemen?.Select(ais => new ServicemanInfo
                 {
                     ServicemanId = ais.ServicemanId,
-                    ServicemanName = $"{ais.Serviceman?.FirstName} {ais.Serviceman?.LastName}",
+                    ServicemanName = TextHelper.CapitalizeName(ais.Serviceman?.FirstName, ais.Serviceman?.LastName),
                     AssignedAt = ais.AssignedAt
                 }).ToList() ?? new List<ServicemanInfo>(),
                 ReportedAt = issue.ReportedAt,
@@ -110,21 +111,21 @@ namespace zarzadzanieMieszkaniami.Controllers
                 Priority = issue.Priority,
                 Status = issue.Status,
                 PropertyId = issue.PropertyId,
-                PropertyAddress = issue.Property?.Address ?? "Unknown",
+                PropertyAddress = TextHelper.Capitalize(issue.Property?.Address) ?? "Unknown",
                 Property = issue.Property != null ? new PropertyInfo
                 {
                     Id = issue.Property.Id,
-                    Address = issue.Property.Address,
+                    Address = TextHelper.Capitalize(issue.Property.Address),
                     OwnerId = issue.Property.OwnerId,
                     Latitude = issue.Property.Latitude,
                     Longitude = issue.Property.Longitude
                 } : null,
                 ReportedById = issue.ReportedById,
-                ReportedByName = issue.ReportedBy != null ? $"{issue.ReportedBy.FirstName} {issue.ReportedBy.LastName}" : "Unknown",
+                ReportedByName = issue.ReportedBy != null ? TextHelper.CapitalizeName(issue.ReportedBy.FirstName, issue.ReportedBy.LastName) : "Unknown",
                 AssignedServicemen = issue.AssignedServicemen?.Select(ais => new ServicemanInfo
                 {
                     ServicemanId = ais.ServicemanId,
-                    ServicemanName = $"{ais.Serviceman.FirstName} {ais.Serviceman.LastName}",
+                    ServicemanName = TextHelper.CapitalizeName(ais.Serviceman.FirstName, ais.Serviceman.LastName),
                     AssignedAt = ais.AssignedAt
                 }).ToList() ?? new List<ServicemanInfo>(),
                 ReportedAt = issue.ReportedAt,
@@ -135,7 +136,7 @@ namespace zarzadzanieMieszkaniami.Controllers
                     Id = p.Id,
                     Url = p.Url,
                     UploadedById = p.UploadedById,
-                    UploadedByName = p.UploadedBy != null ? $"{p.UploadedBy.FirstName} {p.UploadedBy.LastName}" : "Unknown",
+                    UploadedByName = p.UploadedBy != null ? TextHelper.CapitalizeName(p.UploadedBy.FirstName, p.UploadedBy.LastName) : "Unknown",
                     UploadedAt = p.UploadedAt
                 }).ToList() ?? new List<PhotoInfo>()
             };
@@ -410,27 +411,23 @@ namespace zarzadzanieMieszkaniami.Controllers
                 Console.WriteLine($"🔵 Property OwnerId: {issue.Property.OwnerId}");
             }
 
-            // Serwisant może aktualizować tylko swoje zgłoszenia
-            if (userRole == "Serwisant")
+            // Sprawdź uprawnienia
+            var isAssignedServiceman = issue.AssignedServicemen?.Any(ais => ais.ServicemanId == userId) ?? false;
+            var isOwner = issue.Property?.OwnerId == userId;
+            var isTenant = await _context.PropertyTenants.AnyAsync(pt => pt.PropertyId == issue.PropertyId && pt.TenantId == userId);
+            var isReporter = issue.ReportedById == userId;
+            
+            Console.WriteLine($"🔵 isAssignedServiceman: {isAssignedServiceman}, isOwner: {isOwner}, isTenant: {isTenant}, isReporter: {isReporter}");
+            
+            // Użytkownik może aktualizować status jeśli:
+            // - jest przypisanym serwisantem
+            // - jest właścicielem nieruchomości
+            // - jest najemcą nieruchomości
+            // - jest autorem zgłoszenia
+            if (!isAssignedServiceman && !isOwner && !isTenant && !isReporter)
             {
-                var isAssigned = issue.AssignedServicemen?.Any(ais => ais.ServicemanId == userId) ?? false;
-                if (!isAssigned)
-                    return StatusCode(403, new { message = "Nie jesteś przypisany do tego zgłoszenia" });
-            }
-            // Właściciel lub najemca może aktualizować zgłoszenia ze swoich nieruchomości
-            else
-            {
-                var isOwner = issue.Property?.OwnerId == userId;
-                var isTenant = await _context.PropertyTenants.AnyAsync(pt => pt.PropertyId == issue.PropertyId && pt.TenantId == userId);
-                var isReporter = issue.ReportedById == userId;
-                
-                Console.WriteLine($"🔵 isOwner: {isOwner}, isTenant: {isTenant}, isReporter: {isReporter}");
-                
-                if (!isOwner && !isTenant && !isReporter)
-                {
-                    Console.WriteLine($"🔴 Access denied - Property owner: {issue.Property?.OwnerId}, User: {userId}");
-                    return StatusCode(403, new { message = "Brak uprawnień do aktualizacji tego zgłoszenia" });
-                }
+                Console.WriteLine($"🔴 Access denied - no permissions");
+                return StatusCode(403, new { message = "Brak uprawnień do aktualizacji tego zgłoszenia" });
             }
 
             issue.Status = request.Status;

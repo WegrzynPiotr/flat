@@ -25,6 +25,10 @@ export default function IssueDetailsScreen({ route, navigation }: any) {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   const isOwner = userRole === 'Wlasciciel' && selectedIssue?.property?.ownerId === userId;
+  // Sprawdź czy użytkownik jest przypisanym serwisantem do tego zgłoszenia
+  const isAssignedServiceman = selectedIssue?.assignedServicemen?.some(
+    (s) => s.servicemanId === userId
+  ) ?? false;
 
   useEffect(() => {
     dispatch(fetchIssueById(id));
@@ -258,7 +262,7 @@ export default function IssueDetailsScreen({ route, navigation }: any) {
         </>
       )}
 
-      {userRole === 'Serwisant' && (
+      {userRole === 'Serwisant' || isAssignedServiceman ? (
         <View style={styles.card}>
           <UpdateStatusForm 
             issueId={id} 
@@ -266,7 +270,7 @@ export default function IssueDetailsScreen({ route, navigation }: any) {
             onStatusUpdated={handleStatusUpdated} 
           />
         </View>
-      )}
+      ) : null}
 
       <View style={styles.card}>
         <CommentsList 
@@ -274,6 +278,7 @@ export default function IssueDetailsScreen({ route, navigation }: any) {
           issue={selectedIssue}
           onPhotoAdded={handleAddPhoto}
           uploadingPhoto={uploadingPhoto}
+          onIssueUpdated={handleStatusUpdated}
         />
       </View>
     </ScrollView>

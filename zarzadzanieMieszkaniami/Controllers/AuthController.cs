@@ -7,6 +7,7 @@ using Core.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using zarzadzanieMieszkaniami.Helpers;
 
 namespace zarzadzanieMieszkaniami.Controllers
 {
@@ -49,8 +50,8 @@ namespace zarzadzanieMieszkaniami.Controllers
                     {
                         user.Id,
                         user.Email,
-                        user.FirstName,
-                        user.LastName,
+                        firstName = TextHelper.Capitalize(user.FirstName),
+                        lastName = TextHelper.Capitalize(user.LastName),
                         role = roles.FirstOrDefault()
                     }
                 });
@@ -81,8 +82,8 @@ namespace zarzadzanieMieszkaniami.Controllers
                     {
                         user.Id,
                         user.Email,
-                        user.FirstName,
-                        user.LastName,
+                        firstName = TextHelper.Capitalize(user.FirstName),
+                        lastName = TextHelper.Capitalize(user.LastName),
                         role = roles.FirstOrDefault()
                     }
                 });
@@ -173,8 +174,8 @@ namespace zarzadzanieMieszkaniami.Controllers
                 {
                     id = user.Id,
                     email = user.Email,
-                    firstName = user.FirstName,
-                    lastName = user.LastName,
+                    firstName = TextHelper.Capitalize(user.FirstName),
+                    lastName = TextHelper.Capitalize(user.LastName),
                     role = roles.FirstOrDefault()
                 });
             }

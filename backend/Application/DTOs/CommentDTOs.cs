@@ -16,5 +16,6 @@ namespace Application.DTOs
         public string Content { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        public bool StatusChanged { get; set; } // Informuje czy status zgłoszenia został zmieniony
     }
 }

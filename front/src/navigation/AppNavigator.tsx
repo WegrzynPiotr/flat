@@ -81,16 +81,15 @@ export default function AppNavigator() {
       const response = await propertiesAPI.getAll();
       // Sprawdź czy użytkownik jest właścicielem któregoś z mieszkań
       const ownedProperties = response.data.filter((p: any) => {
-        // PropertyResponse nie ma pola ownerId zwracanego bezpośrednio,
-        // ale możemy sprawdzić czy nie jest to wynajmowane mieszkanie
-        return !p.isActiveTenant;
+        // Użytkownik jest właścicielem jeśli ownerId === jego userId
+        return p.ownerId === userId;
       });
       setIsPropertyOwner(ownedProperties.length > 0);
     } catch (error) {
       console.error('Failed to check property ownership:', error);
       setIsPropertyOwner(false);
     }
-  }, []);
+  }, [userId]);
 
   // Sprawdź przy każdym focus na nawigację (np. po dodaniu mieszkania)
   useFocusEffect(
