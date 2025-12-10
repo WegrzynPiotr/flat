@@ -12,6 +12,7 @@ using System.Security.Claims;
 using System.Text;
 using zarzadzanieMieszkaniami.Data;
 using zarzadzanieMieszkaniami.Hubs;
+using zarzadzanieMieszkaniami.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +54,9 @@ builder.Services.AddScoped<JwtService>();
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<IssueService>();
+
+// Geocoding Service
+builder.Services.AddHttpClient<IGeocodingService, GeocodingService>();
 
 // JWT Authentication
 var jwtSecretKey = builder.Configuration["JwtSettings:SecretKey"];

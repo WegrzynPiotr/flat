@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
 using zarzadzanieMieszkaniami.Helpers;
+using zarzadzanieMieszkaniami.Services;
 
 namespace zarzadzanieMieszkaniami.Controllers
 {
@@ -22,11 +23,13 @@ namespace zarzadzanieMieszkaniami.Controllers
     {
         private readonly IPropertyRepository _propertyRepository;
         private readonly IWebHostEnvironment _env;
+        private readonly IGeocodingService _geocodingService;
 
-        public PropertiesController(IPropertyRepository propertyRepository, IWebHostEnvironment env)
+        public PropertiesController(IPropertyRepository propertyRepository, IWebHostEnvironment env, IGeocodingService geocodingService)
         {
             _propertyRepository = propertyRepository;
             _env = env;
+            _geocodingService = geocodingService;
         }
 
         [HttpGet]
@@ -85,6 +88,10 @@ namespace zarzadzanieMieszkaniami.Controllers
             
             Console.WriteLine($"🔵 Creating property for user: {userId}");
             
+            // Pobierz współrzędne na podstawie adresu
+            var (latitude, longitude) = await _geocodingService.GetCoordinatesAsync(
+                request.Address, request.City, request.PostalCode);
+            
             var property = new Property
             {
                 Id = Guid.NewGuid(),
@@ -96,7 +103,9 @@ namespace zarzadzanieMieszkaniami.Controllers
                 Description = request.Description,
                 OwnerId = userId,
                 Photos = "[]", // Pusta tablica JSON
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                Latitude = latitude,
+                Longitude = longitude
             };
             
             var created = await _propertyRepository.AddAsync(property);
@@ -118,12 +127,26 @@ namespace zarzadzanieMieszkaniami.Controllers
             if (property.OwnerId != userId)
                 return Forbid();
 
+            // Sprawdź czy adres się zmienił - jeśli tak, pobierz nowe współrzędne
+            var addressChanged = property.Address != request.Address || 
+                                 property.City != request.City || 
+                                 property.PostalCode != request.PostalCode;
+            
             property.Address = request.Address;
             property.City = request.City;
             property.PostalCode = request.PostalCode;
             property.RoomsCount = request.RoomsCount;
             property.Area = request.Area;
             property.Description = request.Description;
+
+            // Jeśli adres się zmienił lub nie ma współrzędnych, pobierz je
+            if (addressChanged || property.Latitude == null || property.Longitude == null)
+            {
+                var (latitude, longitude) = await _geocodingService.GetCoordinatesAsync(
+                    request.Address, request.City, request.PostalCode);
+                property.Latitude = latitude;
+                property.Longitude = longitude;
+            }
 
             await _propertyRepository.UpdateAsync(property);
 
@@ -267,6 +290,34 @@ namespace zarzadzanieMieszkaniami.Controllers
             await _propertyRepository.DeleteAsync(id);
 
             return NoContent();
+        }
+
+        [HttpPost("{id}/geocode")]
+        [Authorize(Roles = "Wlasciciel")]
+        public async Task<IActionResult> Geocode(Guid id)
+        {
+            var property = await _propertyRepository.GetByIdAsync(id);
+            if (property == null)
+                return NotFound();
+
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            if (property.OwnerId != userId)
+                return Forbid();
+
+            var (latitude, longitude) = await _geocodingService.GetCoordinatesAsync(
+                property.Address, property.City, property.PostalCode);
+            
+            if (latitude == null || longitude == null)
+                return BadRequest("Nie udało się ustalić współrzędnych dla podanego adresu");
+
+            property.Latitude = latitude;
+            property.Longitude = longitude;
+            
+            await _propertyRepository.UpdateAsync(property);
+
+            var dto = PropertyMapper.ToResponse(property, Request);
+
+            return Ok(dto);
         }
     }
 

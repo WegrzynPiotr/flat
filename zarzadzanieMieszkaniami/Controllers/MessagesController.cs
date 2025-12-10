@@ -173,21 +173,30 @@ namespace zarzadzanieMieszkaniami.Controllers
                 .ToListAsync();
             contactIds.AddRange(myServicemen);
 
-            // 2. Mieszkania które wynajmuję (jestem AKTYWNYM najemcą)
-            var rentedProperties = await _context.PropertyTenants
-                .Where(pt => pt.TenantId == userId && 
-                            pt.StartDate <= now && 
-                            (pt.EndDate == null || pt.EndDate >= now))
-                .Join(_context.Properties, pt => pt.PropertyId, p => p.Id, (pt, p) => p)
+            // 2. Mieszkania które wynajmuję (jestem najemcą)
+            // Pobierz wszystkie nieruchomości gdzie kiedykolwiek byłem najemcą
+            var allRentedProperties = await _context.PropertyTenants
+                .Where(pt => pt.TenantId == userId)
+                .Join(_context.Properties, pt => pt.PropertyId, p => p.Id, (pt, p) => new { Property = p, pt.StartDate, pt.EndDate })
                 .ToListAsync();
-            var rentedPropertyIds = rentedProperties.Select(p => p.Id).ToList();
-
-            // Właściciele mieszkań które wynajmuję
+            
+            // Wszystkie (aktywne + byłe) - dla właścicieli
+            var rentedProperties = allRentedProperties.Select(r => r.Property).Distinct().ToList();
+            
+            // Aktywne najmy - do współlokatorów i usterek
+            var activeRentedProperties = allRentedProperties
+                .Where(r => r.StartDate <= now && (r.EndDate == null || r.EndDate >= now))
+                .Select(r => r.Property)
+                .Distinct()
+                .ToList();
+            var activeRentedPropertyIds = activeRentedProperties.Select(p => p.Id).ToList();
+            
+            // Właściciele WSZYSTKICH mieszkań które kiedykolwiek wynajmowałem - zawsze w kontaktach
             contactIds.AddRange(rentedProperties.Select(p => p.OwnerId));
 
-            // 2b. Współlokatorzy - inni AKTYWNI najemcy mieszkań które wynajmuję
+            // 2b. Współlokatorzy - inni AKTYWNI najemcy mieszkań które AKTYWNIE wynajmuję
             var coTenants = await _context.PropertyTenants
-                .Where(pt => rentedPropertyIds.Contains(pt.PropertyId) && 
+                .Where(pt => activeRentedPropertyIds.Contains(pt.PropertyId) && 
                             pt.TenantId != userId &&
                             pt.StartDate <= now && 
                             (pt.EndDate == null || pt.EndDate >= now))
@@ -196,21 +205,14 @@ namespace zarzadzanieMieszkaniami.Controllers
                 .ToListAsync();
             contactIds.AddRange(coTenants.Select(t => t.TenantId));
 
-            // 3. Usterki z moich mieszkań (jako najemca lub właściciel) - wszystkie poza "Rozwiązane"
-            // Uwzględnij też usterki z mieszkań gdzie jestem najemcą (nie tylko te które zgłosiłem)
+            // 3. Usterki - tylko te które SAM zgłosiłem lub z mieszkań które AKTYWNIE wynajmuję/posiadam
             var myActiveIssues = await _context.Issues
                 .Where(i => (i.ReportedById == userId || 
                             ownedPropertyIds.Contains(i.PropertyId) ||
-                            rentedPropertyIds.Contains(i.PropertyId)) && 
+                            activeRentedPropertyIds.Contains(i.PropertyId)) && 
                            i.Status != "Rozwiązane")
                 .Include(i => i.Property)
                 .ToListAsync();
-
-            Console.WriteLine($"🔍 User {userId} has {myActiveIssues.Count} active issues");
-            foreach (var issue in myActiveIssues)
-            {
-                Console.WriteLine($"   Issue: {issue.Id} - {issue.Title} - Status: {issue.Status}");
-            }
 
             var myActiveIssueIds = myActiveIssues.Select(i => i.Id).ToList();
 
@@ -219,12 +221,6 @@ namespace zarzadzanieMieszkaniami.Controllers
                 .Where(iss => myActiveIssueIds.Contains(iss.IssueId))
                 .ToListAsync();
             
-            Console.WriteLine($"🔧 Found {servicemanIssueMap.Count} serviceman assignments");
-            foreach (var iss in servicemanIssueMap)
-            {
-                Console.WriteLine($"   IssueId: {iss.IssueId} - ServicemanId: {iss.ServicemanId}");
-            }
-            
             // Pobierz tytuły usterek
             var servicemanWithIssueTitle = servicemanIssueMap
                 .Select(iss => new { 
@@ -232,12 +228,6 @@ namespace zarzadzanieMieszkaniami.Controllers
                     IssueTitle = myActiveIssues.FirstOrDefault(i => i.Id == iss.IssueId)?.Title 
                 })
                 .ToList();
-            
-            Console.WriteLine($"📋 Serviceman with titles: {servicemanWithIssueTitle.Count}");
-            foreach (var s in servicemanWithIssueTitle)
-            {
-                Console.WriteLine($"   ServicemanId: {s.ServicemanId} - Title: {s.IssueTitle}");
-            }
             
             contactIds.AddRange(servicemanWithIssueTitle.Select(s => s.ServicemanId));
 
@@ -252,12 +242,17 @@ namespace zarzadzanieMieszkaniami.Controllers
             contactIds.AddRange(assignedIssues.Select(i => i.Property.OwnerId));
             contactIds.AddRange(assignedIssues.Select(i => i.ReportedById));
 
-            // Moi właściciele (jeśli jestem serwisantem)
+            // Moi właściciele (jeśli jestem serwisantem) - tylko ci z aktywnymi usterkami
             var myLandlords = await _context.LandlordServicemen
                 .Where(ls => ls.ServicemanId == userId)
                 .Select(ls => ls.LandlordId)
                 .ToListAsync();
-            contactIds.AddRange(myLandlords);
+            // Dodaj tylko tych właścicieli, którzy mają aktywne usterki przypisane do mnie
+            var landlordsWithActiveIssues = assignedIssues
+                .Select(i => i.Property.OwnerId)
+                .Distinct()
+                .ToList();
+            contactIds.AddRange(myLandlords.Where(l => landlordsWithActiveIssues.Contains(l)));
 
             contactIds = contactIds.Distinct().Where(id => id != userId).ToList();
 
@@ -275,7 +270,7 @@ namespace zarzadzanieMieszkaniami.Controllers
                 // Relacja 1: Kontakt jest moim najemcą (ja jestem właścicielem, on wynajmuje ode mnie)
                 var tenantRelations = myTenants
                     .Where(t => t.TenantId == contactId)
-                    .Select(t => new UserRelation { Role = "Najemca", Details = t.Address })
+                    .Select(t => new UserRelation { Role = "Najemca", Details = TextHelper.Capitalize(t.Address) })
                     .ToList();
                 relations.AddRange(tenantRelations);
 
@@ -298,16 +293,16 @@ namespace zarzadzanieMieszkaniami.Controllers
                                        pt.StartDate <= now && 
                                        (pt.EndDate == null || pt.EndDate >= now));
                     
-                    if (amITenantThere && !relations.Any(r => r.Details == prop.Address))
+                    if (amITenantThere && !relations.Any(r => r.Details == TextHelper.Capitalize(prop.Address)))
                     {
-                        relations.Add(new UserRelation { Role = "Najemca", Details = prop.Address });
+                        relations.Add(new UserRelation { Role = "Najemca", Details = TextHelper.Capitalize(prop.Address) });
                     }
                 }
 
                 // Relacja 2: Kontakt jest moim właścicielem/wynajmującym (ja wynajmuję od niego)
                 var landlordRelations = rentedProperties
                     .Where(p => p.OwnerId == contactId)
-                    .Select(p => new UserRelation { Role = "Wynajmujący", Details = p.Address })
+                    .Select(p => new UserRelation { Role = "Wynajmujący", Details = TextHelper.Capitalize(p.Address) })
                     .ToList();
                 relations.AddRange(landlordRelations);
 
@@ -325,30 +320,46 @@ namespace zarzadzanieMieszkaniami.Controllers
                 }
 
                 // Relacja 4: Jestem serwisantem, kontakt jest właścicielem mieszkania ze zgłoszenia
-                var ownerFromIssueRelations = assignedIssues
-                    .Where(i => i.Property.OwnerId == contactId)
-                    .Select(i => new UserRelation { Role = "Właściciel", Details = i.Property.Address })
-                    .GroupBy(r => r.Details)
-                    .Select(g => g.First())
-                    .ToList();
-                relations.AddRange(ownerFromIssueRelations);
+                // Jeśli ja też wynajmuję od tego właściciela, NIE dodawaj - już jest "Wynajmujący" z Relacji 2
+                var isMyLandlordAsTenant = rentedProperties.Any(p => p.OwnerId == contactId);
+                if (!isMyLandlordAsTenant)
+                {
+                    var ownerFromIssueRelations = assignedIssues
+                        .Where(i => i.Property.OwnerId == contactId)
+                        .Select(i => new UserRelation { Role = "Wynajmujący", Details = TextHelper.Capitalize(i.Property.Address) })
+                        .GroupBy(r => r.Details)
+                        .Select(g => g.First())
+                        .ToList();
+                    relations.AddRange(ownerFromIssueRelations);
+                }
 
                 // Relacja 5: Jestem serwisantem, kontakt jest najemcą który zgłosił usterkę
                 var reporterFromIssueRelations = assignedIssues
                     .Where(i => i.ReportedById == contactId && i.Property.OwnerId != contactId)
-                    .Select(i => new UserRelation { Role = "Najemca", Details = i.Property.Address })
+                    .Select(i => new UserRelation { Role = "Najemca", Details = TextHelper.Capitalize(i.Property.Address) })
                     .GroupBy(r => r.Details)
                     .Select(g => g.First())
                     .ToList();
                 relations.AddRange(reporterFromIssueRelations);
 
                 // Relacja 6: Kontakt jest moim właścicielem (jestem jego serwisantem)
-                if (myLandlords.Contains(contactId))
+                // Pokazuj tylko jeśli mam aktywne usterki przypisane w jego nieruchomościach
+                if (myLandlords.Contains(contactId) && landlordsWithActiveIssues.Contains(contactId))
                 {
-                    // Jeśli nie ma jeszcze relacji właściciela, dodaj ogólną
-                    if (!relations.Any(r => r.Role == "Właściciel"))
+                    // Pobierz adresy nieruchomości tego właściciela z aktywnych usterek
+                    var landlordPropertyAddresses = assignedIssues
+                        .Where(i => i.Property.OwnerId == contactId)
+                        .Select(i => TextHelper.Capitalize(i.Property.Address))
+                        .Distinct()
+                        .ToList();
+                    
+                    foreach (var address in landlordPropertyAddresses)
                     {
-                        relations.Add(new UserRelation { Role = "Właściciel", Details = null });
+                        // Dodaj tylko jeśli nie ma jeszcze takiej relacji
+                        if (!relations.Any(r => r.Role == "Wynajmujący" && r.Details == address))
+                        {
+                            relations.Add(new UserRelation { Role = "Wynajmujący", Details = address });
+                        }
                     }
                 }
 
@@ -356,19 +367,6 @@ namespace zarzadzanieMieszkaniami.Controllers
                 relations = relations
                     .GroupBy(r => new { r.Role, r.Details })
                     .Select(g => g.First())
-                    .ToList();
-
-                // Usuń "Właściciel" jeśli jest "Wynajmujący" (z perspektywy najemcy preferuj "Wynajmujący")
-                var hasLandlordRelation = relations.Any(r => r.Role == "Wynajmujący");
-                var landlordAddresses = relations
-                    .Where(r => r.Role == "Wynajmujący" && r.Details != null)
-                    .Select(r => r.Details)
-                    .ToHashSet();
-                
-                relations = relations
-                    .Where(r => !(r.Role == "Właściciel" && 
-                                 (r.Details == null && hasLandlordRelation || 
-                                  r.Details != null && landlordAddresses.Contains(r.Details))))
                     .ToList();
 
                 contacts.Add(new ConversationUserResponse

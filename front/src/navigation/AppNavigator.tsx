@@ -1,10 +1,9 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { useSelector } from 'react-redux';
-import { useFocusEffect } from '@react-navigation/native';
-import { RootState } from '../store/store';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '../store/store';
 import IssuesListScreen from '../screens/issues/IssuesListScreen';
 import IssueDetailsScreen from '../screens/issues/IssueDetailsScreen';
 import CreateIssueScreen from '../screens/issues/CreateIssueScreen';
@@ -14,7 +13,7 @@ import ProfileScreen from '../screens/profile/ProfileScreen';
 import MessagesScreen from '../screens/messages/MessagesScreen';
 import ManagementScreen from '../screens/management/ManagementScreen';
 import { Colors } from '../styles/colors';
-import { propertiesAPI } from '../api/endpoints';
+import { fetchProperties } from '../store/slices/propertiesSlice';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -73,32 +72,21 @@ function PropertiesStack() {
 }
 
 export default function AppNavigator() {
+  const dispatch = useDispatch<AppDispatch>();
   const userId = useSelector((state: RootState) => state.auth.user?.id);
-  const [isPropertyOwner, setIsPropertyOwner] = useState(false);
-
-  const checkOwnership = useCallback(async () => {
-    try {
-      const response = await propertiesAPI.getAll();
-      // Sprawdź czy użytkownik jest właścicielem któregoś z mieszkań
-      const ownedProperties = response.data.filter((p: any) => {
-        // Użytkownik jest właścicielem jeśli ownerId === jego userId
-        return p.ownerId === userId;
-      });
-      setIsPropertyOwner(ownedProperties.length > 0);
-    } catch (error) {
-      console.error('Failed to check property ownership:', error);
-      setIsPropertyOwner(false);
+  const properties = useSelector((state: RootState) => state.properties.properties);
+  
+  // Pobierz właściwości przy starcie
+  useEffect(() => {
+    if (userId) {
+      dispatch(fetchProperties());
     }
-  }, [userId]);
+  }, [userId, dispatch]);
 
-  // Sprawdź przy każdym focus na nawigację (np. po dodaniu mieszkania)
-  useFocusEffect(
-    useCallback(() => {
-      if (userId) {
-        checkOwnership();
-      }
-    }, [userId, checkOwnership])
-  );
+  // Oblicz czy użytkownik jest właścicielem na podstawie Redux state
+  const isPropertyOwner = useMemo(() => {
+    return properties.some((p: any) => p.ownerId === userId);
+  }, [properties, userId]);
 
   return (
     <Tab.Navigator
