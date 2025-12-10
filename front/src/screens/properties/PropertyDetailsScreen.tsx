@@ -900,24 +900,73 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
       )}
 
       {/* Najemcy - widok dla najemcy (nie właściciela) */}
-      {!isOwner && property.tenants && property.tenants.length > 0 && (
+      {!isOwner && property.tenants && property.tenants.length > 0 && (() => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // Znajdź najem bieżącego użytkownika
+        const myTenancy = property.tenants.find(t => t.tenantId === user?.id);
+        
+        // Sprawdź czy mój najem wygasł
+        const isMyTenancyExpired = myTenancy && myTenancy.endDate && (() => {
+          const endDate = new Date(myTenancy.endDate);
+          endDate.setHours(23, 59, 59, 999);
+          return endDate < today;
+        })();
+        
+        // Jeśli mój najem wygasł - pokaż tylko mnie
+        if (isMyTenancyExpired && myTenancy) {
+          return (
+            <View style={styles.card}>
+              <View style={styles.tenantsHeader}>
+                <Text style={Typography.h3}>Twój najem</Text>
+              </View>
+              <View style={[styles.tenantItem, styles.tenantItemExpired]}>
+                <View style={[styles.tenantAvatar, styles.tenantAvatarExpired]}>
+                  <Ionicons name="person" size={20} color={Colors.white} />
+                </View>
+                <View style={styles.tenantInfo}>
+                  <Text style={[styles.tenantName, styles.tenantNameExpired]}>
+                    {capitalize(myTenancy.tenantName)} (Ty)
+                  </Text>
+                  <Text style={[styles.tenantDate, styles.tenantDateExpired]}>
+                    {new Date(myTenancy.startDate).toLocaleDateString('pl-PL')}
+                    {myTenancy.endDate ? ` - ${new Date(myTenancy.endDate).toLocaleDateString('pl-PL')}` : ' - obecnie'}
+                    {' (wygasło)'}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          );
+        }
+        
+        // Jeśli mój najem jest aktywny - pokaż tylko aktywnych najemców
+        const activeTenants = property.tenants.filter(t => {
+          if (!t.endDate) return true;
+          const endDate = new Date(t.endDate);
+          endDate.setHours(23, 59, 59, 999);
+          return endDate >= today;
+        });
+        
+        if (activeTenants.length === 0) return null;
+        
+        return (
           <View style={styles.card}>
             <View style={styles.tenantsHeader}>
-              <Text style={Typography.h3}>Najemcy ({property.tenants.length})</Text>
+              <Text style={Typography.h3}>Najemcy ({activeTenants.length})</Text>
             </View>
-            {property.tenants.map((tenant, index) => {
-              const expired = isTenancyExpired(tenant.endDate);
+            {activeTenants.map((tenant, index) => {
               return (
-                <View key={index} style={[styles.tenantItem, expired && styles.tenantItemExpired]}>
-                  <View style={[styles.tenantAvatar, expired && styles.tenantAvatarExpired]}>
+                <View key={index} style={styles.tenantItem}>
+                  <View style={styles.tenantAvatar}>
                     <Ionicons name="person" size={20} color={Colors.white} />
                   </View>
                   <View style={styles.tenantInfo}>
-                    <Text style={[styles.tenantName, expired && styles.tenantNameExpired]}>
+                    <Text style={styles.tenantName}>
                       {capitalize(tenant.tenantName)}
-                      {expired && ' (wygasło)'}
+                      {tenant.tenantId === user?.id && ' (Ty)'}
                     </Text>
-                    <Text style={[styles.tenantDate, expired && styles.tenantDateExpired]}>
+                    <Text style={styles.tenantDate}>
                       {new Date(tenant.startDate).toLocaleDateString('pl-PL')}
                       {tenant.endDate ? ` - ${new Date(tenant.endDate).toLocaleDateString('pl-PL')}` : ' - obecnie'}
                     </Text>
@@ -926,7 +975,8 @@ export default function PropertyDetailsScreen({ route, navigation }: any) {
               );
             })}
           </View>
-      )}
+        );
+      })()}
 
       {/* Lightbox Modal */}
       <Modal

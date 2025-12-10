@@ -28,6 +28,8 @@ const PRIORITIES = ['Niska', 'Średnia', 'Wysoka', 'Krytyczna'];
 export default function CreateIssueScreen({ navigation }: any) {
   const dispatch = useDispatch<AppDispatch>();
   const { loading } = useSelector((state: RootState) => state.issues);
+  const user = useSelector((state: RootState) => state.auth.user);
+  const userRole = user?.role;
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -49,9 +51,38 @@ export default function CreateIssueScreen({ navigation }: any) {
       setLoadingProperties(true);
       const response = await propertiesAPI.getAll();
       if (response.data) {
-        setProperties(response.data);
-        if (response.data.length > 0) {
-          setPropertyId(response.data[0].id);
+        // Filtruj tylko aktywne nieruchomości
+        // Właściciel widzi swoje, najemca widzi tylko z aktywnym najmem
+        const activeProperties = response.data.filter((property) => {
+          // Właściciel widzi wszystkie swoje nieruchomości
+          if (property.ownerId === user?.id) return true;
+          
+          // Dla mieszkań gdzie nie jestem właścicielem - sprawdź czy mam aktywny najem
+          const myTenancy = property.tenants?.find((t) => t.tenantId === user?.id);
+          if (!myTenancy) return false; // Nie jestem najemcą - nie pokazuj
+          
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          
+          const startDate = new Date(myTenancy.startDate);
+          startDate.setHours(0, 0, 0, 0);
+          
+          // Najem jeszcze się nie rozpoczął
+          if (startDate > today) return false;
+          
+          // Najem już się zakończył (endDate jest włącznie)
+          if (myTenancy.endDate) {
+            const endDate = new Date(myTenancy.endDate);
+            endDate.setHours(23, 59, 59, 999);
+            if (endDate < today) return false;
+          }
+          
+          return true;
+        });
+        
+        setProperties(activeProperties);
+        if (activeProperties.length > 0) {
+          setPropertyId(activeProperties[0].id);
         }
       }
     } catch (error) {

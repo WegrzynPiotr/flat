@@ -151,7 +151,7 @@ namespace zarzadzanieMieszkaniami.Controllers
             return Ok();
         }
 
-        // Usuń najemcę z mieszkania
+        // Usuń najemcę z mieszkania (kończy najem, zachowuje historię)
         [HttpDelete("remove-tenant")]
         [Authorize(Roles = "Wlasciciel")]
         public async Task<IActionResult> RemoveTenant([FromQuery] Guid propertyId, [FromQuery] Guid tenantId)
@@ -169,7 +169,22 @@ namespace zarzadzanieMieszkaniami.Controllers
             if (propertyTenant == null)
                 return NotFound("Najemca nie jest przypisany do tego mieszkania");
 
-            _context.PropertyTenants.Remove(propertyTenant);
+            // Zamiast usuwać relację, kończymy najem ustawiając datę zakończenia na wczoraj
+            // Dzięki temu były najemca zachowuje dostęp do historii (dokumenty, mieszkanie wyszarzone)
+            var yesterday = DateTime.UtcNow.Date.AddDays(-1);
+            
+            // Jeśli najem jeszcze się nie rozpoczął, po prostu usuń relację
+            if (propertyTenant.StartDate > DateTime.UtcNow.Date)
+            {
+                _context.PropertyTenants.Remove(propertyTenant);
+            }
+            else
+            {
+                // Najem trwa lub trwał - zakończ go
+                propertyTenant.EndDate = yesterday;
+                _context.PropertyTenants.Update(propertyTenant);
+            }
+            
             await _context.SaveChangesAsync();
 
             return NoContent();

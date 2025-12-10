@@ -92,24 +92,42 @@ export default function AssignTenantForm({ onTenantAssigned, initialPropertyId }
     try {
       const response = await propertiesAPI.getById(selectedProperty);
       const property = response.data;
-      const currentTenantIds = property.tenants?.map(t => t.tenantId) || [];
-      console.log('🔵 Current tenants for property:', currentTenantIds);
-      setSelectedTenants(currentTenantIds);
-      setInitialTenants(currentTenantIds);
+      
+      // Filtruj tylko aktywnych najemców (niewygasłych)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const activeTenantIds = property.tenants?.filter(t => {
+        if (!t.endDate) return true; // Brak daty końcowej = aktywny
+        const endDate = new Date(t.endDate);
+        endDate.setHours(23, 59, 59, 999); // Koniec dnia (włącznie)
+        return endDate >= today;
+      }).map(t => t.tenantId) || [];
+      
+      console.log('🔵 Active tenants for property:', activeTenantIds);
+      setSelectedTenants(activeTenantIds);
+      setInitialTenants(activeTenantIds);
       
       // Sortuj listę: zaznaczeni na górze, reszta alfabetycznie
       const sortedTenants = [...tenants].sort((a, b) => {
-        const aSelected = currentTenantIds.includes(a.id);
-        const bSelected = currentTenantIds.includes(b.id);
+        const aSelected = activeTenantIds.includes(a.id);
+        const bSelected = activeTenantIds.includes(b.id);
         if (aSelected && !bSelected) return -1;
         if (!aSelected && bSelected) return 1;
         return `${a.lastName} ${a.firstName}`.localeCompare(`${b.lastName} ${b.firstName}`, 'pl');
       });
       setTenants(sortedTenants);
       
-      // Ustaw daty z pierwszego najemcy (jeśli istnieje)
-      if (property.tenants && property.tenants.length > 0) {
-        const firstTenant = property.tenants[0];
+      // Ustaw daty z pierwszego aktywnego najemcy (jeśli istnieje)
+      const activeTenants = property.tenants?.filter(t => {
+        if (!t.endDate) return true;
+        const endDate = new Date(t.endDate);
+        endDate.setHours(23, 59, 59, 999);
+        return endDate >= today;
+      }) || [];
+      
+      if (activeTenants.length > 0) {
+        const firstTenant = activeTenants[0];
         if (firstTenant.startDate) {
           setStartDate(new Date(firstTenant.startDate).toISOString().split('T')[0]);
         }

@@ -154,10 +154,11 @@ namespace zarzadzanieMieszkaniami.Controllers
 
             var ownedPropertyIds = ownedProperties.Select(p => p.Id).ToList();
 
-            // Najemcy moich mieszkań
+            // Najemcy moich mieszkań - pobierz unikalne kombinacje (najemca, mieszkanie)
             var myTenants = await _context.PropertyTenants
                 .Where(pt => ownedPropertyIds.Contains(pt.PropertyId))
                 .Join(_context.Properties, pt => pt.PropertyId, p => p.Id, (pt, p) => new { pt.TenantId, p.Address })
+                .Distinct()
                 .ToListAsync();
             contactIds.AddRange(myTenants.Select(t => t.TenantId));
 
@@ -258,6 +259,26 @@ namespace zarzadzanieMieszkaniami.Controllers
                     .ToList();
                 relations.AddRange(tenantRelations);
 
+                // Relacja 1b: Kontakt jest najemcą w mieszkaniu gdzie ja też jestem najemcą (współlokatorzy)
+                // Znajdź wszystkie mieszkania gdzie kontakt jest najemcą
+                var contactTenantProperties = await _context.PropertyTenants
+                    .Where(pt => pt.TenantId == contactId)
+                    .Join(_context.Properties, pt => pt.PropertyId, p => p.Id, (pt, p) => new { p.Id, p.Address, p.OwnerId })
+                    .ToListAsync();
+                
+                // Dla każdego mieszkania gdzie kontakt jest najemcą, sprawdź czy ja też mam z nim relację
+                foreach (var prop in contactTenantProperties)
+                {
+                    // Jeśli ja jestem najemcą tego samego mieszkania (współlokator)
+                    var amITenantThere = await _context.PropertyTenants
+                        .AnyAsync(pt => pt.PropertyId == prop.Id && pt.TenantId == userId);
+                    
+                    if (amITenantThere && !relations.Any(r => r.Details == prop.Address))
+                    {
+                        relations.Add(new UserRelation { Role = "Najemca", Details = prop.Address });
+                    }
+                }
+
                 // Relacja 2: Kontakt jest moim właścicielem/wynajmującym (ja wynajmuję od niego)
                 var landlordRelations = rentedProperties
                     .Where(p => p.OwnerId == contactId)
@@ -312,15 +333,15 @@ namespace zarzadzanieMieszkaniami.Controllers
                     .Select(g => g.First())
                     .ToList();
 
-                // Usuń "Wynajmujący" jeśli dla tego samego adresu jest "Właściciel"
-                // (Właściciel i Wynajmujący to ta sama osoba - preferuj "Właściciel")
-                var ownerAddresses = relations
-                    .Where(r => r.Role == "Właściciel" && r.Details != null)
+                // Usuń "Właściciel" jeśli dla tego samego adresu jest "Wynajmujący"
+                // (z perspektywy najemcy preferuj "Wynajmujący" nad "Właściciel")
+                var landlordAddresses = relations
+                    .Where(r => r.Role == "Wynajmujący" && r.Details != null)
                     .Select(r => r.Details)
                     .ToHashSet();
                 
                 relations = relations
-                    .Where(r => !(r.Role == "Wynajmujący" && r.Details != null && ownerAddresses.Contains(r.Details)))
+                    .Where(r => !(r.Role == "Właściciel" && r.Details != null && landlordAddresses.Contains(r.Details)))
                     .ToList();
 
                 contacts.Add(new ConversationUserResponse

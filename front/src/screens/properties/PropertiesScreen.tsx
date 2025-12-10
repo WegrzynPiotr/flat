@@ -164,8 +164,35 @@ export default function PropertiesScreen({ navigation }: any) {
     // Sprawdź czy użytkownik jest właścicielem tej nieruchomości
     const isOwnerOfThis = item.ownerId === user?.id;
     
-    // Sprawdź czy najemca ma nieaktywny najem
-    const isInactive = userRole === 'Najemca' && item.isActiveTenant === false;
+    // Sprawdź czy użytkownik ma nieaktywny najem (zakończony lub jeszcze nie rozpoczęty)
+    // Dotyczy mieszkań, których użytkownik NIE jest właścicielem
+    const checkTenancyActive = () => {
+      // Jeśli jestem właścicielem tego mieszkania - zawsze aktywne
+      if (isOwnerOfThis) return true;
+      
+      // Sprawdź daty najmu użytkownika
+      const myTenancy = item.tenants?.find((t: any) => t.tenantId === user?.id);
+      if (!myTenancy) return true; // Nie jestem najemcą - nie wyszarzaj
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const startDate = new Date(myTenancy.startDate);
+      startDate.setHours(0, 0, 0, 0);
+      
+      // Najem jeszcze się nie rozpoczął
+      if (startDate > today) return false;
+      
+      // Najem już się zakończył (endDate jest włącznie)
+      if (myTenancy.endDate) {
+        const endDate = new Date(myTenancy.endDate);
+        endDate.setHours(23, 59, 59, 999);
+        if (endDate < today) return false;
+      }
+      
+      return true;
+    };
+    const isInactive = !isOwnerOfThis && !checkTenancyActive();
     
     // Aktualni najemcy (data zakończenia jest włącznie - wygasa NASTĘPNEGO dnia)
     const currentTenants = item.tenants?.filter((t: any) => {
@@ -232,7 +259,19 @@ export default function PropertiesScreen({ navigation }: any) {
           {isInactive && (
             <View style={styles.inactiveBadge}>
               <Ionicons name="time-outline" size={14} color={Colors.error} />
-              <Text style={styles.inactiveText}>Najem zakończony</Text>
+              <Text style={styles.inactiveText}>
+                {(() => {
+                  const myTenancy = item.tenants?.find((t: any) => t.tenantId === user?.id);
+                  if (myTenancy) {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const startDate = new Date(myTenancy.startDate);
+                    startDate.setHours(0, 0, 0, 0);
+                    if (startDate > today) return 'Najem jeszcze się nie rozpoczął';
+                  }
+                  return 'Najem zakończony';
+                })()}
+              </Text>
             </View>
           )}
           
