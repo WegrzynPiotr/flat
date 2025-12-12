@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, TextInput, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, TextInput, ScrollView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { userManagementAPI, serviceRequestsAPI } from '../../api/endpoints';
 import { UserManagementResponse } from '../../types/api';
@@ -23,6 +23,81 @@ interface PendingRequest {
   respondedAt?: string;
   responseMessage?: string;
 }
+
+interface HistoryEvent {
+  id: string;
+  servicemanName: string;
+  status: string;
+  date: string;
+  message?: string;
+}
+
+// Funkcja generująca wydarzenia historyczne z requestów
+// Jeśli status to "Zrezygnowano" lub "Anulowane" (usunięcie serwisanta), generujemy dwa wydarzenia
+const generateHistoryEvents = (requests: PendingRequest[]): HistoryEvent[] => {
+  const events: HistoryEvent[] = [];
+  
+  requests.forEach(request => {
+    if (request.status === 'Oczekujące') {
+      // Oczekujące pomijamy w historii
+      return;
+    }
+    
+    if (request.status === 'Zrezygnowano') {
+      // Serwisant zrezygnował po akceptacji - dodaj oba wydarzenia
+      // Najpierw akceptacja
+      events.push({
+        id: `${request.id}-accepted`,
+        servicemanName: request.servicemanName,
+        status: 'Zaakceptowane',
+        date: request.createdAt,
+      });
+      // Potem rezygnacja
+      events.push({
+        id: `${request.id}-resigned`,
+        servicemanName: request.servicemanName,
+        status: 'Zrezygnowano',
+        date: request.respondedAt || request.createdAt,
+        message: request.responseMessage,
+      });
+    } else if (request.status === 'Anulowane') {
+      // Właściciel anulował/usunął serwisanta
+      // Sprawdzamy czy to było usunięcie serwisanta (po akceptacji) czy anulowanie zaproszenia (przed akceptacją)
+      // Usunięcie serwisanta ma responseMessage, anulowanie zaproszenia nie ma
+      const wasAcceptedAndRemoved = request.responseMessage && request.responseMessage.length > 0;
+      
+      if (wasAcceptedAndRemoved) {
+        // Dodaj wpis o akceptacji
+        events.push({
+          id: `${request.id}-accepted`,
+          servicemanName: request.servicemanName,
+          status: 'Zaakceptowane',
+          date: request.createdAt,
+        });
+      }
+      // Dodaj wpis o anulowaniu
+      events.push({
+        id: `${request.id}-cancelled`,
+        servicemanName: request.servicemanName,
+        status: 'Anulowane',
+        date: request.respondedAt || request.createdAt,
+        message: request.responseMessage,
+      });
+    } else {
+      // Inne statusy (Zaakceptowane, Odrzucone, Wygasłe)
+      events.push({
+        id: request.id,
+        servicemanName: request.servicemanName,
+        status: request.status,
+        date: request.respondedAt || request.createdAt,
+        message: request.responseMessage,
+      });
+    }
+  });
+  
+  // Sortuj chronologicznie (najstarsze pierwsze)
+  return events.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+};
 
 export default function AssignServicemanForm({ issueId, onAssigned, currentServicemanId }: AssignServicemanFormProps) {
   const [servicemen, setServicemen] = useState<UserManagementResponse[]>([]);
@@ -88,30 +163,84 @@ export default function AssignServicemanForm({ issueId, onAssigned, currentServi
   };
 
   const handleCancelRequest = async (requestId: string) => {
-    Alert.alert(
-      'Anuluj zaproszenie',
-      'Czy na pewno chcesz anulować to zaproszenie?',
-      [
-        { text: 'Nie', style: 'cancel' },
-        {
-          text: 'Tak',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await serviceRequestsAPI.cancel(requestId);
-              Alert.alert('Sukces', 'Zaproszenie zostało anulowane');
-              loadData();
-            } catch (error: any) {
-              Alert.alert('Błąd', error.response?.data?.message || 'Nie udało się anulować zaproszenia');
-            }
-          }
+    const doCancel = async () => {
+      try {
+        await serviceRequestsAPI.cancel(requestId);
+        if (Platform.OS === 'web') {
+          alert('Zaproszenie zostało anulowane');
+        } else {
+          Alert.alert('Sukces', 'Zaproszenie zostało anulowane');
         }
-      ]
-    );
+        loadData();
+      } catch (error: any) {
+        const message = error.response?.data?.message || 'Nie udało się anulować zaproszenia';
+        if (Platform.OS === 'web') {
+          alert(message);
+        } else {
+          Alert.alert('Błąd', message);
+        }
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      if (window.confirm('Czy na pewno chcesz anulować to zaproszenie?')) {
+        await doCancel();
+      }
+    } else {
+      Alert.alert(
+        'Anuluj zaproszenie',
+        'Czy na pewno chcesz anulować to zaproszenie?',
+        [
+          { text: 'Nie', style: 'cancel' },
+          { text: 'Tak', style: 'destructive', onPress: doCancel }
+        ]
+      );
+    }
+  };
+
+  const handleRemoveServiceman = async () => {
+    const doRemove = async () => {
+      try {
+        await serviceRequestsAPI.removeServiceman(issueId);
+        if (Platform.OS === 'web') {
+          alert('Serwisant został usunięty ze zgłoszenia');
+        } else {
+          Alert.alert('Sukces', 'Serwisant został usunięty ze zgłoszenia');
+        }
+        loadData();
+        onAssigned();
+      } catch (error: any) {
+        const message = error.response?.data?.message || 'Nie udało się usunąć serwisanta';
+        if (Platform.OS === 'web') {
+          alert(message);
+        } else {
+          Alert.alert('Błąd', message);
+        }
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      if (window.confirm('Czy na pewno chcesz usunąć serwisanta z tego zgłoszenia? Będziesz mógł zaprosić innego.')) {
+        await doRemove();
+      }
+    } else {
+      Alert.alert(
+        'Usuń serwisanta',
+        'Czy na pewno chcesz usunąć serwisanta z tego zgłoszenia? Będziesz mógł zaprosić innego.',
+        [
+          { text: 'Nie', style: 'cancel' },
+          { text: 'Tak, usuń', style: 'destructive', onPress: doRemove }
+        ]
+      );
+    }
   };
 
   // Sprawdź czy już jest przypisany serwisant
   const hasAssignedServiceman = currentServicemanId !== undefined && currentServicemanId !== '';
+  
+  // Pobierz nazwisko przypisanego serwisanta z pendingRequests (status Zaakceptowane)
+  const assignedServicemanRequest = pendingRequests.find(r => r.status === 'Zaakceptowane' && r.servicemanId === currentServicemanId);
+  const assignedServicemanName = assignedServicemanRequest?.servicemanName || 'Nieznany';
 
   // Serwisanci do których już wysłano zaproszenie
   const pendingServicemanIds = pendingRequests
@@ -131,14 +260,72 @@ export default function AssignServicemanForm({ issueId, onAssigned, currentServi
     );
   }
 
-  // Jeśli jest już przypisany serwisant - pokazujemy info i możliwość wysłania kolejnych zaproszeń
+  // Jeśli jest już przypisany serwisant - pokazujemy info, nazwisko i możliwość usunięcia
   if (hasAssignedServiceman) {
     return (
       <View style={styles.container}>
-        <View style={styles.assignedBadge}>
-          <Ionicons name="checkmark-circle" size={20} color={Colors.success} />
-          <Text style={styles.assignedText}>Serwisant jest już przypisany do tego zgłoszenia</Text>
+        <Text style={Typography.h3}>Przypisany serwisant</Text>
+        <View style={styles.assignedCard}>
+          <View style={styles.assignedInfo}>
+            <Ionicons name="person" size={24} color={Colors.primary} />
+            <View style={styles.assignedDetails}>
+              <Text style={styles.assignedName}>{assignedServicemanName}</Text>
+              <Text style={styles.assignedStatus}>Przypisany do zgłoszenia</Text>
+              {assignedServicemanRequest?.respondedAt && (
+                <Text style={styles.assignedDate}>
+                  Przyjął: {new Date(assignedServicemanRequest.respondedAt).toLocaleString('pl-PL', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </Text>
+              )}
+            </View>
+          </View>
+          <TouchableOpacity 
+            style={styles.removeButton}
+            onPress={handleRemoveServiceman}
+          >
+            <Ionicons name="close-circle" size={20} color={Colors.error} />
+            <Text style={styles.removeButtonText}>Zmień serwisanta</Text>
+          </TouchableOpacity>
         </View>
+        
+        {/* Historia zaproszeń - chronologicznie */}
+        {generateHistoryEvents(pendingRequests).length > 0 && (
+          <View style={styles.historySection}>
+            <Text style={styles.sectionTitle}>Historia serwisantów</Text>
+            {generateHistoryEvents(pendingRequests).map((event) => (
+              <View key={event.id} style={styles.historyCard}>
+                <View style={styles.historyInfo}>
+                  <Ionicons 
+                    name={getStatusIcon(event.status)} 
+                    size={16} 
+                    color={Colors.textSecondary} 
+                  />
+                  <Text style={styles.historyName}>{event.servicemanName}</Text>
+                  <View style={[styles.statusBadge, { backgroundColor: getStatusColor(event.status) }]}>
+                    <Text style={styles.statusBadgeText}>{event.status}</Text>
+                  </View>
+                </View>
+                {event.message && (
+                  <Text style={styles.responseMessage}>{event.message}</Text>
+                )}
+                <Text style={styles.historyDate}>
+                  {new Date(event.date).toLocaleString('pl-PL', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
       </View>
     );
   }
@@ -171,26 +358,35 @@ export default function AssignServicemanForm({ issueId, onAssigned, currentServi
         </View>
       )}
 
-      {/* Historia (odrzucone/wygasłe) */}
-      {pendingRequests.filter(r => r.status !== 'Oczekujące' && r.status !== 'Zaakceptowane').length > 0 && (
+      {/* Historia - chronologicznie */}
+      {generateHistoryEvents(pendingRequests).length > 0 && (
         <View style={styles.historySection}>
           <Text style={styles.sectionTitle}>Historia zaproszeń</Text>
-          {pendingRequests.filter(r => r.status !== 'Oczekujące' && r.status !== 'Zaakceptowane').map((request) => (
-            <View key={request.id} style={styles.historyCard}>
+          {generateHistoryEvents(pendingRequests).map((event) => (
+            <View key={event.id} style={styles.historyCard}>
               <View style={styles.historyInfo}>
                 <Ionicons 
-                  name={request.status === 'Odrzucone' ? 'close-circle' : 'time'} 
+                  name={getStatusIcon(event.status)} 
                   size={16} 
                   color={Colors.textSecondary} 
                 />
-                <Text style={styles.historyName}>{request.servicemanName}</Text>
-                <View style={[styles.statusBadge, { backgroundColor: getStatusColor(request.status) }]}>
-                  <Text style={styles.statusBadgeText}>{request.status}</Text>
+                <Text style={styles.historyName}>{event.servicemanName}</Text>
+                <View style={[styles.statusBadge, { backgroundColor: getStatusColor(event.status) }]}>
+                  <Text style={styles.statusBadgeText}>{event.status}</Text>
                 </View>
               </View>
-              {request.responseMessage && (
-                <Text style={styles.responseMessage}>{request.responseMessage}</Text>
+              {event.message && (
+                <Text style={styles.responseMessage}>{event.message}</Text>
               )}
+              <Text style={styles.historyDate}>
+                {new Date(event.date).toLocaleString('pl-PL', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </Text>
             </View>
           ))}
         </View>
@@ -263,9 +459,21 @@ const getStatusColor = (status: string) => {
   switch (status) {
     case 'Odrzucone': return Colors.error;
     case 'Wygasłe': return Colors.textSecondary;
+    case 'Zaakceptowane': return Colors.success;
     case 'Anulowane': return Colors.textSecondary;
     case 'Zrezygnowano': return '#FF9800';
     default: return Colors.textSecondary;
+  }
+};
+
+const getStatusIcon = (status: string): any => {
+  switch (status) {
+    case 'Zaakceptowane': return 'checkmark-circle';
+    case 'Odrzucone': return 'close-circle';
+    case 'Wygasłe': return 'time';
+    case 'Anulowane': return 'ban';
+    case 'Zrezygnowano': return 'exit';
+    default: return 'help-circle';
   }
 };
 
@@ -297,6 +505,56 @@ const styles = StyleSheet.create({
     color: Colors.success,
     fontWeight: '500',
     flex: 1,
+  },
+  assignedCard: {
+    backgroundColor: Colors.background,
+    padding: Spacing.m,
+    borderRadius: 8,
+    marginTop: Spacing.m,
+    borderLeftWidth: 3,
+    borderLeftColor: Colors.primary,
+  },
+  assignedInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  assignedDetails: {
+    flex: 1,
+  },
+  assignedName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.text,
+  },
+  assignedStatus: {
+    fontSize: 13,
+    color: Colors.success,
+    marginTop: 2,
+  },
+  assignedDate: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: 4,
+  },
+  removeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: Spacing.m,
+    paddingTop: Spacing.m,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+  },
+  removeButtonText: {
+    fontSize: 14,
+    color: Colors.error,
+    fontWeight: '500',
+  },
+  historyDate: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: 4,
   },
   pendingSection: {
     marginTop: Spacing.m,

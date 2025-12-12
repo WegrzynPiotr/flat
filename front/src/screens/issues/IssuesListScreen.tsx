@@ -429,37 +429,48 @@ export default function IssuesListScreen({ navigation }: any) {
             ) : pendingRequests.length > 0 ? (
               pendingRequests.map((request) => (
                 <View key={request.id} style={styles.requestCard}>
-                  <View style={styles.requestHeader}>
-                    <Text style={styles.requestTitle}>{request.issueTitle}</Text>
-                    <View style={[styles.priorityBadge, { backgroundColor: getPriorityColor(request.issuePriority) }]}>
-                      <Text style={styles.priorityText}>{request.issuePriority}</Text>
+                  <TouchableOpacity 
+                    style={styles.requestClickable}
+                    onPress={() => navigation.navigate('IssueDetails', { id: request.issueId })}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.requestHeader}>
+                      <Text style={styles.requestTitle}>{request.issueTitle}</Text>
+                      <View style={[styles.priorityBadge, { backgroundColor: getPriorityColor(request.issuePriority) }]}>
+                        <Text style={styles.priorityText}>{request.issuePriority}</Text>
+                      </View>
                     </View>
-                  </View>
-                  
-                  <Text style={styles.requestDescription} numberOfLines={3}>
-                    {request.issueDescription}
-                  </Text>
-                  
-                  <View style={styles.requestDetails}>
-                    <View style={styles.detailRow}>
-                      <Ionicons name="location-outline" size={16} color={Colors.textSecondary} />
-                      <Text style={styles.detailText}>{request.propertyAddress}, {request.propertyCity}</Text>
+                    
+                    <Text style={styles.requestDescription} numberOfLines={3}>
+                      {request.issueDescription}
+                    </Text>
+                    
+                    <View style={styles.requestDetails}>
+                      <View style={styles.detailRow}>
+                        <Ionicons name="location-outline" size={16} color={Colors.textSecondary} />
+                        <Text style={styles.detailText}>{request.propertyAddress}, {request.propertyCity}</Text>
+                      </View>
+                      <View style={styles.detailRow}>
+                        <Ionicons name="person-outline" size={16} color={Colors.textSecondary} />
+                        <Text style={styles.detailText}>Właściciel: {request.landlordName}</Text>
+                      </View>
+                      <View style={styles.detailRow}>
+                        <Ionicons name="construct-outline" size={16} color={Colors.textSecondary} />
+                        <Text style={styles.detailText}>Kategoria: {request.issueCategory || 'Brak'}</Text>
+                      </View>
+                      <View style={styles.detailRow}>
+                        <Ionicons name="time-outline" size={16} color={Colors.textSecondary} />
+                        <Text style={styles.detailText}>
+                          Wysłano: {new Date(request.createdAt).toLocaleDateString('pl-PL')}
+                        </Text>
+                      </View>
                     </View>
-                    <View style={styles.detailRow}>
-                      <Ionicons name="person-outline" size={16} color={Colors.textSecondary} />
-                      <Text style={styles.detailText}>Właściciel: {request.landlordName}</Text>
+                    
+                    <View style={styles.viewDetailsHint}>
+                      <Ionicons name="eye-outline" size={14} color={Colors.primary} />
+                      <Text style={styles.viewDetailsText}>Kliknij, aby zobaczyć szczegóły</Text>
                     </View>
-                    <View style={styles.detailRow}>
-                      <Ionicons name="construct-outline" size={16} color={Colors.textSecondary} />
-                      <Text style={styles.detailText}>Kategoria: {request.issueCategory || 'Brak'}</Text>
-                    </View>
-                    <View style={styles.detailRow}>
-                      <Ionicons name="time-outline" size={16} color={Colors.textSecondary} />
-                      <Text style={styles.detailText}>
-                        Wysłano: {new Date(request.createdAt).toLocaleDateString('pl-PL')}
-                      </Text>
-                    </View>
-                  </View>
+                  </TouchableOpacity>
                   
                   {request.message && (
                     <View style={styles.messageBox}>
@@ -747,11 +758,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.textSecondary,
     lineHeight: 20,
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.sm,
   },
   requestDetails: {
     gap: 8,
-    marginBottom: Spacing.md,
   },
   detailRow: {
     flexDirection: 'row',
@@ -784,7 +794,9 @@ const styles = StyleSheet.create({
   requestActions: {
     flexDirection: 'row',
     gap: Spacing.md,
-    marginTop: Spacing.sm,
+    paddingTop: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
   },
   actionButton: {
     flex: 1,
@@ -806,6 +818,23 @@ const styles = StyleSheet.create({
   actionButtonText: {
     fontSize: 15,
     fontWeight: '600',
+  },
+  requestClickable: {
+    marginBottom: Spacing.sm,
+  },
+  viewDetailsHint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: Spacing.sm,
+    paddingTop: Spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+  },
+  viewDetailsText: {
+    fontSize: 12,
+    color: Colors.primary,
+    fontWeight: '500',
   },
   fab: {
     position: 'absolute',

@@ -15,7 +15,8 @@ import {
   AssignTenantRequest,
   AssignServicemanRequest,
   InvitationResponse,
-  UserNoteResponse
+  UserNoteResponse,
+  ServiceRequestHistoryItem
 } from '../types/api';
 import { storage } from '../utils/storage';
 import Constants from 'expo-constants';
@@ -263,6 +264,7 @@ export const propertyDocumentsAPI = {
     client.delete(`/properties/${propertyId}/documents-versioned/${documentId}`),
 };
 
+
 // Service Requests (zaproszenia serwisantów do usterek)
 export const serviceRequestsAPI = {
   // Dla serwisantów
@@ -288,7 +290,9 @@ export const serviceRequestsAPI = {
   sendMultiple: (issueId: string, servicemanIds: string[], message?: string) =>
     client.post('/servicerequests/send-multiple', { issueId, servicemanIds, message }),
   getForIssue: (issueId: string) =>
-    client.get<any[]>(`/servicerequests/for-issue/${issueId}`),
+    client.get<ServiceRequestHistoryItem[]>(`/servicerequests/for-issue/${issueId}`),
   cancel: (id: string) =>
     client.post(`/servicerequests/${id}/cancel`),
+  removeServiceman: (issueId: string, reason?: string) =>
+    client.post(`/servicerequests/remove-serviceman/${issueId}`, reason ? { reason } : {}),
 };

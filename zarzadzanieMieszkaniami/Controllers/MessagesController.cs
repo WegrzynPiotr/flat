@@ -246,7 +246,7 @@ namespace zarzadzanieMieszkaniami.Controllers
             var serviceRequestLandlords = await _context.ServiceRequests
                 .Where(sr => sr.ServicemanId == userId && 
                             (sr.Status == "Oczekujące" || sr.Status == "Zaakceptowane"))
-                .Select(sr => new { sr.LandlordId, sr.Issue.Property.Address, sr.Status })
+                .Select(sr => new { sr.LandlordId, sr.Issue.Property.Address, sr.Status, IssueTitle = sr.Issue.Title })
                 .ToListAsync();
             contactIds.AddRange(serviceRequestLandlords.Select(sr => sr.LandlordId));
 
@@ -376,8 +376,10 @@ namespace zarzadzanieMieszkaniami.Controllers
                     .Where(sr => sr.LandlordId == contactId)
                     .Select(sr => new UserRelation 
                     { 
-                        Role = sr.Status == "Oczekujące" ? "Zaproszenie do naprawy" : "Wynajmujący", 
-                        Details = TextHelper.Capitalize(sr.Address) 
+                        Role = sr.Status == "Oczekujące" ? "Zaproszenie do naprawy" : "Usterka", 
+                        Details = sr.Status == "Oczekujące" 
+                            ? TextHelper.Capitalize(sr.Address) 
+                            : TextHelper.Capitalize(sr.IssueTitle)
                     })
                     .ToList();
                 relations.AddRange(serviceRequestRelationsForContact);

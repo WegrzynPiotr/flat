@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Image, Modal, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { commentsAPI } from '../../api/endpoints';
-import { CommentResponse, IssueResponse } from '../../types/api';
+import { useSelector } from 'react-redux';
+import { commentsAPI, serviceRequestsAPI } from '../../api/endpoints';
+import { CommentResponse, IssueResponse, ServiceRequestHistoryItem } from '../../types/api';
+import { RootState } from '../../store/store';
 import { Colors } from '../../styles/colors';
 import { Spacing } from '../../styles/spacing';
 import { Typography } from '../../styles/typography';
@@ -18,7 +20,7 @@ interface CommentsListProps {
 
 interface HistoryItem {
   id: string;
-  type: 'created' | 'serviceman' | 'status' | 'comment' | 'photo' | 'addPhoto';
+  type: 'created' | 'serviceman' | 'serviceman_resigned' | 'serviceman_cancelled' | 'status' | 'comment' | 'photo' | 'addPhoto';
   date: string;
   data: any;
 }
@@ -30,14 +32,31 @@ export default function CommentsList({ issueId, issue, onPhotoAdded, uploadingPh
   const [submitting, setSubmitting] = useState(false);
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [serviceRequestHistory, setServiceRequestHistory] = useState<ServiceRequestHistoryItem[]>([]);
+  
+  const userRole = useSelector((state: RootState) => state.auth.user?.role);
+  const userId = useSelector((state: RootState) => state.auth.user?.id);
+  const isOwner = userRole === 'Wlasciciel' && issue?.property?.ownerId === userId;
 
   useEffect(() => {
     loadComments();
+    if (isOwner) {
+      loadServiceRequestHistory();
+    }
   }, [issueId]);
 
   useEffect(() => {
     buildHistory();
-  }, [comments, issue]);
+  }, [comments, issue, serviceRequestHistory]);
+
+  const loadServiceRequestHistory = async () => {
+    try {
+      const response = await serviceRequestsAPI.getForIssue(issueId);
+      setServiceRequestHistory(response.data);
+    } catch (error) {
+      console.log('Failed to load service request history:', error);
+    }
+  };
 
   const buildHistory = () => {
     const items: HistoryItem[] = [];
@@ -52,8 +71,52 @@ export default function CommentsList({ issueId, issue, onPhotoAdded, uploadingPh
       },
     });
 
-    // Przypisani serwisanci
-    if (issue.assignedServicemen) {
+    // Historia serwisantów z ServiceRequests (dla właściciela)
+    if (isOwner && serviceRequestHistory.length > 0) {
+      serviceRequestHistory.forEach((request) => {
+        // Dodaj wpis tylko o zaakceptowanych, zrezygnowanych i anulowanych (usunięcie serwisanta)
+        // Odrzucone zaproszenia nie powinny pojawiać się w historii zgłoszenia
+        if (request.status === 'Zaakceptowane') {
+          items.push({
+            id: `serviceman-accepted-${request.id}`,
+            type: 'serviceman',
+            date: request.respondedAt || request.createdAt,
+            data: {
+              servicemanId: request.servicemanId,
+              servicemanName: request.servicemanName,
+              servicemanFirstName: request.servicemanFirstName,
+              servicemanLastName: request.servicemanLastName,
+              assignedAt: request.respondedAt || request.createdAt,
+            },
+          });
+        } else if (request.status === 'Zrezygnowano') {
+          items.push({
+            id: `serviceman-resigned-${request.id}`,
+            type: 'serviceman_resigned',
+            date: request.respondedAt || request.createdAt,
+            data: {
+              servicemanName: request.servicemanName,
+              responseMessage: request.responseMessage,
+              respondedAt: request.respondedAt,
+            },
+          });
+        } else if (request.status === 'Anulowane' && request.responseMessage) {
+          // Tylko anulowane z wiadomością (usunięcie serwisanta po akceptacji)
+          // Anulowanie oczekującego zaproszenia nie powinno się pokazywać
+          items.push({
+            id: `serviceman-cancelled-${request.id}`,
+            type: 'serviceman_cancelled',
+            date: request.respondedAt || request.createdAt,
+            data: {
+              servicemanName: request.servicemanName,
+              responseMessage: request.responseMessage,
+              respondedAt: request.respondedAt,
+            },
+          });
+        }
+      });
+    } else if (issue.assignedServicemen) {
+      // Fallback dla nie-właścicieli - pokazuj tylko przypisanych serwisantów
       issue.assignedServicemen.forEach((serviceman) => {
         items.push({
           id: `serviceman-${serviceman.servicemanId}`,
@@ -182,6 +245,54 @@ export default function CommentsList({ issueId, issue, onPhotoAdded, uploadingPh
               <Text style={styles.historyText}>
                 Przypisano serwisanta: <Text style={styles.historyBold}>{item.data.servicemanName}</Text>
               </Text>
+              <Text style={styles.historyDate}>
+                {new Date(item.date).toLocaleString('pl-PL', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </Text>
+            </View>
+          </View>
+        );
+
+      case 'serviceman_resigned':
+        return (
+          <View style={styles.historyItem}>
+            <View style={[styles.historyDot, { backgroundColor: '#f59e0b' }]} />
+            <View style={styles.historyContent}>
+              <Text style={styles.historyText}>
+                <Text style={styles.historyBold}>{item.data.servicemanName}</Text> zrezygnował ze zgłoszenia
+              </Text>
+              {item.data.responseMessage && (
+                <Text style={styles.historySubtext}>Powód: {item.data.responseMessage}</Text>
+              )}
+              <Text style={styles.historyDate}>
+                {new Date(item.date).toLocaleString('pl-PL', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </Text>
+            </View>
+          </View>
+        );
+
+      case 'serviceman_cancelled':
+        return (
+          <View style={styles.historyItem}>
+            <View style={[styles.historyDot, { backgroundColor: '#6b7280' }]} />
+            <View style={styles.historyContent}>
+              <Text style={styles.historyText}>
+                Anulowano przypisanie serwisanta: <Text style={styles.historyBold}>{item.data.servicemanName}</Text>
+              </Text>
+              {item.data.responseMessage && (
+                <Text style={styles.historySubtext}>Powód: {item.data.responseMessage}</Text>
+              )}
               <Text style={styles.historyDate}>
                 {new Date(item.date).toLocaleString('pl-PL', {
                   year: 'numeric',
@@ -491,6 +602,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.textSecondary,
     marginTop: Spacing.xs,
+  },
+  historySubtext: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    fontStyle: 'italic',
+    marginTop: 2,
   },
   photoHistoryItem: {
     marginBottom: Spacing.l,

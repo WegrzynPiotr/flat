@@ -489,16 +489,18 @@ namespace zarzadzanieMieszkaniami.Controllers
                 .OrderByDescending(sr => sr.CreatedAt)
                 .ToListAsync();
 
-            var response = requests.Select(sr => new
+            var response = requests.Select(sr => new ServiceRequestHistoryItem
             {
-                sr.Id,
-                sr.ServicemanId,
+                Id = sr.Id,
+                ServicemanId = sr.ServicemanId,
                 ServicemanName = TextHelper.CapitalizeName(sr.Serviceman.FirstName, sr.Serviceman.LastName),
-                sr.Status,
-                sr.Message,
-                sr.ResponseMessage,
-                sr.CreatedAt,
-                sr.RespondedAt
+                ServicemanFirstName = TextHelper.Capitalize(sr.Serviceman.FirstName),
+                ServicemanLastName = TextHelper.Capitalize(sr.Serviceman.LastName),
+                Status = sr.Status,
+                Message = sr.Message,
+                ResponseMessage = sr.ResponseMessage,
+                CreatedAt = sr.CreatedAt,
+                RespondedAt = sr.RespondedAt
             }).ToList();
 
             return Ok(response);
@@ -582,6 +584,68 @@ namespace zarzadzanieMieszkaniami.Controllers
 
             return Ok(new { isServiceman });
         }
+
+        /// <summary>
+        /// Usuwa przypisanie serwisanta ze zgłoszenia (tylko właściciel może usunąć)
+        /// </summary>
+        [HttpPost("remove-serviceman/{issueId}")]
+        [Authorize(Roles = "Wlasciciel")]
+        public async Task<IActionResult> RemoveServicemanFromIssue(Guid issueId, [FromBody] RemoveServicemanDto? request = null)
+        {
+            var landlordId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+            // Sprawdź czy zgłoszenie należy do właściciela
+            var issue = await _context.Issues
+                .Include(i => i.Property)
+                .Include(i => i.AssignedServicemen)
+                .FirstOrDefaultAsync(i => i.Id == issueId);
+
+            if (issue == null)
+                return NotFound("Zgłoszenie nie zostało znalezione");
+
+            if (issue.Property?.OwnerId != landlordId)
+                return Forbid("To zgłoszenie nie należy do Ciebie");
+
+            // Pobierz przypisanego serwisanta
+            var assignment = issue.AssignedServicemen?.FirstOrDefault();
+            if (assignment == null)
+                return BadRequest("To zgłoszenie nie ma przypisanego serwisanta");
+
+            var servicemanId = assignment.ServicemanId;
+
+            // Usuń przypisanie
+            _context.IssueServicemen.Remove(assignment);
+
+            // Zmień status zgłoszenia na "Nowe" (można ponownie przypisać)
+            issue.Status = "Nowe";
+
+            // Znajdź i zaktualizuj ServiceRequest
+            var serviceRequest = await _context.ServiceRequests
+                .FirstOrDefaultAsync(sr => sr.IssueId == issueId && 
+                                          sr.ServicemanId == servicemanId && 
+                                          sr.Status == "Zaakceptowane");
+
+            if (serviceRequest != null)
+            {
+                serviceRequest.Status = "Anulowane";
+                serviceRequest.RespondedAt = DateTime.UtcNow;
+                serviceRequest.ResponseMessage = request?.Reason ?? "Właściciel usunął przypisanie serwisanta";
+            }
+
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation($"Landlord {landlordId} removed serviceman {servicemanId} from issue {issueId}");
+
+            // Powiadom serwisanta
+            await _hubContext.Clients.User(servicemanId.ToString())
+                .SendAsync("RemovedFromIssue", new
+                {
+                    IssueId = issueId,
+                    Reason = request?.Reason
+                });
+
+            return Ok(new { message = "Serwisant został usunięty ze zgłoszenia" });
+        }
     }
 
     #region DTOs
@@ -628,6 +692,25 @@ namespace zarzadzanieMieszkaniami.Controllers
     public class ResignFromIssueDto
     {
         public string? Reason { get; set; }
+    }
+
+    public class RemoveServicemanDto
+    {
+        public string? Reason { get; set; }
+    }
+
+    public class ServiceRequestHistoryItem
+    {
+        public Guid Id { get; set; }
+        public Guid ServicemanId { get; set; }
+        public string ServicemanName { get; set; }
+        public string ServicemanFirstName { get; set; }
+        public string ServicemanLastName { get; set; }
+        public string Status { get; set; }
+        public string? Message { get; set; }
+        public string? ResponseMessage { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? RespondedAt { get; set; }
     }
 
     #endregion

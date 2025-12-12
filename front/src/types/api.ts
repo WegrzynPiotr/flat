@@ -276,3 +276,17 @@ export interface ServiceRequestResponse {
   respondedAt?: string;
   status: 'Oczekujące' | 'Zaakceptowane' | 'Odrzucone' | 'Anulowane' | 'Wygasłe' | 'Zrezygnowano';
 }
+
+// Historia serwisantów dla usterki
+export interface ServiceRequestHistoryItem {
+  id: string;
+  servicemanId: string;
+  servicemanName: string;
+  servicemanFirstName: string;
+  servicemanLastName: string;
+  status: 'Oczekujące' | 'Zaakceptowane' | 'Odrzucone' | 'Anulowane' | 'Wygasłe' | 'Zrezygnowano';
+  message?: string;
+  responseMessage?: string;
+  createdAt: string;
+  respondedAt?: string;
+}
