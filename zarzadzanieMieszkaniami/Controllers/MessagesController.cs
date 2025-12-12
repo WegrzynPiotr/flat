@@ -307,7 +307,7 @@ namespace zarzadzanieMieszkaniami.Controllers
                     }
                 }
 
-                // Relacja 2: Kontakt jest moim właścicielem/wynajmującym (ja wynajmuję od niego)
+                // Relacja 2: Kontakt jest moim właścicielem/wynajmującym (ja wynajmuję lub wynajmowałem od niego)
                 var landlordRelations = rentedProperties
                     .Where(p => p.OwnerId == contactId)
                     .Select(p => new UserRelation { Role = "Wynajmujący", Details = TextHelper.Capitalize(p.Address) })
@@ -328,18 +328,14 @@ namespace zarzadzanieMieszkaniami.Controllers
                 }
 
                 // Relacja 4: Jestem serwisantem, kontakt jest właścicielem mieszkania ze zgłoszenia
-                // Jeśli ja też wynajmuję od tego właściciela, NIE dodawaj - już jest "Wynajmujący" z Relacji 2
-                var isMyLandlordAsTenant = rentedProperties.Any(p => p.OwnerId == contactId);
-                if (!isMyLandlordAsTenant)
-                {
-                    var ownerFromIssueRelations = assignedIssues
-                        .Where(i => i.Property.OwnerId == contactId)
-                        .Select(i => new UserRelation { Role = "Wynajmujący", Details = TextHelper.Capitalize(i.Property.Address) })
-                        .GroupBy(r => r.Details)
-                        .Select(g => g.First())
-                        .ToList();
-                    relations.AddRange(ownerFromIssueRelations);
-                }
+                // Pokazuj jako "Usterka" z nazwą usterki, nie jako "Wynajmujący"
+                var ownerFromIssueRelations = assignedIssues
+                    .Where(i => i.Property.OwnerId == contactId)
+                    .Select(i => new UserRelation { Role = "Usterka", Details = TextHelper.Capitalize(i.Title) })
+                    .GroupBy(r => r.Details)
+                    .Select(g => g.First())
+                    .ToList();
+                relations.AddRange(ownerFromIssueRelations);
 
                 // Relacja 5: Jestem serwisantem, kontakt jest najemcą który zgłosił usterkę
                 var reporterFromIssueRelations = assignedIssues
@@ -352,21 +348,22 @@ namespace zarzadzanieMieszkaniami.Controllers
 
                 // Relacja 6: Kontakt jest moim właścicielem (jestem jego serwisantem)
                 // Pokazuj tylko jeśli mam aktywne usterki przypisane w jego nieruchomościach
+                // Dla serwisanta pokazuj jako "Właściciel" a nie "Wynajmujący"
                 if (myLandlords.Contains(contactId) && landlordsWithActiveIssues.Contains(contactId))
                 {
-                    // Pobierz adresy nieruchomości tego właściciela z aktywnych usterek
-                    var landlordPropertyAddresses = assignedIssues
+                    // Pobierz nazwy usterek tego właściciela
+                    var landlordIssues = assignedIssues
                         .Where(i => i.Property.OwnerId == contactId)
-                        .Select(i => TextHelper.Capitalize(i.Property.Address))
+                        .Select(i => TextHelper.Capitalize(i.Title))
                         .Distinct()
                         .ToList();
                     
-                    foreach (var address in landlordPropertyAddresses)
+                    foreach (var issueTitle in landlordIssues)
                     {
                         // Dodaj tylko jeśli nie ma jeszcze takiej relacji
-                        if (!relations.Any(r => r.Role == "Wynajmujący" && r.Details == address))
+                        if (!relations.Any(r => r.Role == "Usterka" && r.Details == issueTitle))
                         {
-                            relations.Add(new UserRelation { Role = "Wynajmujący", Details = address });
+                            relations.Add(new UserRelation { Role = "Usterka", Details = issueTitle });
                         }
                     }
                 }
