@@ -407,9 +407,7 @@ namespace zarzadzanieMieszkaniami.Controllers
                     .Select(sr => new UserRelation 
                     { 
                         Role = sr.Status == "Oczekujące" ? "Zaproszenie do naprawy" : "Usterka", 
-                        Details = sr.Status == "Oczekujące" 
-                            ? TextHelper.Capitalize(sr.Address) 
-                            : TextHelper.Capitalize(sr.IssueTitle)
+                        Details = TextHelper.Capitalize(sr.IssueTitle)
                     })
                     .ToList();
                 relations.AddRange(serviceRequestRelationsForContact);
@@ -418,6 +416,20 @@ namespace zarzadzanieMieszkaniami.Controllers
                 relations = relations
                     .GroupBy(r => new { r.Role, r.Details })
                     .Select(g => g.First())
+                    .ToList();
+
+                // Sortuj relacje w określonej kolejności: Wynajmujący, Najemca, Usterka, Zaproszenie do naprawy, Serwisant
+                var roleOrder = new Dictionary<string, int>
+                {
+                    { "Wynajmujący", 1 },
+                    { "Najemca", 2 },
+                    { "Usterka", 3 },
+                    { "Zaproszenie do naprawy", 4 },
+                    { "Serwisant", 5 }
+                };
+                relations = relations
+                    .OrderBy(r => roleOrder.TryGetValue(r.Role, out var order) ? order : 100)
+                    .ThenBy(r => r.Details)
                     .ToList();
 
                 contacts.Add(new ConversationUserResponse
