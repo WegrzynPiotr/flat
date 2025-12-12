@@ -261,6 +261,7 @@ namespace zarzadzanieMieszkaniami.Controllers
 
             var issue = await _context.Issues
                 .Include(i => i.Property)
+                .Include(i => i.AssignedServicemen)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
             if (issue == null)
@@ -269,24 +270,41 @@ namespace zarzadzanieMieszkaniami.Controllers
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
+            Console.WriteLine($"📸 AddPhoto - User: {userId}, Role: {userRole}, IssueId: {id}");
+            Console.WriteLine($"📸 Issue Property OwnerId: {issue.Property?.OwnerId}");
+            Console.WriteLine($"📸 Issue ReportedById: {issue.ReportedById}");
+            Console.WriteLine($"📸 AssignedServicemen count: {issue.AssignedServicemen?.Count ?? 0}");
+            if (issue.AssignedServicemen != null)
+            {
+                foreach (var s in issue.AssignedServicemen)
+                {
+                    Console.WriteLine($"📸 AssignedServiceman: {s.ServicemanId}");
+                }
+            }
+
             // Sprawdź uprawnienia - właściciel nieruchomości, zgłaszający lub przypisany serwisant
             bool hasAccess = false;
             
             if (userRole == "Wlasciciel" && issue.Property?.OwnerId == userId)
             {
+                Console.WriteLine($"📸 Access granted: Owner");
                 hasAccess = true;
             }
             else if (issue.ReportedById == userId)
             {
+                Console.WriteLine($"📸 Access granted: Reporter");
                 hasAccess = true;
             }
-            else if (userRole == "Serwisant" && issue.AssignedServicemen?.Any(a => a.ServicemanId == userId) == true)
+            else if (issue.AssignedServicemen?.Any(a => a.ServicemanId == userId) == true)
             {
+                // Serwisant przypisany do usterki - nie wymaga konkretnej roli systemowej
+                Console.WriteLine($"📸 Access granted: Assigned Serviceman");
                 hasAccess = true;
             }
 
             if (!hasAccess)
             {
+                Console.WriteLine($"📸 Access DENIED for user {userId}");
                 return StatusCode(403, new { message = "Brak uprawnień do dodania zdjęcia" });
             }
 

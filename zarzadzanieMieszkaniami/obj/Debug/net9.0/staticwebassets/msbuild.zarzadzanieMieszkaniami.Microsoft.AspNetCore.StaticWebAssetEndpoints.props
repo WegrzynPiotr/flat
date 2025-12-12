@@ -48,6 +48,18 @@
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-Jav/ANT7ku3I3LYSoiJlc06r48Pnq5RdGhOajNcT12E="}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"20097153"},{"Name":"Content-Type","Value":"image/png"},{"Name":"ETag","Value":"\u0022Jav/ANT7ku3I3LYSoiJlc06r48Pnq5RdGhOajNcT12E=\u0022"},{"Name":"Last-Modified","Value":"Mon, 01 Dec 2025 21:58:03 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/zarzadzanieMieszkaniami/uploads/257b1dc4-0a3d-4c41-825d-eda5ca06f1f1.png">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\257b1dc4-0a3d-4c41-825d-eda5ca06f1f1.png'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-vc9BE2IK8aOwX8VWF\u002BHYVZg9bHCNjQ8D0VC8OCLT6QA="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"1829891"},{"Name":"Content-Type","Value":"image/png"},{"Name":"ETag","Value":"\u0022vc9BE2IK8aOwX8VWF\u002BHYVZg9bHCNjQ8D0VC8OCLT6QA=\u0022"},{"Name":"Last-Modified","Value":"Fri, 12 Dec 2025 21:38:00 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/zarzadzanieMieszkaniami/uploads/257b1dc4-0a3d-4c41-825d-eda5ca06f1f1.riuj7m55g4.png">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\257b1dc4-0a3d-4c41-825d-eda5ca06f1f1.png'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"riuj7m55g4"},{"Name":"integrity","Value":"sha256-vc9BE2IK8aOwX8VWF\u002BHYVZg9bHCNjQ8D0VC8OCLT6QA="},{"Name":"label","Value":"_content/zarzadzanieMieszkaniami/uploads/257b1dc4-0a3d-4c41-825d-eda5ca06f1f1.png"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1829891"},{"Name":"Content-Type","Value":"image/png"},{"Name":"ETag","Value":"\u0022vc9BE2IK8aOwX8VWF\u002BHYVZg9bHCNjQ8D0VC8OCLT6QA=\u0022"},{"Name":"Last-Modified","Value":"Fri, 12 Dec 2025 21:38:00 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/zarzadzanieMieszkaniami/uploads/2a70c2ae-dc15-467e-9c2a-69494ff61de1.6zpmi9ebzm.PNG">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\2a70c2ae-dc15-467e-9c2a-69494ff61de1.PNG'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
@@ -455,6 +467,18 @@
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"vmicpa8f4o"},{"Name":"integrity","Value":"sha256-qbUZKRHF\u002B82WF6EQhxK5BHCxjQo\u002BTjYbSuOTu7OXdoY="},{"Name":"label","Value":"_content/zarzadzanieMieszkaniami/uploads/issues/5a116a09-0c70-4ce1-bd42-1fc6235e9618.jpg"}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"3470"},{"Name":"Content-Type","Value":"image/jpeg"},{"Name":"ETag","Value":"\u0022qbUZKRHF\u002B82WF6EQhxK5BHCxjQo\u002BTjYbSuOTu7OXdoY=\u0022"},{"Name":"Last-Modified","Value":"Tue, 09 Dec 2025 10:51:37 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/zarzadzanieMieszkaniami/uploads/issues/6e8d19da-3765-40d2-a8a8-728fe7a79c6a.jpg">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\issues\6e8d19da-3765-40d2-a8a8-728fe7a79c6a.jpg'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-6ZSC3EzRYU4evuD5eWR7yW69KY5E9c/mMhNTOLBLttw="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=3600, must-revalidate"},{"Name":"Content-Length","Value":"3710050"},{"Name":"Content-Type","Value":"image/jpeg"},{"Name":"ETag","Value":"\u00226ZSC3EzRYU4evuD5eWR7yW69KY5E9c/mMhNTOLBLttw=\u0022"},{"Name":"Last-Modified","Value":"Fri, 12 Dec 2025 21:44:40 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/zarzadzanieMieszkaniami/uploads/issues/6e8d19da-3765-40d2-a8a8-728fe7a79c6a.l5ycxf8ukh.jpg">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\issues\6e8d19da-3765-40d2-a8a8-728fe7a79c6a.jpg'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"l5ycxf8ukh"},{"Name":"integrity","Value":"sha256-6ZSC3EzRYU4evuD5eWR7yW69KY5E9c/mMhNTOLBLttw="},{"Name":"label","Value":"_content/zarzadzanieMieszkaniami/uploads/issues/6e8d19da-3765-40d2-a8a8-728fe7a79c6a.jpg"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"3710050"},{"Name":"Content-Type","Value":"image/jpeg"},{"Name":"ETag","Value":"\u00226ZSC3EzRYU4evuD5eWR7yW69KY5E9c/mMhNTOLBLttw=\u0022"},{"Name":"Last-Modified","Value":"Fri, 12 Dec 2025 21:44:40 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/zarzadzanieMieszkaniami/uploads/issues/8e085b9a-7885-4921-9e0e-d54ad0883ade.gbio6kntwh.jpg">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\uploads\issues\8e085b9a-7885-4921-9e0e-d54ad0883ade.jpg'))</AssetFile>

@@ -9,6 +9,7 @@ import {
   ScrollView,
   Alert,
   Platform,
+  Image,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
@@ -428,73 +429,69 @@ export default function IssuesListScreen({ navigation }: any) {
               <Loading />
             ) : pendingRequests.length > 0 ? (
               pendingRequests.map((request) => (
-                <View key={request.id} style={styles.requestCard}>
-                  <TouchableOpacity 
-                    style={styles.requestClickable}
-                    onPress={() => navigation.navigate('IssueDetails', { id: request.issueId })}
-                    activeOpacity={0.7}
-                  >
-                    <View style={styles.requestHeader}>
-                      <Text style={styles.requestTitle}>{request.issueTitle}</Text>
-                      <View style={[styles.priorityBadge, { backgroundColor: getPriorityColor(request.issuePriority) }]}>
-                        <Text style={styles.priorityText}>{request.issuePriority}</Text>
-                      </View>
-                    </View>
-                    
-                    <Text style={styles.requestDescription} numberOfLines={3}>
-                      {request.issueDescription}
-                    </Text>
-                    
-                    <View style={styles.requestDetails}>
-                      <View style={styles.detailRow}>
-                        <Ionicons name="location-outline" size={16} color={Colors.textSecondary} />
-                        <Text style={styles.detailText}>{request.propertyAddress}, {request.propertyCity}</Text>
-                      </View>
-                      <View style={styles.detailRow}>
-                        <Ionicons name="person-outline" size={16} color={Colors.textSecondary} />
-                        <Text style={styles.detailText}>Właściciel: {request.landlordName}</Text>
-                      </View>
-                      <View style={styles.detailRow}>
-                        <Ionicons name="construct-outline" size={16} color={Colors.textSecondary} />
-                        <Text style={styles.detailText}>Kategoria: {request.issueCategory || 'Brak'}</Text>
-                      </View>
-                      <View style={styles.detailRow}>
-                        <Ionicons name="time-outline" size={16} color={Colors.textSecondary} />
-                        <Text style={styles.detailText}>
-                          Wysłano: {new Date(request.createdAt).toLocaleDateString('pl-PL')}
-                        </Text>
-                      </View>
-                    </View>
-                    
-                    <View style={styles.viewDetailsHint}>
-                      <Ionicons name="eye-outline" size={14} color={Colors.primary} />
-                      <Text style={styles.viewDetailsText}>Kliknij, aby zobaczyć szczegóły</Text>
-                    </View>
-                  </TouchableOpacity>
-                  
-                  {request.message && (
-                    <View style={styles.messageBox}>
-                      <Text style={styles.messageLabel}>Wiadomość od właściciela:</Text>
-                      <Text style={styles.messageText}>{request.message}</Text>
-                    </View>
-                  )}
-                  
-                  <View style={styles.requestActions}>
-                    <TouchableOpacity
-                      style={[styles.actionButton, styles.rejectButton]}
-                      onPress={() => handleRejectRequest(request.id)}
+                <View key={request.id} style={styles.gridItem}>
+                  <View style={styles.pendingCard}>
+                    <TouchableOpacity 
+                      onPress={() => navigation.navigate('IssueDetails', { id: request.issueId })}
+                      activeOpacity={0.7}
                     >
-                      <Ionicons name="close" size={20} color={Colors.error} />
-                      <Text style={[styles.actionButtonText, { color: Colors.error }]}>Odrzuć</Text>
+                      {request.issuePhoto && (
+                        <Image 
+                          source={{ uri: request.issuePhoto }} 
+                          style={styles.pendingPhoto}
+                          resizeMode="cover"
+                        />
+                      )}
+                      <View style={styles.pendingHeader}>
+                        <Text style={styles.pendingTitle} numberOfLines={2}>{request.issueTitle}</Text>
+                        <View style={[styles.priorityBadge, { backgroundColor: getPriorityColor(request.issuePriority) }]}>
+                          <Text style={styles.priorityText}>{request.issuePriority}</Text>
+                        </View>
+                      </View>
+                      
+                      <View style={styles.pendingLocation}>
+                        <Text style={styles.pendingLocationIcon}>📍</Text>
+                        <Text style={styles.pendingLocationText}>{request.propertyAddress}, {request.propertyCity}</Text>
+                      </View>
+                      
+                      <Text style={styles.pendingDescription} numberOfLines={2}>
+                        {request.issueDescription}
+                      </Text>
+                      
+                      <View style={styles.pendingMeta}>
+                        <Text style={styles.pendingCategory}>{request.issueCategory || 'Brak kategorii'}</Text>
+                        <Text style={styles.pendingStatus}>Oczekuje</Text>
+                      </View>
+                      
+                      <Text style={styles.pendingOwner}>
+                        Właściciel: {request.landlordName}
+                      </Text>
                     </TouchableOpacity>
                     
-                    <TouchableOpacity
-                      style={[styles.actionButton, styles.acceptButton]}
-                      onPress={() => handleAcceptRequest(request.id)}
-                    >
-                      <Ionicons name="checkmark" size={20} color="#fff" />
-                      <Text style={[styles.actionButtonText, { color: '#fff' }]}>Przyjmij</Text>
-                    </TouchableOpacity>
+                    {request.message && (
+                      <View style={styles.pendingMessage}>
+                        <Text style={styles.pendingMessageLabel}>Wiadomość:</Text>
+                        <Text style={styles.pendingMessageText} numberOfLines={2}>{request.message}</Text>
+                      </View>
+                    )}
+                    
+                    <View style={styles.pendingActions}>
+                      <TouchableOpacity
+                        style={[styles.pendingActionBtn, styles.pendingRejectBtn]}
+                        onPress={() => handleRejectRequest(request.id)}
+                      >
+                        <Ionicons name="close" size={18} color={Colors.error} />
+                        <Text style={styles.pendingRejectText}>Odrzuć</Text>
+                      </TouchableOpacity>
+                      
+                      <TouchableOpacity
+                        style={[styles.pendingActionBtn, styles.pendingAcceptBtn]}
+                        onPress={() => handleAcceptRequest(request.id)}
+                      >
+                        <Ionicons name="checkmark" size={18} color="#fff" />
+                        <Text style={styles.pendingAcceptText}>Przyjmij</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 </View>
               ))
@@ -608,9 +605,9 @@ const styles = StyleSheet.create({
   },
   filterToggle: {
     backgroundColor: '#fff',
-    marginHorizontal: Spacing.md,
-    marginTop: Spacing.md,
-    marginBottom: Spacing.sm,
+    marginHorizontal: Spacing.m,
+    marginTop: Spacing.m,
+    marginBottom: Spacing.s,
     borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -638,12 +635,12 @@ const styles = StyleSheet.create({
   },
   filtersPanel: {
     backgroundColor: '#fff',
-    marginHorizontal: Spacing.md,
-    marginBottom: Spacing.sm,
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.md,
+    marginHorizontal: Spacing.m,
+    marginBottom: Spacing.s,
+    paddingVertical: Spacing.m,
+    paddingHorizontal: Spacing.m,
     borderRadius: 12,
-    gap: Spacing.lg,
+    gap: Spacing.l,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -683,8 +680,8 @@ const styles = StyleSheet.create({
   gridContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    padding: Spacing.md,
-    gap: Spacing.md,
+    padding: Spacing.m,
+    gap: Spacing.m,
     justifyContent: 'center',
   },
   gridItem: {
@@ -707,7 +704,7 @@ const styles = StyleSheet.create({
   },
   emptySubtext: {
     textAlign: 'center',
-    marginTop: Spacing.sm,
+    marginTop: Spacing.s,
     fontSize: 14,
     color: Colors.textSecondary,
     lineHeight: 20,
@@ -718,34 +715,40 @@ const styles = StyleSheet.create({
   tabBadgeTextHighlight: {
     color: '#fff',
   },
-  requestCard: {
-    backgroundColor: '#fff',
+  // Style dla zakładki "Do akceptacji" - spójne z IssueCard
+  pendingCard: {
+    backgroundColor: Colors.surface,
     borderRadius: 12,
-    padding: Spacing.md,
-    marginBottom: Spacing.md,
+    overflow: 'hidden',
+    elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 2,
     width: '100%',
-    maxWidth: 500,
+    height: '100%',
   },
-  requestHeader: {
+  pendingPhoto: {
+    width: '100%',
+    height: 180,
+    backgroundColor: Colors.disabled,
+  },
+  pendingHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: Spacing.sm,
+    alignItems: 'center',
+    padding: Spacing.m,
+    paddingBottom: Spacing.s,
   },
-  requestTitle: {
-    fontSize: 17,
-    fontWeight: '700',
+  pendingTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
     color: Colors.text,
     flex: 1,
-    marginRight: Spacing.sm,
+    marginRight: Spacing.s,
   },
   priorityBadge: {
-    paddingHorizontal: 10,
+    paddingHorizontal: Spacing.s,
     paddingVertical: 4,
     borderRadius: 12,
   },
@@ -754,87 +757,104 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
   },
-  requestDescription: {
+  pendingLocation: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: Spacing.m,
+    marginBottom: Spacing.s,
+    backgroundColor: Colors.background,
+    padding: Spacing.xs,
+    borderRadius: 8,
+  },
+  pendingLocationIcon: {
+    fontSize: 14,
+    marginRight: 4,
+  },
+  pendingLocationText: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    flex: 1,
+  },
+  pendingDescription: {
     fontSize: 14,
     color: Colors.textSecondary,
     lineHeight: 20,
-    marginBottom: Spacing.sm,
+    paddingHorizontal: Spacing.m,
+    marginBottom: Spacing.s,
   },
-  requestDetails: {
-    gap: 8,
-  },
-  detailRow: {
+  pendingMeta: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 8,
+    paddingHorizontal: Spacing.m,
+    marginBottom: Spacing.xs,
   },
-  detailText: {
-    fontSize: 14,
+  pendingCategory: {
+    fontSize: 13,
+    color: Colors.primary,
+    fontWeight: '500',
+  },
+  pendingStatus: {
+    fontSize: 13,
+    color: Colors.warning,
+    fontWeight: '600',
+  },
+  pendingOwner: {
+    fontSize: 12,
     color: Colors.textSecondary,
+    paddingHorizontal: Spacing.m,
+    marginBottom: Spacing.s,
   },
-  messageBox: {
+  pendingMessage: {
     backgroundColor: Colors.background,
-    padding: Spacing.md,
+    marginHorizontal: Spacing.m,
+    padding: Spacing.s,
     borderRadius: 8,
-    marginBottom: Spacing.md,
     borderLeftWidth: 3,
     borderLeftColor: Colors.primary,
+    marginBottom: Spacing.s,
   },
-  messageLabel: {
-    fontSize: 12,
+  pendingMessageLabel: {
+    fontSize: 11,
     fontWeight: '600',
     color: Colors.textSecondary,
-    marginBottom: 4,
+    marginBottom: 2,
   },
-  messageText: {
-    fontSize: 14,
+  pendingMessageText: {
+    fontSize: 13,
     color: Colors.text,
     fontStyle: 'italic',
   },
-  requestActions: {
+  pendingActions: {
     flexDirection: 'row',
-    gap: Spacing.md,
-    paddingTop: Spacing.md,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
+    marginTop: 'auto',
   },
-  actionButton: {
+  pendingActionBtn: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 12,
-    borderRadius: 8,
-    gap: 8,
+    gap: 6,
   },
-  acceptButton: {
+  pendingRejectBtn: {
+    borderRightWidth: 1,
+    borderRightColor: Colors.border,
+  },
+  pendingAcceptBtn: {
     backgroundColor: Colors.success,
   },
-  rejectButton: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: Colors.error,
-  },
-  actionButtonText: {
-    fontSize: 15,
+  pendingRejectText: {
+    fontSize: 14,
     fontWeight: '600',
+    color: Colors.error,
   },
-  requestClickable: {
-    marginBottom: Spacing.sm,
-  },
-  viewDetailsHint: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginTop: Spacing.sm,
-    paddingTop: Spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
-  },
-  viewDetailsText: {
-    fontSize: 12,
-    color: Colors.primary,
-    fontWeight: '500',
+  pendingAcceptText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#fff',
   },
   fab: {
     position: 'absolute',

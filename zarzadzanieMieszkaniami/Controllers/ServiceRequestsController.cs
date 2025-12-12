@@ -59,6 +59,7 @@ namespace zarzadzanieMieszkaniami.Controllers
                 IssueCategory = sr.Issue.Category,
                 IssuePriority = sr.Issue.Priority,
                 IssueStatus = sr.Issue.Status,
+                IssuePhoto = sr.Issue.Photos?.FirstOrDefault(),
                 PropertyAddress = TextHelper.Capitalize(sr.Issue.Property?.Address),
                 PropertyCity = TextHelper.Capitalize(sr.Issue.Property?.City),
                 LandlordId = sr.LandlordId,
@@ -659,6 +660,7 @@ namespace zarzadzanieMieszkaniami.Controllers
         public string IssueCategory { get; set; }
         public string IssuePriority { get; set; }
         public string IssueStatus { get; set; }
+        public string? IssuePhoto { get; set; }  // Pierwsze zdjęcie usterki
         public string PropertyAddress { get; set; }
         public string PropertyCity { get; set; }
         public Guid LandlordId { get; set; }

@@ -12,7 +12,7 @@ import { Typography } from '../../styles/typography';
 interface CommentsListProps {
   issueId: string;
   issue: IssueResponse;
-  onPhotoAdded: () => void;
+  onPhotoAdded?: () => void;
   uploadingPhoto: boolean;
   onIssueUpdated?: () => void;
   disableComments?: boolean; // Jeśli true, ukrywa input komentarza (np. dla serwisanta który nie zaakceptował jeszcze zaproszenia)
@@ -47,7 +47,7 @@ export default function CommentsList({ issueId, issue, onPhotoAdded, uploadingPh
 
   useEffect(() => {
     buildHistory();
-  }, [comments, issue, serviceRequestHistory]);
+  }, [comments, issue, serviceRequestHistory, onPhotoAdded]);
 
   const loadServiceRequestHistory = async () => {
     try {
@@ -159,13 +159,15 @@ export default function CommentsList({ issueId, issue, onPhotoAdded, uploadingPh
       });
     }
 
-    // Przycisk dodawania zdjęć (zawsze na końcu)
-    items.push({
-      id: 'add-photo',
-      type: 'addPhoto',
-      date: new Date().toISOString(),
-      data: {},
-    });
+    // Przycisk dodawania zdjęć (zawsze na końcu) - tylko jeśli onPhotoAdded jest dostępne
+    if (onPhotoAdded) {
+      items.push({
+        id: 'add-photo',
+        type: 'addPhoto',
+        date: new Date().toISOString(),
+        data: {},
+      });
+    }
 
     // Sortuj chronologicznie (oprócz przycisku dodawania zdjęć)
     const sortedItems = items

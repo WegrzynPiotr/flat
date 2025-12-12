@@ -260,19 +260,21 @@ export default function IssueDetailsScreen({ route, navigation }: any) {
             </TouchableOpacity>
           ))}
           
-          {/* Add Photo Button */}
-          <TouchableOpacity 
-            style={styles.addPhotoCard}
-            onPress={handleAddPhoto}
-            disabled={uploadingPhoto}
-            activeOpacity={0.7}
-          >
-            {uploadingPhoto ? (
-              <ActivityIndicator size="small" color={Colors.primary} />
-            ) : (
-              <Ionicons name="camera" size={32} color={Colors.primary} />
-            )}
-          </TouchableOpacity>
+          {/* Add Photo Button - ukryj dla serwisantów z oczekującymi zaproszeniami */}
+          {!(isUserServiceman && !isAssignedServiceman && hasPendingRequest) && (
+            <TouchableOpacity 
+              style={styles.addPhotoCard}
+              onPress={handleAddPhoto}
+              disabled={uploadingPhoto}
+              activeOpacity={0.7}
+            >
+              {uploadingPhoto ? (
+                <ActivityIndicator size="small" color={Colors.primary} />
+              ) : (
+                <Ionicons name="camera" size={32} color={Colors.primary} />
+              )}
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
@@ -362,7 +364,7 @@ export default function IssueDetailsScreen({ route, navigation }: any) {
         <CommentsList 
           issueId={id} 
           issue={selectedIssue}
-          onPhotoAdded={handleAddPhoto}
+          onPhotoAdded={!(isUserServiceman && !isAssignedServiceman && hasPendingRequest) ? handleAddPhoto : undefined}
           uploadingPhoto={uploadingPhoto}
           onIssueUpdated={handleStatusUpdated}
           disableComments={isUserServiceman && !isAssignedServiceman}

@@ -266,6 +266,7 @@ export interface ServiceRequestResponse {
   issueCategory: string;
   issuePriority: string;
   issueStatus: string;
+  issuePhoto?: string;  // Pierwsze zdjęcie usterki
   propertyAddress: string;
   propertyCity: string;
   landlordId: string;
