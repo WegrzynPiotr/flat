@@ -97,15 +97,22 @@ export default function IssueDetailsScreen({ route, navigation }: any) {
         const match = /\.(\w+)$/.exec(filename);
         const type = match ? `image/${match[1]}` : 'image/jpeg';
 
-        // Fetch the image and convert to blob for web compatibility
-        const response = await fetch(uri);
-        const blob = await response.blob();
-        
-        // Create a File object from Blob with proper type and filename
-        const file = new File([blob], filename, { type });
-        
         const formData = new FormData();
-        formData.append('photo', file);
+        
+        if (Platform.OS === 'web') {
+          // Web - użyj fetch i File
+          const response = await fetch(uri);
+          const blob = await response.blob();
+          const file = new File([blob], filename, { type });
+          formData.append('photo', file);
+        } else {
+          // Native (Android/iOS) - użyj obiektu z uri, type, name
+          formData.append('photo', {
+            uri: uri,
+            type: type,
+            name: filename,
+          } as any);
+        }
 
         await issuesAPI.addPhoto(id, formData);
         await dispatch(fetchIssueById(id));
