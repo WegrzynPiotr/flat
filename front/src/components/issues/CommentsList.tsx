@@ -13,6 +13,7 @@ interface CommentsListProps {
   onPhotoAdded: () => void;
   uploadingPhoto: boolean;
   onIssueUpdated?: () => void;
+  disableComments?: boolean; // Jeśli true, ukrywa input komentarza (np. dla serwisanta który nie zaakceptował jeszcze zaproszenia)
 }
 
 interface HistoryItem {
@@ -22,7 +23,7 @@ interface HistoryItem {
   data: any;
 }
 
-export default function CommentsList({ issueId, issue, onPhotoAdded, uploadingPhoto, onIssueUpdated }: CommentsListProps) {
+export default function CommentsList({ issueId, issue, onPhotoAdded, uploadingPhoto, onIssueUpdated, disableComments }: CommentsListProps) {
   const [comments, setComments] = useState<CommentResponse[]>([]);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
@@ -384,25 +385,34 @@ export default function CommentsList({ issueId, issue, onPhotoAdded, uploadingPh
         }
       />
 
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Dodaj komentarz..."
-          value={newComment}
-          onChangeText={setNewComment}
-          multiline
-          numberOfLines={3}
-        />
-        <TouchableOpacity
-          style={[styles.submitButton, submitting && styles.submitButtonDisabled]}
-          onPress={handleSubmit}
-          disabled={submitting || !newComment.trim()}
-        >
-          <Text style={styles.submitButtonText}>
-            {submitting ? 'Wysyłam...' : 'Dodaj komentarz'}
+      {disableComments ? (
+        <View style={styles.disabledCommentsContainer}>
+          <Ionicons name="lock-closed" size={20} color={Colors.textSecondary} />
+          <Text style={styles.disabledCommentsText}>
+            Musisz zaakceptować zaproszenie, aby móc dodawać komentarze
           </Text>
-        </TouchableOpacity>
-      </View>
+        </View>
+      ) : (
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Dodaj komentarz..."
+            value={newComment}
+            onChangeText={setNewComment}
+            multiline
+            numberOfLines={3}
+          />
+          <TouchableOpacity
+            style={[styles.submitButton, submitting && styles.submitButtonDisabled]}
+            onPress={handleSubmit}
+            disabled={submitting || !newComment.trim()}
+          >
+            <Text style={styles.submitButtonText}>
+              {submitting ? 'Wysyłam...' : 'Dodaj komentarz'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Lightbox Modal */}
       <Modal
@@ -606,5 +616,19 @@ const styles = StyleSheet.create({
   lightboxImage: {
     width: '100%',
     height: '100%',
+  },
+  disabledCommentsContainer: {
+    marginTop: Spacing.m,
+    padding: Spacing.m,
+    backgroundColor: Colors.background,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  disabledCommentsText: {
+    color: Colors.textSecondary,
+    fontSize: 14,
+    flex: 1,
   },
 });

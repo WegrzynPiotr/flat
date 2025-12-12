@@ -29,5 +29,8 @@ namespace Core.Models
         
         // Zdjęcia z metadanymi
         public ICollection<IssuePhoto> PhotosWithMetadata { get; set; }
+        
+        // Zaproszenia serwisantów do tego zgłoszenia
+        public ICollection<ServiceRequest> ServiceRequests { get; set; }
     }
 }

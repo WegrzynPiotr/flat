@@ -262,3 +262,33 @@ export const propertyDocumentsAPI = {
   delete: (propertyId: string, documentId: string) =>
     client.delete(`/properties/${propertyId}/documents-versioned/${documentId}`),
 };
+
+// Service Requests (zaproszenia serwisantów do usterek)
+export const serviceRequestsAPI = {
+  // Dla serwisantów
+  getPending: () =>
+    client.get<ServiceRequestResponse[]>('/servicerequests/pending'),
+  getHistory: () =>
+    client.get<ServiceRequestResponse[]>('/servicerequests/history'),
+  accept: (id: string) =>
+    client.post(`/servicerequests/${id}/accept`),
+  reject: (id: string, reason?: string) =>
+    client.post(`/servicerequests/${id}/reject`, reason ? { reason } : {}),
+  resignFromIssue: (issueId: string, reason?: string) =>
+    client.post(`/servicerequests/resign/${issueId}`, reason ? { reason } : {}),
+  getPendingCount: () =>
+    client.get<{ count: number }>('/servicerequests/pending-count'),
+  // Sprawdza czy użytkownik jest serwisantem u kogoś
+  isServiceman: () =>
+    client.get<{ isServiceman: boolean }>('/servicerequests/is-serviceman'),
+  
+  // Dla właścicieli
+  send: (issueId: string, servicemanId: string, message?: string) =>
+    client.post('/servicerequests/send', { issueId, servicemanId, message }),
+  sendMultiple: (issueId: string, servicemanIds: string[], message?: string) =>
+    client.post('/servicerequests/send-multiple', { issueId, servicemanIds, message }),
+  getForIssue: (issueId: string) =>
+    client.get<any[]>(`/servicerequests/for-issue/${issueId}`),
+  cancel: (id: string) =>
+    client.post(`/servicerequests/${id}/cancel`),
+};

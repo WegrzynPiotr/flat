@@ -38,5 +38,9 @@ namespace Core.Models
         // Relacje - Zaproszenia
         public ICollection<UserInvitation> SentInvitations { get; set; }
         public ICollection<UserInvitation> ReceivedInvitations { get; set; }
+        
+        // Relacje - Zapytania o naprawę (ServiceRequest)
+        public ICollection<ServiceRequest> ServiceRequestsReceived { get; set; } // Jako serwisant
+        public ICollection<ServiceRequest> ServiceRequestsSent { get; set; } // Jako właściciel
     }
 }

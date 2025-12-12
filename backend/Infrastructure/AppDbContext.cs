@@ -23,6 +23,7 @@ namespace Infrastructure
         public DbSet<PropertyDocument> PropertyDocuments { get; set; }
         public DbSet<UserInvitation> UserInvitations { get; set; }
         public DbSet<UserNote> UserNotes { get; set; }
+        public DbSet<ServiceRequest> ServiceRequests { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -114,7 +115,7 @@ namespace Infrastructure
 
                 entity.Property(e => e.Photos)
                     .HasConversion(
-                        v => v != null && v.Count > 0 ? string.Join(',', v) : null,
+                        v => v != null && v.Count > 0 ? string.Join(',', v) : string.Empty,
                         v => string.IsNullOrEmpty(v) ? new List<string>() : v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()
                     );
 
@@ -298,6 +299,36 @@ namespace Infrastructure
                 // Indeks - jeden użytkownik może mieć jedną notatkę dla danego użytkownika
                 entity.HasIndex(e => new { e.OwnerId, e.TargetUserId })
                     .IsUnique();
+            });
+
+            // Konfiguracja ServiceRequest (zaproszenia serwisantów do usterek)
+            modelBuilder.Entity<ServiceRequest>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Status).IsRequired().HasMaxLength(30);
+                entity.Property(e => e.Message).HasMaxLength(1000);
+                entity.Property(e => e.ResponseMessage).HasMaxLength(1000);
+                entity.Property(e => e.CreatedAt).IsRequired();
+
+                entity.HasOne(e => e.Issue)
+                    .WithMany(i => i.ServiceRequests)
+                    .HasForeignKey(e => e.IssueId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Serviceman)
+                    .WithMany(u => u.ServiceRequestsReceived)
+                    .HasForeignKey(e => e.ServicemanId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Landlord)
+                    .WithMany(u => u.ServiceRequestsSent)
+                    .HasForeignKey(e => e.LandlordId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Indeks - jeden serwisant może mieć jedno aktywne zaproszenie do danej usterki
+                entity.HasIndex(e => new { e.IssueId, e.ServicemanId })
+                    .IsUnique()
+                    .HasFilter("status = 'Oczekujące'");
             });
         }
     }

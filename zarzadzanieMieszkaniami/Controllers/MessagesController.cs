@@ -242,6 +242,14 @@ namespace zarzadzanieMieszkaniami.Controllers
             contactIds.AddRange(assignedIssues.Select(i => i.Property.OwnerId));
             contactIds.AddRange(assignedIssues.Select(i => i.ReportedById));
 
+            // 4b. Właściciele z oczekujących lub zaakceptowanych zaproszeń do naprawy (ServiceRequest)
+            var serviceRequestLandlords = await _context.ServiceRequests
+                .Where(sr => sr.ServicemanId == userId && 
+                            (sr.Status == "Oczekujące" || sr.Status == "Zaakceptowane"))
+                .Select(sr => new { sr.LandlordId, sr.Issue.Property.Address, sr.Status })
+                .ToListAsync();
+            contactIds.AddRange(serviceRequestLandlords.Select(sr => sr.LandlordId));
+
             // Moi właściciele (jeśli jestem serwisantem) - tylko ci z aktywnymi usterkami
             var myLandlords = await _context.LandlordServicemen
                 .Where(ls => ls.ServicemanId == userId)
@@ -362,6 +370,17 @@ namespace zarzadzanieMieszkaniami.Controllers
                         }
                     }
                 }
+
+                // Relacja 7: Kontakt jest właścicielem który wysłał zaproszenie do naprawy (ServiceRequest)
+                var serviceRequestRelationsForContact = serviceRequestLandlords
+                    .Where(sr => sr.LandlordId == contactId)
+                    .Select(sr => new UserRelation 
+                    { 
+                        Role = sr.Status == "Oczekujące" ? "Zaproszenie do naprawy" : "Wynajmujący", 
+                        Details = TextHelper.Capitalize(sr.Address) 
+                    })
+                    .ToList();
+                relations.AddRange(serviceRequestRelationsForContact);
 
                 // Usuń duplikaty (ta sama rola + details)
                 relations = relations

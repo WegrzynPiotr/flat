@@ -4,6 +4,7 @@ export interface User {
   firstName: string;
   lastName: string;
   role: string;
+  roles?: string[]; // Lista wszystkich ról użytkownika
   phoneNumber?: string;
   createdAt?: string;
 }
@@ -254,4 +255,24 @@ export interface UserNoteResponse {
   content?: string;
   createdAt?: string;
   updatedAt?: string;
+}
+
+// Service Requests (zaproszenia serwisantów do usterek)
+export interface ServiceRequestResponse {
+  id: string;
+  issueId: string;
+  issueTitle: string;
+  issueDescription: string;
+  issueCategory: string;
+  issuePriority: string;
+  issueStatus: string;
+  propertyAddress: string;
+  propertyCity: string;
+  landlordId: string;
+  landlordName: string;
+  message?: string;
+  responseMessage?: string;
+  createdAt: string;
+  respondedAt?: string;
+  status: 'Oczekujące' | 'Zaakceptowane' | 'Odrzucone' | 'Anulowane' | 'Wygasłe' | 'Zrezygnowano';
 }

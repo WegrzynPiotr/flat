@@ -9,7 +9,7 @@ import Loading from '../../components/common/Loading';
 import CommentsList from '../../components/issues/CommentsList';
 import AssignServicemanForm from '../../components/userManagement/AssignServicemanForm';
 import UpdateStatusForm from '../../components/issues/UpdateStatusForm';
-import { issuesAPI } from '../../api/endpoints';
+import { issuesAPI, serviceRequestsAPI } from '../../api/endpoints';
 import { Colors } from '../../styles/colors';
 import { Typography } from '../../styles/typography';
 import { Spacing } from '../../styles/spacing';
@@ -23,16 +23,43 @@ export default function IssueDetailsScreen({ route, navigation }: any) {
   const userId = useSelector((state: RootState) => state.auth.user?.id);
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [hasPendingRequest, setHasPendingRequest] = useState(false);
 
   const isOwner = userRole === 'Wlasciciel' && selectedIssue?.property?.ownerId === userId;
   // Sprawdź czy użytkownik jest przypisanym serwisantem do tego zgłoszenia
   const isAssignedServiceman = selectedIssue?.assignedServicemen?.some(
     (s) => s.servicemanId === userId
   ) ?? false;
+  
+  // Sprawdź czy użytkownik jest serwisantem u kogoś (może mieć oczekujące/odrzucone zaproszenie)
+  const [isUserServiceman, setIsUserServiceman] = useState(false);
 
   useEffect(() => {
     dispatch(fetchIssueById(id));
+    checkPendingRequest();
+    checkIfUserIsServiceman();
   }, [id, dispatch]);
+
+  // Sprawdź czy użytkownik jest serwisantem u kogoś
+  const checkIfUserIsServiceman = async () => {
+    try {
+      const response = await serviceRequestsAPI.isServiceman();
+      setIsUserServiceman(response.data.isServiceman);
+    } catch (error) {
+      console.log('Error checking serviceman status:', error);
+    }
+  };
+
+  // Sprawdź czy użytkownik ma oczekujące zaproszenie do tej usterki (jest serwisantem, ale jeszcze nie zaakceptował)
+  const checkPendingRequest = async () => {
+    try {
+      const response = await serviceRequestsAPI.getPending();
+      const hasPending = response.data.some((r: any) => r.issueId === id);
+      setHasPendingRequest(hasPending);
+    } catch (error) {
+      console.log('Error checking pending requests:', error);
+    }
+  };
 
   const handleServicemanAssigned = () => {
     dispatch(fetchIssueById(id));
@@ -123,6 +150,46 @@ export default function IssueDetailsScreen({ route, navigation }: any) {
       Alert.alert('Błąd', 'Nie udało się dodać zdjęcia');
     } finally {
       setUploadingPhoto(false);
+    }
+  };
+
+  const handleResignFromIssue = async () => {
+    const doResign = async () => {
+      try {
+        console.log('🔵 Resigning from issue:', id);
+        await serviceRequestsAPI.resignFromIssue(id);
+        console.log('🟢 Resigned successfully');
+        if (Platform.OS === 'web') {
+          alert('Zrezygnowano ze zgłoszenia');
+        } else {
+          Alert.alert('Sukces', 'Zrezygnowano ze zgłoszenia');
+        }
+        dispatch(fetchIssues({}));
+        navigation.goBack();
+      } catch (error: any) {
+        console.error('🔴 Error resigning from issue:', error?.response?.data || error);
+        const message = error?.response?.data?.message || error?.response?.data || 'Nie udało się zrezygnować ze zgłoszenia';
+        if (Platform.OS === 'web') {
+          alert(message);
+        } else {
+          Alert.alert('Błąd', message);
+        }
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      if (window.confirm('Czy na pewno chcesz zrezygnować z tego zgłoszenia? Właściciel zostanie o tym poinformowany.')) {
+        await doResign();
+      }
+    } else {
+      Alert.alert(
+        'Rezygnacja ze zgłoszenia',
+        'Czy na pewno chcesz zrezygnować z tego zgłoszenia? Właściciel zostanie o tym poinformowany.',
+        [
+          { text: 'Anuluj', style: 'cancel' },
+          { text: 'Zrezygnuj', style: 'destructive', onPress: doResign }
+        ]
+      );
     }
   };
 
@@ -276,6 +343,18 @@ export default function IssueDetailsScreen({ route, navigation }: any) {
             currentStatus={selectedIssue.status} 
             onStatusUpdated={handleStatusUpdated} 
           />
+          
+          {/* Przycisk rezygnacji dla serwisanta */}
+          {isAssignedServiceman && selectedIssue.status !== 'Rozwiązane' && (
+            <TouchableOpacity 
+              style={styles.resignButton}
+              onPress={handleResignFromIssue}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="exit-outline" size={20} color={Colors.error} />
+              <Text style={styles.resignButtonText}>Zrezygnuj ze zgłoszenia</Text>
+            </TouchableOpacity>
+          )}
         </View>
       ) : null}
 
@@ -286,6 +365,7 @@ export default function IssueDetailsScreen({ route, navigation }: any) {
           onPhotoAdded={handleAddPhoto}
           uploadingPhoto={uploadingPhoto}
           onIssueUpdated={handleStatusUpdated}
+          disableComments={isUserServiceman && !isAssignedServiceman}
         />
       </View>
     </ScrollView>
@@ -398,6 +478,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: Spacing.m,
+  },
+  resignButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: Colors.error,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    marginTop: Spacing.m,
+    gap: 8,
+  },
+  resignButtonText: {
+    color: Colors.error,
+    fontSize: 15,
+    fontWeight: '600',
   },
 });
 

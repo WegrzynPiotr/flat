@@ -52,7 +52,8 @@ namespace zarzadzanieMieszkaniami.Controllers
                         user.Email,
                         firstName = TextHelper.Capitalize(user.FirstName),
                         lastName = TextHelper.Capitalize(user.LastName),
-                        role = roles.FirstOrDefault()
+                        role = roles.FirstOrDefault(),
+                        roles = roles.ToList()
                     }
                 });
             }
@@ -84,7 +85,8 @@ namespace zarzadzanieMieszkaniami.Controllers
                         user.Email,
                         firstName = TextHelper.Capitalize(user.FirstName),
                         lastName = TextHelper.Capitalize(user.LastName),
-                        role = roles.FirstOrDefault()
+                        role = roles.FirstOrDefault(),
+                        roles = roles.ToList()
                     }
                 });
             }
