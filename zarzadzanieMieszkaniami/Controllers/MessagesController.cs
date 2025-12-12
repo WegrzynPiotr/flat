@@ -242,6 +242,16 @@ namespace zarzadzanieMieszkaniami.Controllers
             contactIds.AddRange(assignedIssues.Select(i => i.Property.OwnerId));
             contactIds.AddRange(assignedIssues.Select(i => i.ReportedById));
 
+            // 4a2. Najemcy mieszkań z aktywnych usterek (dla serwisanta)
+            var assignedIssuePropertyIds = assignedIssues.Select(i => i.PropertyId).Distinct().ToList();
+            var tenantsFromAssignedIssues = await _context.PropertyTenants
+                .Where(pt => assignedIssuePropertyIds.Contains(pt.PropertyId) &&
+                            pt.StartDate <= now &&
+                            (pt.EndDate == null || pt.EndDate >= now))
+                .Select(pt => new { pt.TenantId, pt.PropertyId })
+                .ToListAsync();
+            contactIds.AddRange(tenantsFromAssignedIssues.Select(t => t.TenantId));
+
             // 4b. Właściciele z oczekujących lub zaakceptowanych zaproszeń do naprawy (ServiceRequest)
             var serviceRequestLandlords = await _context.ServiceRequests
                 .Where(sr => sr.ServicemanId == userId && 
@@ -345,6 +355,29 @@ namespace zarzadzanieMieszkaniami.Controllers
                     .Select(g => g.First())
                     .ToList();
                 relations.AddRange(reporterFromIssueRelations);
+
+                // Relacja 5b: Jestem serwisantem, kontakt jest najemcą mieszkania z usterką (nie musi być zgłaszającym)
+                var tenantFromIssueRelations = tenantsFromAssignedIssues
+                    .Where(t => t.TenantId == contactId)
+                    .Select(t => {
+                        var issue = assignedIssues.FirstOrDefault(i => i.PropertyId == t.PropertyId);
+                        return new UserRelation { 
+                            Role = "Najemca", 
+                            Details = issue != null ? TextHelper.Capitalize(issue.Property.Address) : null 
+                        };
+                    })
+                    .Where(r => r.Details != null)
+                    .GroupBy(r => r.Details)
+                    .Select(g => g.First())
+                    .ToList();
+                // Dodaj tylko te, które jeszcze nie istnieją
+                foreach (var rel in tenantFromIssueRelations)
+                {
+                    if (!relations.Any(r => r.Role == rel.Role && r.Details == rel.Details))
+                    {
+                        relations.Add(rel);
+                    }
+                }
 
                 // Relacja 6: Kontakt jest moim właścicielem (jestem jego serwisantem)
                 // Pokazuj tylko jeśli mam aktywne usterki przypisane w jego nieruchomościach
